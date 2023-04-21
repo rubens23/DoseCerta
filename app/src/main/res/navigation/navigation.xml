@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/medicamentosFragment">
+
+    <fragment
+        android:id="@+id/medicamentosFragment"
+        android:name="com.rubens.applembretemedicamento.presentation.FragmentListaMedicamentos"
+        android:label="fragment_lista_medicamentos"
+        tools:layout="@layout/fragment_lista_medicamentos">
+
+        <action
+            android:id="@+id/action_medicamentosFragment_to_fragmentCadastrarNovoMedicamento"
+            app:destination="@id/fragmentCadastrarNovoMedicamento" />
+        <action
+            android:id="@+id/action_medicamentosFragment_to_fragmentDetalhesMedicamentos"
+            app:destination="@id/fragmentDetalhesMedicamentos" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentCadastrarNovoMedicamento"
+        android:name="com.rubens.applembretemedicamento.presentation.FragmentCadastrarNovoMedicamento"
+        android:label="fragment_cadastrar_novo_medicamento"
+        tools:layout="@layout/fragment_cadastrar_novo_medicamento" />
+    <fragment
+        android:id="@+id/fragmentDetalhesMedicamentos"
+        android:name="com.rubens.applembretemedicamento.presentation.FragmentDetalhesMedicamentos"
+        android:label="fragment_detalhes_medicamentos"
+        tools:layout="@layout/fragment_detalhes_medicamentos" >
+        <argument
+            android:name="medicamento"
+            app:argType="com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses" />
+        <argument
+            android:name="horaproximadose"
+            app:argType="string" />
+        <argument
+            android:name="intervaloentredoses"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_fragmentDetalhesMedicamentos_to_medicamentosFragment"
+            app:destination="@id/medicamentosFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/historicoFragment"
+        android:name="com.rubens.applembretemedicamento.presentation.FragmentHistoricoMedicamentos"
+        android:label="fragment_historico_medicamentos"
+        tools:layout="@layout/fragment_historico_medicamentos" />
+
+</navigation>

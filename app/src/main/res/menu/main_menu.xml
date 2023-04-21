@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+
+    <item
+        android:id="@+id/medicamentosFragment"
+        android:icon="@drawable/ic_launcher_foreground"
+        android:title="Medicamentos"/>
+
+    <item
+        android:id="@+id/historicoFragment"
+        android:icon="@drawable/ic_launcher_foreground"
+        android:title="Histórico"/>
+
+</menu>

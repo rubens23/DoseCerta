@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "855617661933",
+    "project_id": "lembrete-remedio",
+    "storage_bucket": "lembrete-remedio.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:855617661933:android:def3e816a7270835f555e4",
+        "android_client_info": {
+          "package_name": "com.rubens.applembretemedicamento"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "855617661933-4o7k9jko7dhq0vv2h1vb4rsspg5ga4r7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAsBlUPIsKWal3vo26mfzNCZUBZ_3AFrfQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "855617661933-4o7k9jko7dhq0vv2h1vb4rsspg5ga4r7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
