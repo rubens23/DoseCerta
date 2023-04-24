@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.rubens.applembretemedicamento.R
@@ -12,18 +13,35 @@ import com.rubens.applembretemedicamento.framework.data.AppDatabase
 import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
+import com.rubens.applembretemedicamento.presentation.FragmentDetalhesMedicamentos
 import com.rubens.applembretemedicamento.presentation.MainActivity
+import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.comunicacaoFragmentAdapter
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 
-class DetalhesMedicamentoAdapter(private val listaDosagemMedicamento: MedicamentoComDoses, val fecharFragment: comunicacaoFragmentAdapter): RecyclerView.Adapter<DetalhesMedicamentoAdapter.ViewHolder>() {
+class DetalhesMedicamentoAdapter(private val listaDosagemMedicamento: MedicamentoComDoses, val fecharFragment: comunicacaoFragmentAdapter): RecyclerView.Adapter<DetalhesMedicamentoAdapter.ViewHolder>(), CalendarHelper {
     private var db: AppDatabase? = null
     private lateinit var medicamentoDoseDao: MedicamentoDao
+    private var listaDoses: ArrayList<Doses> = ArrayList()
 
+    init {
+        listaDoses.addAll(listaDosagemMedicamento.listaDoses)
+        configureList()
+    }
 
+    private fun configureList() {
+        var listaAuxiliar = ArrayList<Doses>()
+        listaAuxiliar.addAll(listaDoses)
+        listaDoses.clear()
+        for (i in 0..listaAuxiliar.size - 1){
+            if(pegarDataAtual() == listaAuxiliar[i].horarioDose.subSequence(0,10)){
+                listaDoses.add(listaAuxiliar[i])
+            }
+        }
 
+    }
 
 
     inner class ViewHolder(val binding: ItemDetalhesMedicamentosBinding): RecyclerView.ViewHolder(binding.root) {
@@ -32,10 +50,10 @@ class DetalhesMedicamentoAdapter(private val listaDosagemMedicamento: Medicament
             db = AppDatabase.getAppDatabase(binding.root.context)
             medicamentoDoseDao = db!!.medicamentoDao
 
-            Log.d("tentandoachardoses","tomou a dose das ${doses.horarioDose}")
 
-            //como eu vou manter a bolinha verde se la no banco de dados consta como false?
-            //vou ter que fazer outro metodo para deixar a bolinha verde só nessas "ocasioes especiais"
+
+
+
             if(doses.jaTomouDose){
                 Log.d("controlebolinhas","tomou a dose das ${doses.horarioDose}")
                 binding.ivStatusDosage.setImageResource(R.drawable.med_taken)
@@ -161,12 +179,30 @@ class DetalhesMedicamentoAdapter(private val listaDosagemMedicamento: Medicament
 
 
             binding.tvDetailMedicineName.text = doses.nomeMedicamento
-            doses.horarioDose[0]
+            /*
             if(doses.horarioDose[0].toString() == "2" && doses.horarioDose[1].toString() == "4"){
                 binding.timeDosage.text = "00:"+doses.horarioDose[3]+doses.horarioDose[4]
+
             }else{
                 binding.timeDosage.text = doses.horarioDose
             }
+
+             */
+            if(doses.horarioDose.length == 15){
+                Log.d("testeformatadapter", "to no if length é 17")
+
+
+                //binding.timeDosage.text = doses.horarioDose.subSequence(11,15)
+                binding.timeDosage.text = doses.horarioDose
+            }
+
+            if(doses.horarioDose.length == 16){
+                Log.d("testeformatadapter", "to no if length é 17")
+
+                //binding.timeDosage.text = doses.horarioDose.subSequence(11,16)
+                binding.timeDosage.text = doses.horarioDose
+            }
+
 
 
 
@@ -182,8 +218,7 @@ class DetalhesMedicamentoAdapter(private val listaDosagemMedicamento: Medicament
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val medicamento = listaDosagemMedicamento.listaDoses[position]
-        holder.bind(medicamento)
+        holder.bind(listaDoses[position])
 
     }
 
@@ -196,6 +231,6 @@ class DetalhesMedicamentoAdapter(private val listaDosagemMedicamento: Medicament
     }
 
 
-    override fun getItemCount(): Int = listaDosagemMedicamento.listaDoses.size
+    override fun getItemCount(): Int = listaDoses.size
 
 }

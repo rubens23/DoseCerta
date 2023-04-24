@@ -5,4 +5,6 @@ interface comunicacaoFragmentAdapter {
     fun fecharFragment()
 
     fun mostrarToastExcluido(nome: String)
+
+    fun verificarSeDataJaPassou(dataFinalizacao: String): Boolean
 }

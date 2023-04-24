@@ -22,10 +22,11 @@ import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmRecei
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentLista
 import com.rubens.applembretemedicamento.presentation.recyclerviewadapters.AdapterListaMedicamentos
+import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
 
 
-class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo {
+class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper {
 
     private lateinit var binding: FragmentListaMedicamentosBinding
     private var listaMedicamentos: ArrayList<MedicamentoComDoses> = ArrayList()

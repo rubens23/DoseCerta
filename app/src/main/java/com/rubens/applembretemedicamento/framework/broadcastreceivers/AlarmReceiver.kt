@@ -33,12 +33,10 @@ import java.time.format.DateTimeFormatter
 
 class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
 
-    private lateinit var audioFocusChangeListener: AudioManager.OnAudioFocusChangeListener
     private lateinit var alarmManager: AlarmManager
     private lateinit var pendingIntent: PendingIntent
     val horaProximaDoseObserver: MutableLiveData<String> = MutableLiveData()
     private var listaDoses: ArrayList<Doses> = ArrayList()
-    private var horaDoseAtual = ""
 
 
     companion object{
@@ -51,40 +49,17 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
 
 
 
-
-
-
     override fun onReceive(p0: Context?, p1: Intent?) {
-        Log.d("testeaudiofocus", "onReceive")
 
         val idMedicamento = p1?.getIntExtra("medicamentoid", -1)
         val horaDose = p1?.data
         val nomeMedicamento = p1?.getStringExtra("nomemedicamento")
-
-        Log.d("testereceiveextra", "id do medicamento: $idMedicamento hora da dose: $horaDose nome medicamento $nomeMedicamento")
-
-        //todo eu preciso do nome correto do medicamento de acordo com o id que foi passado no alarme
-        //todo eu preciso da hora correta da dose
-        //todo quando eu tiver essas duas coisas eu vou conseguir passar certinho para a notification
-
-        /*
-        pega a lista de medicamentos, ve qual é o proximo que vai tocar, pega o nome e o horario
-        da proxima dose que vai tocar
-         */
-
-
-
-
 
 
 
         p0?.let {
            WakeLocker.acquire(it)
         }
-
-        //val result: Int = audioManger.requestAudioFocus(focusRequest)
-
-
 
 
 
@@ -105,10 +80,8 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
 
         FragmentDetalhesMedicamentos.binding.btnPararSom.visibility = View.VISIBLE
 
-        pegarProximaHorarioProximaDose()
-        showNotification(p0, p1)
 
-        val mainActivityIntent = Intent(p0, MainActivity::class.java)
+
         val tapResultIntent = Intent(p0, MainActivity::class.java)
         tapResultIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
         val pendingIntent = idMedicamento?.let {
@@ -139,7 +112,6 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
             }
 
 
-            //22:46
         }
 
 
@@ -177,24 +149,6 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
         }
     }
 
-    private fun showNotification(context: Context?, intent: Intent?) {
-
-        if (context != null && intent != null){
-            Log.d("testecontext", "o context não é nulo")
-
-
-
-
-        }else{
-            Log.d("testecontext", "o context é nulo")
-        }
-
-    }
-
-    private fun pegarProximaHorarioProximaDose() {
-
-
-    }
 
     fun cancelAlarm() {
         if(alarmManager != null){
@@ -210,8 +164,6 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
 
 
 
-            //esse if só vai ser disparado quando o alarme ja tiver tocado e o usuario tiver parado o alarme
-            //
         }
     }
 
@@ -224,13 +176,8 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
         context: Context,
         horaProxDose: String
     ){
-        /*
-        dataclass(nomeMedicamento, idMedicamento, horaProxDose) aí adiciona esse objeto para uma lista desses objetos
-                no onreceive eu acesso essa lista de objetos e como eu vou saber qual medicamento eu tenho que usar?
-        eu preciso de uma marca do da pendingIntent, de acordo com qual pendingIntent que esta tocando o alarme
-        eu pego o objeto e seto a notification, e depois eu apago o objeto da lista.
 
-         */
+        Log.d("smartalarm2", "eu to aqui no metodo que vai setar o alarme para a hora: $horaProxDose")
 
 
 
@@ -242,75 +189,117 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
 
 
 
-        //21:45 teste 26
         var intervaloEntreDoses = interEntreDoses
-        var intervaloEmMillisegundos = 0.0
         if(intervaloEntreDoses < 1){
             intervaloEntreDoses *= 60
-            Log.d("testeinter", "$intervaloEntreDoses")
-            //vai calcular o intervalo de uma forma, considerando minutos
-            intervaloEmMillisegundos = minutosParaMillisegundos(intervaloEntreDoses.toLong().toString()).toDouble()
-
-        }else{
-            Log.d("testeinter", "intervalo não é menor ou igual a 0.. $intervaloEntreDoses")
-            //vai calcular o intervalo de outra forma, considerando horas
-            intervaloEmMillisegundos = horasParaMillisegundos(intervaloEntreDoses.toLong().toString()).toDouble()
 
         }
+
 
         alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val alarmIntent = Intent(context, AlarmReceiver::class.java)
         var horaProximaDose = ""
+
         var mudarFormatador = false
         if(horaProxDose.get(2).toString() == "/"){
-            horaProximaDose = horaProxDose
+            if(horaProxDose.length < 17){
+                Log.d("testeformat2", "antes $horaProxDose horaProximaDose length ${horaProximaDose.length}")
+                horaProximaDose = horaProxDose+":00"
+                Log.d("testeformat2", "depois $horaProximaDose")
+
+                if (horaProximaDose.length == 18){
+
+                    mudarFormatador = true
+                }
+            }else{
+                Log.d("testeformat5", horaProxDose)
+                if(horaProxDose.length == 18){
+                    horaProximaDose = horaProxDose
+                    mudarFormatador = true
+
+                }else{
+
+                    if(horaProxDose.length == 19){
+                        horaProximaDose = horaProxDose
+                        mudarFormatador = true
+
+                    }
+
+                    Log.d("testeformat5", "vc pegou a length errada...${horaProxDose.length}")
+
+                }
+
+            }
+
         }else{
 
             if (horaProxDose.get(1).toString() == ":"){
-                //horaProximaDose = pegarDataAtual()+" 0"+horaProxDose+":00"
-                horaProximaDose = pegarDataAtual()+" "+horaProxDose+":00"
-                mudarFormatador = true
+                if(horaProximaDose.length < 16){
+                    Log.d("testeformat2", "antes 2 $horaProximaDose")
+
+                    horaProximaDose = horaProxDose.subSequence(0, 11).toString() +"0"+horaProxDose.subSequence(11,16).toString()+":00"
+
+                    Log.d("testeformat2", "antes 2 $horaProximaDose")
+
+
+
+                    mudarFormatador = true
+
+
+                }else{
+                    horaProximaDose = horaProxDose.subSequence(0, 11).toString() +"0"+horaProxDose.subSequence(11,16).toString()
+                    mudarFormatador = true
+
+                }
 
 
             }else{
+                if(horaProximaDose.length < 16){
+                    Log.d("testeformat2", "antes 3 $horaProximaDose")
+
+                    horaProximaDose = horaProxDose+":00"
+
+                    Log.d("testeformat2", "antes 3 $horaProximaDose")
+
+                    mudarFormatador = true
+                    Log.d("testeformatador", "mudar formatador é tru ${horaProximaDose}")
 
 
-                horaProximaDose = pegarDataAtual()+" "+horaProxDose+":00"
+                }else{
+                    horaProximaDose = horaProxDose
+                    Log.d("testedte", "eu to aqui e devo colocar true na variavel formatadora $horaProximaDose")
+
+                }
+
+
             }
 
         }
-        /*
-        a hora pode estar desse jeito
-         */
-        horaProximaDoseObserver.postValue(horaProximaDose)
-        Log.d("testeparse", "hora proxima dose que vai ser usada no parse: ${horaProximaDose}")
+        //horaProximaDoseObserver.postValue(horaProximaDose)
 
-        val dateTimeFormatter: DateTimeFormatter
+        var dateTimeFormatter: DateTimeFormatter
         if(mudarFormatador){
+            if(horaProximaDose.length > 19){
+                horaProximaDose = horaProximaDose.subSequence(0, 19).toString()
+            }
             dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy H:mm:ss")
 
         }else{
+            if(horaProximaDose.length > 19){
+                horaProximaDose = horaProximaDose.subSequence(0, 19).toString()
+            }
             dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
         }
         var localDateHoraProximaDose = LocalDateTime.parse(horaProximaDose, dateTimeFormatter)
+
         var horaProximaDoseInMilliseconds = localDateHoraProximaDose.atOffset(ZoneOffset.UTC).toInstant().toEpochMilli()
         val horaAtual = pegarDataAtual() + " " + pegarHoraAtual()
         val localDateHoraAtual = LocalDateTime.parse(horaAtual, dateTimeFormatter)
         val horaAtualEmMillisegundos = localDateHoraAtual.atOffset(ZoneOffset.UTC).toInstant().toEpochMilli()
-        Log.d("testetimeinmilli", "hora atual em millisegundos $horaAtualEmMillisegundos hora proxima dose em millisegundos $horaProximaDoseInMilliseconds")
         alarmIntent.putExtra("medicamentoid", medicamentoId)
 
         if(horaProximaDoseInMilliseconds > horaAtualEmMillisegundos){
             var millisegundosAteProximaDose = horaProximaDoseInMilliseconds - horaAtualEmMillisegundos
-            Log.d("testetimeinmilli", "millisegundos ate proxima dose: $millisegundosAteProximaDose")
-            Log.d("testeifelse", "to no if")
-
-            /*
-            teste 3
-
-            hora proxima dose que vai ser usada no parse: 18/04/2023 23:06:00
-             */
-            //Log.d("testereceiveextra", "id do medicamento: $idMedicamento hora da dose: $horaDose")
 
             alarmIntent.data = Uri.parse(horaProximaDose)
             alarmIntent.putExtra("nomemedicamento", medicamento.get(0).nomeMedicamento)
@@ -318,7 +307,6 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
             pendingIntent = PendingIntent.getBroadcast(context, medicamentoId, alarmIntent, 0)
 
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + millisegundosAteProximaDose, pendingIntent)
-            Log.d("testetimeinmilli", "intervalo em millisegundos: ${intervaloEmMillisegundos.toLong()}")
 
 
 
@@ -329,7 +317,30 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
                 medicamento.forEach {
                         doses ->
 
-                    horaProximaDose = pegarDataAtual()+" "+doses.horarioDose+":00"
+                    if (doses.horarioDose.get(12).toString() == ":"){
+                        horaProximaDose = horaProxDose.subSequence(0, 11).toString() +"0"+horaProxDose.subSequence(11,16).toString()+":00"
+                        mudarFormatador = true
+
+
+
+                    }else{
+                        if(horaProximaDose.length < 17){
+                            Log.d("naopode", "eu entrei aqui e coloquei mais 2 zeros ${horaProximaDose.length}")
+                            horaProximaDose =  doses.horarioDose+":00"
+                        }
+                        //horaProximaDose = doses.horarioDose
+                    }
+
+                    if(mudarFormatador){
+                        dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy H:mm:ss")
+                        Log.d("changeformatter", "eu mudei o formatador aqui no if")
+
+                    }else{
+                        Log.d("changeformatter", "eu mudei o formatador aqui no else")
+
+                        dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
+                    }
+
 
                     localDateHoraProximaDose = LocalDateTime.parse(horaProximaDose, dateTimeFormatter)
                     horaProximaDoseInMilliseconds = localDateHoraProximaDose.atOffset(ZoneOffset.UTC).toInstant().toEpochMilli()
@@ -338,7 +349,7 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
 
                     if(horaProximaDoseInMilliseconds > horaAtualEmMillisegundos){
                         Log.d("ifdentrodoforeach", "proxima dose esta no futuro $horaProximaDose")
-                        horaProximaDoseObserver.postValue(horaProximaDose)
+                        //horaProximaDoseObserver.postValue(horaProximaDose)
                         return@lit
 
                     }else{
@@ -357,32 +368,14 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
 
             pendingIntent = PendingIntent.getBroadcast(context, medicamentoId, alarmIntent, 0)
 
-            var millisegundosAteProximaDose = horaProximaDoseInMilliseconds - horaAtualEmMillisegundos
+            val millisegundosAteProximaDose = horaProximaDoseInMilliseconds - horaAtualEmMillisegundos
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + millisegundosAteProximaDose, pendingIntent)
 
-            /*
-            quando o alarme toca ele tem que ir para o onReceive
-             */
-
-
-
-
         }
 
 
     }
 
-    private fun getSegundosAteProximaDose(hr: String): Long? {
-        Log.d("testeonreceive", "${hr}")
-
-        val stringConvertidaParaData = convertStringToDate(hr)
-        if(stringConvertidaParaData != null){
-            val segundosAteProximaDose = calculateHoursDifference(stringConvertidaParaData)
-            return segundosAteProximaDose
-        }
-        return null
-
-    }
 
 
 }

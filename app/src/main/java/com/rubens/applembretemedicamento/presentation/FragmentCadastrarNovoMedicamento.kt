@@ -73,15 +73,19 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
         viewModel.insertResponse.observe(viewLifecycleOwner) {
             Log.d("observerinsertnovo", "eu adicionei um medicamento novo")
             if (it > -1) {
-                medicamentoAdicionadoObserver.postValue(medicamento)
-                //pode colocar as doses na tabela de doses
-                viewModel.dealWithDosageTime(medicamento, nomeRemedio, qntDoses, horarioPrimeiraDose)
-                Toast.makeText(requireContext(), "${nomeRemedio} cadastrado com sucesso!", Toast.LENGTH_LONG)
-                    .show()
+                if(this::medicamento.isInitialized){
+                    medicamentoAdicionadoObserver.postValue(medicamento)
 
-                findNavController().popBackStack()
+                    viewModel.dealWithDosageTime(medicamento, nomeRemedio, qntDoses, horarioPrimeiraDose)
+                    Toast.makeText(requireContext(), "${nomeRemedio} cadastrado com sucesso!", Toast.LENGTH_LONG)
+                        .show()
+
+                    findNavController().popBackStack()
+                }
+                //pode colocar as doses na tabela de doses
+
             } else {
-                Toast.makeText(requireContext(), "Esse medicamento já está cadastrado", Toast.LENGTH_LONG)
+                Toast.makeText(requireContext(), "Erro ao cadastrar medicamento", Toast.LENGTH_LONG)
                     .show()
             }
         }
@@ -200,13 +204,13 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
 
         }
 
-        //todo medicamento com uma dose só que dura um dia, para testar o preenchimento de historico medicamentos
+    }
 
-        //todo lateinit property medicamento has not been initialized
-        /*
-        esse erro acontece quando vc cadastra um medicamento e depois tenta cadastrar outro
-        logo em seguida
-         */
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        Log.d("testeendfra", "o ondestroy desse fragment foi chamado")
     }
 
 

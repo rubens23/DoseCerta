@@ -140,7 +140,24 @@ class AdapterListaMedicamentos(private val list: ArrayList<MedicamentoComDoses>,
             }
 
 
-            binding.horaProximaDose.text = proxDose
+            if (proxDose != null) {
+                Log.d("testeformatadapter", "to no if ${proxDose.length}")
+                if(proxDose.length == 15){
+                    Log.d("testeformatadapter", "to no if length é 17")
+
+                    binding.horaProximaDose.text = proxDose.subSequence(11,15)
+                }
+            }
+
+            if (proxDose != null) {
+                Log.d("testeformatadapter", "to no if ${proxDose.length}")
+
+                if (proxDose.length == 16){
+                    Log.d("testeformatadapter", "to no if length == 18")
+
+                    binding.horaProximaDose.text = proxDose.subSequence(11, 16)
+                }
+            }
 
 
             db = AppDatabase.getAppDatabase(binding.root.context)

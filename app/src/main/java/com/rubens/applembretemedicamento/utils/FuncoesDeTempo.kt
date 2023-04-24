@@ -17,13 +17,6 @@ interface FuncoesDeTempo {
         return sdf.format(resultDate)
     }
 
-    fun pegarDataAtual(): String{
-        val formatarData = SimpleDateFormat("dd/MM/yyyy")
-        val data = Date()
-        val dataFormatada = formatarData.format(data)
-
-        return dataFormatada
-    }
 
     fun pegarHoraAtual(): String{
         val formatarHora = SimpleDateFormat("HH:mm:ss")

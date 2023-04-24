@@ -34,7 +34,6 @@ import java.io.Serializable
 
 class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, comunicacaoFragmentAdapter {
 
-    private lateinit var medicamento: MedicamentoTratamento
 
     private lateinit var extra: Serializable
     private lateinit var receiver: AlarmReceiver
@@ -54,6 +53,8 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         lateinit var binding: FragmentDetalhesMedicamentosBinding
         var nomeMedicamento = ""
         var horaProxDose: String? = null
+        lateinit var medicamento: MedicamentoTratamento
+
     }
 
 
@@ -210,70 +211,64 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
     private fun armarProximoAlarme() {
         if((extra as MedicamentoComDoses).listaDoses.size > 0){
-            /*
-            dados que eu tenho:
-            listaDosesSize
-            listaDosesHorarioDoses
-             */
-
-            //depois de armar o primeiro alarme e esse alarme tocar, esses logs vão aparecer
-            //losartana 4 doses com a primeira dose começando daqui a pouco
-            //aí vamos ver que dados são gerados à partir desse input
-            /*
-            dados retornados depois desse input: 4 doses, losartana duracao 1 dia
-            listaDoses.size == 4
-            horarioDose == 12:47
-            horarioDose == 18:47  o alarme toca e a dose das 0:47 é setada com a data de hj, mas essa dose tem que ser tocada amanha
-            horarioDose == 0:47
-            horarioDose == 6:47
-
-            horaProximaDose
-             */
-
-
-            Log.d("testandodados", "listaDoses.size == ${(extra as MedicamentoComDoses).listaDoses.size}")
-            (extra as MedicamentoComDoses).listaDoses.forEach {
-                Log.d("testandodados", "horarioDose == ${it.horarioDose}")
-            }
 
 
             val limiteFor = (extra as MedicamentoComDoses).listaDoses.size - 1
 
-            for(i in 0..limiteFor){
-                if (pegarDataAtual() +" "+ (extra as MedicamentoComDoses).listaDoses[i].horarioDose + ":00" == horaProxDose){
-                    Log.d("continuando", "horario na lista: ${pegarDataAtual()+" "+(extra as MedicamentoComDoses).listaDoses[i].horarioDose} horarioProxDose: $horaProxDose")
+            iterarSobreDosesEAcharProxima(limiteFor)
 
-                    /*
-                    21/04/2023 18:47:00 ==
-                     */
-
-                    if(i+1 == limiteFor){
-                        //acabaram as doses
-
-                    }else{
-                        horaProxDose = pegarDataAtual() +" "+ (extra as MedicamentoComDoses).listaDoses[i+1].horarioDose + ":00"
-                    }
-                    Log.d("continuando", "nem entrei no inner if")
-                }else{
-                    Log.d("continuando", "else horario na lista: ${pegarDataAtual()+" "+(extra as MedicamentoComDoses).listaDoses[i].horarioDose}:00 horarioProxDose: $horaProxDose")
-
-                }
-
-            }
-        }else{
-            Log.d("continuando", "nem entrei no if principal")
 
         }
 
+        Log.d("armarproximo6", "proximo Alarme: $horaProxDose")
         initializeAlarmManager()
+    }
+
+    private fun iterarSobreDosesEAcharProxima(limiteFor: Int) {
+        for(i in 0..limiteFor){
+            horaProxDose?.let {
+                    horaProxDose->
+                if(horaProxDose.length < 17){
+                    if ((extra as MedicamentoComDoses).listaDoses[i].horarioDose + ":00" == horaProxDose +":00"){
+                        Log.d("armarproximo7", "if 1 foram encontrados valores iguais!! horarioDose ${(extra as MedicamentoComDoses).listaDoses[i].horarioDose + ":00"} == horarioProxDose ${horaProxDose}:00")
+
+
+
+
+                        if(i+1 == limiteFor){
+                            //acabaram as doses
+
+                        }else{
+                            Companion.horaProxDose = (extra as MedicamentoComDoses).listaDoses[i+1].horarioDose + ":00"
+                            return
+                        }
+                    }
+                }else{
+
+                    if ((extra as MedicamentoComDoses).listaDoses[i].horarioDose + ":00" == Companion.horaProxDose){
+                        Log.d("armarproximo7", "if 2 foram encontrados valores iguais!! horarioDose ${(extra as MedicamentoComDoses).listaDoses[i].horarioDose + ":00"} == horarioProxDose $horaProxDose")
+
+                        if(i+1 == limiteFor){
+                            //acabaram as doses
+
+                        }else{
+                            Companion.horaProxDose = (extra as MedicamentoComDoses).listaDoses[i+1].horarioDose + ":00"
+                            return
+
+                        }
+                    }
+                }
+            }
+
+
+        }
+
+
     }
 
     private fun initializeAlarmManager() {
 
-        /*
 
-        supondo que eu ja tenha armado um alarme anteriormente
-         */
 
         if(AlarmReceiver.nomeMedicamento != ""){
             Log.d("alarmessimulta", "ja armei um alarme anteriormente")
@@ -288,8 +283,8 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
         receiver.horaProximaDoseObserver.observe(viewLifecycleOwner){
             if(!AlarmReceiver.mp.isPlaying){
-                horaProxDose = it
-                Toast.makeText(requireContext(), "Alarme ativado! próxima dose às: ${horaProxDose}", Toast.LENGTH_SHORT).show()
+                //horaProxDose = it
+                //Toast.makeText(requireContext(), "Alarme ativado! próxima dose às: ${horaProxDose}", Toast.LENGTH_SHORT).show()
             }else{
                 binding.btnCancelarAlarme.visibility = View.VISIBLE
                 binding.btnArmarAlarme.visibility = View.INVISIBLE
@@ -297,7 +292,47 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
             }
 
         }
-        horaProxDose?.let { receiver.setAlarm2(intervaloEntreDoses, (extra as MedicamentoComDoses).medicamentoTratamento.idMedicamento, (extra as MedicamentoComDoses).listaDoses, requireContext(), it) }
+
+        var podeTocar = false
+
+        horaProxDose?.let {
+            hora->
+            Log.d("smartalarm", "hora iterada $hora")
+            var hr = hora
+
+            //todo consertar isso. A proxima dose esta sendo as 5:10 ao inves das 23:10
+            if(hora.length < 17){
+                hr = hora+":00"
+            }
+
+            convertStringToDate(hr)?.let {
+                Log.d("smartalarm", "data em millisegundos: $hora                       ${it.time}")
+                Log.d("smartalarm", "current time em millis: ${System.currentTimeMillis()}")
+                if(it.time >= System.currentTimeMillis()){
+                    Log.d("smartalarm2", "essa dose ainda nao passou entao pode tocar: $hr")
+                    podeTocar = true
+                }else{
+                    Log.d("smartalarm2", "essa dose ja passou $hr")
+                    podeTocar = false
+
+                }
+            }
+
+
+        }
+
+        if(podeTocar){
+
+            Toast.makeText(requireContext(), "Alarme ativado! próxima dose às: ${horaProxDose}", Toast.LENGTH_LONG).show()
+
+            horaProxDose?.let { receiver.setAlarm2(intervaloEntreDoses, (extra as MedicamentoComDoses).medicamentoTratamento.idMedicamento, (extra as MedicamentoComDoses).listaDoses, requireContext(), it) }
+
+        }else{
+            armarProximoAlarme()
+
+        }
+
+
 
     }
 
@@ -325,6 +360,11 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
     override fun mostrarToastExcluido(nome: String) {
         Toast.makeText(requireContext(), "o medicamento $nome foi excluído", Toast.LENGTH_LONG).show()
+    }
+
+    override fun verificarSeDataJaPassou(dataFinalizacao: String): Boolean {
+        return verificarSeDataJaPassou(medicamento.dataTerminoTratamento)
+
     }
 
 
