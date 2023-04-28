@@ -22,7 +22,10 @@ class MedicationRepositoryImpl @Inject constructor(
         return medicamentoDao.getTodosMedicamentosFinalizados()
     }
 
-    // TODO: resolver o erro error: incompatible types: MedicamentoDaoTeste cannot be converted to MedicamentoDao
-    //    return RoomModule_ProvideMedicamentosDaoFactory.provideMedicamentosDao(provideDBProvider.get());
+
+
+    fun desativarTodosOsAlarmes(){
+        medicamentoDao.desativarTodosOsAlarmes()
+    }
 
 }

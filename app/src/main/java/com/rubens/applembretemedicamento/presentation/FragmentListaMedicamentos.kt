@@ -13,6 +13,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
@@ -62,12 +64,18 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper {
 
 
 
+
+
         initAds()
         binding.dataAtual.text = pegarDataAtual()
 
         escutarMediaPlayer()
 
         onClickListeners()
+
+        savedInstanceState?.let {
+            viewModel.recyclerViewPosition = it.getInt("RECYCLER_VIEW_POSITION")
+        }
     }
 
 
@@ -129,8 +137,42 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper {
         }
         binding.recyclerView.adapter = adapter
 
+        setAdapterOnScrollListener()
+        voltarARecyclerParaAPosicaoSalva()
+
     }
 
+    private fun voltarARecyclerParaAPosicaoSalva() {
+        binding.recyclerView.layoutManager?.scrollToPosition(viewModel.recyclerViewPosition)
+
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+    }
+
+    private fun setAdapterOnScrollListener() {
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener(){
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
+                val position = layoutManager.findFirstVisibleItemPosition()
+                viewModel.onRecyclerViewScrolled(position)
+            }
+        })
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        if(this::viewModel.isInitialized){
+            viewModel.recyclerViewPosition?.let {
+                outState.putInt("RECYCLER_VIEW_POSITION", it)
+            }
+        }
+    }
     override fun onResume() {
         super.onResume()
 
@@ -142,6 +184,11 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper {
 
             findNavController().navigate(R.id.action_medicamentosFragment_to_fragmentCadastrarNovoMedicamento)
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
     }
 
 

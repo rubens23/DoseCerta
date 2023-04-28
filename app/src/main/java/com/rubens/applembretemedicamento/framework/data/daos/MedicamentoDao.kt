@@ -71,4 +71,7 @@ interface MedicamentoDao {
 
     @Query("UPDATE medicamentotratamento SET alarmeAtivado=:ativado WHERE nomeMedicamento=:nomeMedicamento")
     fun ligarAlarmeDoMedicamento(nomeMedicamento: String, ativado: Boolean)
+
+    @Query("UPDATE medicamentotratamento SET alarmeAtivado = 0")
+    fun desativarTodosOsAlarmes()
 }

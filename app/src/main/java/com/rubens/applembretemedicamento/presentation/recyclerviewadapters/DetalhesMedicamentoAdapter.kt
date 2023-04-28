@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.rubens.applembretemedicamento.R
@@ -13,7 +12,6 @@ import com.rubens.applembretemedicamento.framework.data.AppDatabase
 import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
-import com.rubens.applembretemedicamento.presentation.FragmentDetalhesMedicamentos
 import com.rubens.applembretemedicamento.presentation.MainActivity
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.comunicacaoFragmentAdapter
@@ -26,9 +24,13 @@ class DetalhesMedicamentoAdapter(private val listaDosagemMedicamento: Medicament
     private lateinit var medicamentoDoseDao: MedicamentoDao
     private var listaDoses: ArrayList<Doses> = ArrayList()
 
+
+
     init {
         listaDoses.addAll(listaDosagemMedicamento.listaDoses)
         configureList()
+
+
     }
 
     private fun configureList() {
@@ -64,7 +66,9 @@ class DetalhesMedicamentoAdapter(private val listaDosagemMedicamento: Medicament
 
             }
 
+            /*
             MainActivity.binding.btnDeleteMedicamento.setOnClickListener {
+                Log.d("testecliquedelete", "eu cliquei no botão de excluir medicamento")
                 val alert: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(binding.root.context)
                 alert.setTitle("${doses.nomeMedicamento}")
                 alert.setMessage("Tem certeza que deseja deletar o medicamento ${doses.nomeMedicamento}?")
@@ -74,10 +78,14 @@ class DetalhesMedicamentoAdapter(private val listaDosagemMedicamento: Medicament
                     GlobalScope.launch {
                         medicamentoDoseDao.deleteMedicamentoFromMedicamentoTratamento(doses.nomeMedicamento)
                         medicamentoDoseDao.deleteDosesDoMedicamentoFinalizado(doses.nomeMedicamento)
+                        fecharFragment.markToastAsNotShown()
+                        fecharFragment.deleteDataStoreByKey()
+
 
                     }
 
                     dialog.dismiss()
+                    fecharFragment.cancelarBroadcastReceiver()
                     fecharFragment.mostrarToastExcluido(doses.nomeMedicamento)
                     fecharFragment.fecharFragment()
 
@@ -86,11 +94,20 @@ class DetalhesMedicamentoAdapter(private val listaDosagemMedicamento: Medicament
 
                 alert.setNegativeButton("Não",
                     DialogInterface.OnClickListener { dialog, which ->
-                        dialog.dismiss() })
+                        dialog.dismiss()
+                        fecharFragment.initIntertitialAd()
+
+
+
+                    })
 
                 alert.show()
 
+
+
             }
+
+             */
 
 
 

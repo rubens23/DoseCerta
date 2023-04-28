@@ -14,10 +14,15 @@ class ViewModelFragmentLista @Inject constructor(
 ): ViewModel(){
 
     lateinit var medicamentos: MutableLiveData<List<MedicamentoComDoses>>
+    var recyclerViewPosition = 0
 
     init{
         medicamentos = MutableLiveData()
         loadMedications()
+    }
+
+    fun onRecyclerViewScrolled(position: Int){
+        recyclerViewPosition = position
     }
 
 

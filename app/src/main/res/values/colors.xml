@@ -8,5 +8,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="rosa_salmao">#FA5252</color>
+    <color name="rosa_salmao_dark">#952929</color>
+    <color name="light_gray">#656565</color>
 
 </resources>

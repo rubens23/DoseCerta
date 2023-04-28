@@ -17,5 +17,6 @@ data class MedicamentoTratamento(
     val diasRestantesDeTratamento: Int,
     val tratamentoFinalizado: Boolean,
     val dataInicioTratamento: String,
-    val dataTerminoTratamento: String
+    val dataTerminoTratamento: String,
+    val stringDataStore: String
 ): Serializable

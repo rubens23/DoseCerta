@@ -1,5 +1,7 @@
 package com.rubens.applembretemedicamento.presentation
 
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -8,12 +10,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import android.widget.Toolbar
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.isNotEmpty
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.FragmentCadastrarNovoMedicamentoBinding
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
@@ -21,6 +27,7 @@ import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTrat
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentCadastrarNovoMedicamento
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
+import com.rubens.applembretemedicamento.utils.comunicacaoFragmentAdapter
 
 class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHelper{
 
@@ -34,6 +41,7 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
     private lateinit var qntDosesStr: String
     private var qntDoses: Int = 0
     private var medicamentoAdicionadoObserver: MutableLiveData<MedicamentoTratamento> = MutableLiveData()
+
 
 
 
@@ -66,6 +74,13 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
     private fun setupToolbar() {
         MainActivity.binding.toolbar.visibility = View.VISIBLE
         MainActivity.binding.toolbar.title = ""
+        MainActivity.binding.btnDeleteMedicamento.visibility = View.GONE
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setupToolbar()
     }
 
     private fun initViewModel() {
@@ -186,7 +201,8 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
                     dataTerminoTratamento = pegarDataDeTermino(
                         binding.inputDataInicioTratamento.masked,
                         qntDiasTrat
-                    )
+                    ),
+                    stringDataStore = "toast_already_shown"+"_$nomeRemedio"
                 )
                 viewModel.insertMedicamento(
                     medicamento

@@ -24,6 +24,7 @@ import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.presentation.FragmentDetalhesMedicamentos
 import com.rubens.applembretemedicamento.presentation.MainActivity
+import com.rubens.applembretemedicamento.presentation.recyclerviewadapters.AdapterListaMedicamentos
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
 import java.time.LocalDateTime
@@ -33,17 +34,21 @@ import java.time.format.DateTimeFormatter
 
 class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
 
+    private lateinit var alarmIntent: Intent
     private lateinit var alarmManager: AlarmManager
     private lateinit var pendingIntent: PendingIntent
     val horaProximaDoseObserver: MutableLiveData<String> = MutableLiveData()
     private var listaDoses: ArrayList<Doses> = ArrayList()
 
 
+
     companion object{
         var mp: MediaPlayer = MediaPlayer()
         var nomeMedicamento = ""
+        var idMed = ""
         var alarmeTocando: MutableLiveData<Boolean> = MutableLiveData()
         var idMedicamentoTocandoAtualmente: MutableLiveData<List<Int>> = MutableLiveData()
+        var listaIdMedicamentosTocandoNoMomento: ArrayList<Int> = ArrayList()
 
     }
 
@@ -51,7 +56,7 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
 
     override fun onReceive(p0: Context?, p1: Intent?) {
 
-        val idMedicamento = p1?.getIntExtra("medicamentoid", -1)
+        var idMedicamento = p1?.getIntExtra("medicamentoid", -1)
         val horaDose = p1?.data
         val nomeMedicamento = p1?.getStringExtra("nomemedicamento")
 
@@ -62,7 +67,6 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
         }
 
 
-
         Toast.makeText(p0, "Tome o medicamento $nomeMedicamento", Toast.LENGTH_LONG).show()
         initOnAudioFocusChangeListener(p0)
         mp = MediaPlayer.create(p0, Settings.System.DEFAULT_RINGTONE_URI)
@@ -70,8 +74,11 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
         alarmeTocando.postValue(true)
         val listaNumeroInteiro: ArrayList<Int> = ArrayList()
         if (idMedicamento != null) {
+            idMed = idMedicamento.toString()
+            listaIdMedicamentosTocandoNoMomento.add(idMed.toInt())
             listaNumeroInteiro.add(idMedicamento)
-            idMedicamentoTocandoAtualmente.postValue(listaNumeroInteiro)
+            //idMedicamentoTocandoAtualmente.postValue(listaNumeroInteiro)
+            AdapterListaMedicamentos.listaIdMedicamentos.add(idMed.toInt())
 
         }
 
@@ -95,7 +102,7 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
             NotificationCompat.Builder(context, "something")
                 .setContentTitle(nomeMedicamento)
                 .setContentText("Tome sua dose das "+ horaDose + " o id do medicamento é $idMedicamento")
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_pills_bottle)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(pendingIntent)
@@ -167,6 +174,53 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
         }
     }
 
+    fun cancelAllAlarms(applicationContext: Context) {
+
+        if(MainActivity.pendingIntentsList.size > 0){
+            Log.d("testedeletepi", "é maior do que 0 ${MainActivity.pendingIntentsList.size}")
+            for(pendingIntent in MainActivity.pendingIntentsList){
+                if(this::alarmManager.isInitialized){
+                    Log.d("testedeletepi", "entrei aqui no if que vai cancelar o alarmManager")
+
+                    alarmManager.cancel(pendingIntent)
+
+                }else{
+                    alarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                    alarmManager.cancel(pendingIntent)
+
+                    Log.d("testedeletepi", "alarm manager ainda nao foi iniciallizado")
+
+                }
+            }
+
+        }else{
+            Log.d("testedeletepi", "é menor ou igual a 0 ${MainActivity.pendingIntentsList.size}")
+
+            if(this::alarmManager.isInitialized){
+                Log.d("testedeletepi", "entrei aqui no if 2 que vai cancelar o alarmManager")
+
+                alarmManager.cancel(pendingIntent)
+
+            }else{
+                alarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                alarmManager.cancel(pendingIntent)
+                Log.d("testedeletepi", "else 2: alarm manager ainda não foi inicializado")
+
+            }
+
+        }
+
+
+        MainActivity.pendingIntentsList.clear()
+    }
+
+    fun cancelAlarmByMedicamentoId(medicamentoId: Int, context: Context){
+        if (alarmManager != null){
+            alarmManager.cancel(PendingIntent.getBroadcast(context, medicamentoId, alarmIntent, 0))
+            WakeLocker.release()
+        }
+    }
+
 
 
     fun setAlarm2(
@@ -197,7 +251,7 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
 
 
         alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val alarmIntent = Intent(context, AlarmReceiver::class.java)
+        alarmIntent = Intent(context, AlarmReceiver::class.java)
         var horaProximaDose = ""
 
         var mudarFormatador = false
@@ -372,6 +426,11 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + millisegundosAteProximaDose, pendingIntent)
 
         }
+
+
+
+        MainActivity.pendingIntentsList.add(pendingIntent)
+        Log.d("testedeletepi", "acabei de adicionar algo na lista de pendingIntents ${MainActivity.pendingIntentsList.size}")
 
 
     }

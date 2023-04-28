@@ -5,12 +5,12 @@
 
     <item
         android:id="@+id/medicamentosFragment"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:icon="@drawable/ic_pills_bottle"
         android:title="Medicamentos"/>
 
     <item
         android:id="@+id/historicoFragment"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:icon="@drawable/ic_historico"
         android:title="Histórico"/>
 
 </menu>

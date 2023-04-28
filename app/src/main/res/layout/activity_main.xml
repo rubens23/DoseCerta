@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/toolbar"
+        android:theme="@style/ToolbarStyle"
         app:layout_constraintTop_toTopOf="parent"
         android:minHeight="?attr/actionBarSize">
 
@@ -18,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_baseline_delete_24"
-            app:tint="@color/black"
+            app:tint="?android:textColorPrimary"
             android:background="?android:attr/actionBarItemBackground"
             android:layout_gravity="end"
             android:layout_marginEnd="16dp"/>

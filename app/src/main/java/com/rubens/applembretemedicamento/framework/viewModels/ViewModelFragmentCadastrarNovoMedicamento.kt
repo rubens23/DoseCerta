@@ -36,6 +36,8 @@ class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
         horarioPrimeiraDose: String
     ) {
 
+        listaHorarioDoses.clear()
+
         this.medicamento = medicamento
         //todo aqui eu ja tenho que passar para a tabela doses
         val horaDigitada = horarioPrimeiraDose
@@ -274,7 +276,7 @@ class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
 
     private fun criarDoseComDataCertaDoisParametros(hora: Int, minInicial: String){
         Log.d("testeprimetodonovo", "${hora}:${minInicial} hora primeira dose ${medicamento.horaPrimeiraDose}")
-        if(hora >= maiorHoraAteAgora){
+        if(hora > maiorHoraAteAgora){
             Log.d("testedianovo", "if dia atual $diaAtual")
             maiorHoraAteAgora = hora
 
@@ -287,7 +289,7 @@ class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
     }
 
     private fun criarDoseComDataCerta(hora: String){
-        if((hora.get(0).toString() + hora.get(1).toString()).toInt() >= maiorHoraAteAgora){
+        if((hora.get(0).toString() + hora.get(1).toString()).toInt() > maiorHoraAteAgora){
             Log.d("testedianovo", "if dia atual $diaAtual")
             maiorHoraAteAgora = (hora.get(0).toString() + hora.get(1).toString()).toInt()
 

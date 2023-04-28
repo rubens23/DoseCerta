@@ -10,6 +10,7 @@ import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnScrollChangeListener
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.lifecycle.LifecycleOwner
@@ -25,6 +26,7 @@ import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoC
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.data.entities.HistoricoMedicamentos
 import com.rubens.applembretemedicamento.presentation.FragmentListaMedicamentosDirections
+import com.rubens.applembretemedicamento.utils.comunicacaoFragmentAdapter
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -52,7 +54,7 @@ class AdapterListaMedicamentos(private val list: ArrayList<MedicamentoComDoses>,
     private fun idMedicamentoTocandoObserver() {
         AlarmReceiver.idMedicamentoTocandoAtualmente.observe(context as LifecycleOwner){
             //idMedicamentoTocandoAtualmente = it
-            listaIdMedicamentos.add(it.first())
+            //listaIdMedicamentos.add(it.first())
         }
     }
 
@@ -88,6 +90,7 @@ class AdapterListaMedicamentos(private val list: ArrayList<MedicamentoComDoses>,
                             if (medicamento.medicamentoTratamento.idMedicamento == it && it > -1){
                                 val shake = AnimationUtils.loadAnimation(binding.root.context, R.anim.shake)
                                 binding.alarmeAtivado.startAnimation(shake)
+                                Log.d("testelistaid", "o id $it esta na lista por isso eu estou balançando o reloginho")
                             }
 
                         }

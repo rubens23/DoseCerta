@@ -7,4 +7,13 @@ interface comunicacaoFragmentAdapter {
     fun mostrarToastExcluido(nome: String)
 
     fun verificarSeDataJaPassou(dataFinalizacao: String): Boolean
+
+    fun markToastAsNotShown()
+
+    fun deleteDataStoreByKey()
+
+
+    fun cancelarBroadcastReceiver()
+
+    fun initIntertitialAd()
 }
