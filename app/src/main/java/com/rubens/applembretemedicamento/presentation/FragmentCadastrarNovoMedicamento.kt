@@ -31,7 +31,7 @@ import com.rubens.applembretemedicamento.utils.comunicacaoFragmentAdapter
 
 class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHelper{
 
-    private lateinit var binding: FragmentCadastrarNovoMedicamentoBinding
+    lateinit var binding: FragmentCadastrarNovoMedicamentoBinding
     private lateinit var medicamento: MedicamentoTratamento
     private var tratamentoDuraMeses = false
     private var listaHorarioDoses = ArrayList<Doses>()
@@ -128,9 +128,8 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
 
     private fun onClickListeners() {
         binding.btnDuracaoDias.setOnClickListener {
-            binding.containerButtons.visibility = View.INVISIBLE
-            binding.tilMedicineTimeTreatment.hint = "Quantos dias?"
-            binding.tilMedicineTimeTreatment.visibility = View.VISIBLE
+            mudarVisibilidadeDasViewsRelacionadasADuracaoTratamento()
+
         }
         binding.btnDuracaoMeses.setOnClickListener {
             Toast.makeText(requireContext(), "meses", Toast.LENGTH_LONG).show()
@@ -220,6 +219,12 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
 
         }
 
+    }
+
+    fun mudarVisibilidadeDasViewsRelacionadasADuracaoTratamento() {
+        binding.containerButtons.visibility = View.INVISIBLE
+        binding.tilMedicineTimeTreatment.hint = "Quantos dias?"
+        binding.tilMedicineTimeTreatment.visibility = View.VISIBLE
     }
 
 

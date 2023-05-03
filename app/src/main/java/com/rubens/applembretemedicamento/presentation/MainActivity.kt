@@ -11,22 +11,25 @@ import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import android.view.View
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
+import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.ActivityMainBinding
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiver
 import com.rubens.applembretemedicamento.framework.data.MyDataStore
 import com.rubens.applembretemedicamento.framework.services.ClosingAppServiceService
 import com.rubens.applembretemedicamento.framework.viewModels.MainActivityViewModel
+import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), MainActivityInterface {
 
     companion object{
         lateinit var binding: ActivityMainBinding
@@ -88,15 +91,51 @@ class MainActivity : AppCompatActivity() {
         mIntent = Intent(this, ClosingAppServiceService::class.java)
         bindService(mIntent, connection, Context.BIND_AUTO_CREATE)
 
+        onClickListeners()
+
 
 
 
     }
 
+    private fun onClickListeners() {
+        binding.btnDeleteMedicamento.setOnClickListener {
+            checarSeFragmentoDetalhesEstaAberto()
+        }
+    }
+
+    private fun checarSeFragmentoDetalhesEstaAberto() {
+        val nc = findNavController(R.id.fragmentContainerView)
+        verSeDestinoAtualEIgualAFragmentDetalhesMedicamentos(nc)
+
+    }
+
+
+
+    private fun verSeDestinoAtualEIgualAFragmentDetalhesMedicamentos(nc: NavController) {
+        if (nc.currentDestination?.id == R.id.fragmentDetalhesMedicamentos){
+            val fragmentDetalhes = verSeFragmentoEstaCertoParaPegarInstancia()
+            fragmentDetalhes?.onDeleteMedicamento()
+
+
+        }
+
+    }
+
+    private fun verSeFragmentoEstaCertoParaPegarInstancia(): FragmentDetalhesMedicamentos? {
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment
+        val fragmentDetalhes = navHostFragment.childFragmentManager.fragments.first() as? FragmentDetalhesMedicamentos
+
+        if (fragmentDetalhes != null){
+            return fragmentDetalhes
+        }
+        return null
+    }
+
     fun codigoASerExecutadoAoFecharOApp(){
 
         lifecycleScope.launch{
-            myDataStore.markToastAsNotShown(booleanPreferencesKey(FragmentDetalhesMedicamentos.medicamento.stringDataStore))
+            //myDataStore.markToastAsNotShown(booleanPreferencesKey(FragmentDetalhesMedicamentos.medicamento.stringDataStore))
 
         }
 
@@ -154,7 +193,7 @@ class MainActivity : AppCompatActivity() {
 
 
         lifecycleScope.launch{
-            myDataStore.markToastAsNotShown(booleanPreferencesKey(FragmentDetalhesMedicamentos.medicamento.stringDataStore))
+            //myDataStore.markToastAsNotShown(booleanPreferencesKey(FragmentDetalhesMedicamentos.medicamento.stringDataStore))
 
         }
 
@@ -165,4 +204,20 @@ class MainActivity : AppCompatActivity() {
         alarmReceiver.cancelAllAlarms(this.applicationContext)
 
     }
+
+    override fun showToolbar() {
+        binding.toolbar.visibility = View.VISIBLE
+
+    }
+
+    override fun hideToolbarTitle() {
+        binding.toolbar.title = ""
+    }
+
+    override fun showBtnDeleteMedicamento() {
+        binding.btnDeleteMedicamento.visibility = View.VISIBLE
+
+    }
+
+
 }

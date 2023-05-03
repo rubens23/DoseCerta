@@ -25,6 +25,7 @@ import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.data.entities.HistoricoMedicamentos
+import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
 import com.rubens.applembretemedicamento.presentation.FragmentListaMedicamentosDirections
 import com.rubens.applembretemedicamento.utils.comunicacaoFragmentAdapter
 import kotlinx.coroutines.GlobalScope
@@ -44,6 +45,8 @@ class AdapterListaMedicamentos(private val list: ArrayList<MedicamentoComDoses>,
     private var db: AppDatabase? = null
     private lateinit var medicamentoDoseDao: MedicamentoDao
     var listaComDosesToast: MutableLiveData<List<Doses>> = MutableLiveData()
+
+    private val medicamentoManager: MedicamentoManager = MedicamentoManager()
 
     init{
         db = AppDatabase.getAppDatabase(context)
@@ -183,7 +186,8 @@ class AdapterListaMedicamentos(private val list: ArrayList<MedicamentoComDoses>,
 
                 val action = proxDose?.let { it1 ->
                     FragmentListaMedicamentosDirections.actionMedicamentosFragmentToFragmentDetalhesMedicamentos(medicamento,
-                        it1, intervaloEntreDoses.toString()
+                        it1, intervaloEntreDoses.toString(),
+                        medicamentoManager
                     )
                 }
 

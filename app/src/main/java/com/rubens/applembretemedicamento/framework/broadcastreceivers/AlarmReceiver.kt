@@ -37,7 +37,6 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
     private lateinit var alarmIntent: Intent
     private lateinit var alarmManager: AlarmManager
     private lateinit var pendingIntent: PendingIntent
-    val horaProximaDoseObserver: MutableLiveData<String> = MutableLiveData()
     private var listaDoses: ArrayList<Doses> = ArrayList()
 
 

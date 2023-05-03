@@ -37,6 +37,9 @@
         <argument
             android:name="intervaloentredoses"
             app:argType="string" />
+        <argument
+            android:name="medicamentoManager"
+            app:argType="com.rubens.applembretemedicamento.framework.domain.MedicamentoManager"/>
         <action
             android:id="@+id/action_fragmentDetalhesMedicamentos_to_medicamentosFragment"
             app:destination="@id/medicamentosFragment" />
