@@ -9,11 +9,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
-import com.rubens.applembretemedicamento.R
-import com.rubens.applembretemedicamento.databinding.FragmentDetalhesMedicamentosBinding
 import com.rubens.applembretemedicamento.databinding.FragmentHistoricoMedicamentosBinding
-import com.rubens.applembretemedicamento.framework.data.AppDatabase
-import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.HistoricoMedicamentos
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentHistoricoMedicamentos
 import com.rubens.applembretemedicamento.presentation.recyclerviewadapters.HistoricoMedicamentosAdapter
@@ -22,7 +18,6 @@ import com.rubens.applembretemedicamento.presentation.recyclerviewadapters.Histo
 class FragmentHistoricoMedicamentos : Fragment() {
 
     private lateinit var adapter: HistoricoMedicamentosAdapter
-    private var db: AppDatabase? = null
     private var listaMedicamentos: ArrayList<HistoricoMedicamentos> = ArrayList()
 
     private lateinit var binding: FragmentHistoricoMedicamentosBinding
@@ -33,7 +28,7 @@ class FragmentHistoricoMedicamentos : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentHistoricoMedicamentosBinding.inflate(inflater)
         return binding.root
     }
@@ -43,28 +38,28 @@ class FragmentHistoricoMedicamentos : Fragment() {
 
         initViewModel()
         initObservers()
-
         initAds()
+        carregarMedicamentosFinalizados()
 
+    }
+
+    private fun carregarMedicamentosFinalizados() {
         viewModel.carregarMedicamentosFinalizados()
-
-
-
-
     }
 
     private fun initObservers() {
         viewModel.medicamentos.observe(viewLifecycleOwner){
-            listaMedicamentos.clear()
-            listaMedicamentos.addAll(it)
-            it.forEach {
-                Log.d("capturahistorico", "consegui capturar o ${it.nomeMedicamento}")
-
-            }
+            listaHistoricoMedicamentos->
+            updateListaMedicamentosFinalizados(listaHistoricoMedicamentos)
             setupAdapter()
 
 
         }
+    }
+
+    private fun updateListaMedicamentosFinalizados(listaHistoricoMedicamentos: List<HistoricoMedicamentos>) {
+        listaMedicamentos.clear()
+        listaMedicamentos.addAll(listaHistoricoMedicamentos)
     }
 
     private fun setupAdapter() {
