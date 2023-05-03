@@ -20,4 +20,7 @@ interface MainActivityInterface {
     fun addPendingIntentToPendingIntentsList(pi: PendingIntent)
 
     fun hideToolbar()
+
+    fun hideBtnDeleteMedicamento()
+
 }

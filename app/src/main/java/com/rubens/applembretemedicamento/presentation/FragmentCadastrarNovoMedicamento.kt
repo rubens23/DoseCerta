@@ -25,6 +25,7 @@ import com.rubens.applembretemedicamento.databinding.FragmentCadastrarNovoMedica
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentCadastrarNovoMedicamento
+import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
 import com.rubens.applembretemedicamento.utils.comunicacaoFragmentAdapter
@@ -41,6 +42,8 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
     private lateinit var qntDosesStr: String
     private var qntDoses: Int = 0
     private var medicamentoAdicionadoObserver: MutableLiveData<MedicamentoTratamento> = MutableLiveData()
+    private lateinit var mainActivityInterface: MainActivityInterface
+
 
 
 
@@ -53,11 +56,16 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
 
         binding = FragmentCadastrarNovoMedicamentoBinding.inflate(inflater, container, false)
 
+        initMainActivityInterface()
         setupToolbar()
 
 
 
         return binding.root
+    }
+
+    private fun initMainActivityInterface() {
+        mainActivityInterface = requireContext() as MainActivityInterface
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -72,9 +80,9 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
     }
 
     private fun setupToolbar() {
-        MainActivity.binding.toolbar.visibility = View.VISIBLE
-        MainActivity.binding.toolbar.title = ""
-        MainActivity.binding.btnDeleteMedicamento.visibility = View.GONE
+        mainActivityInterface.showToolbar()
+        mainActivityInterface.hideToolbarTitle()
+        mainActivityInterface.hideBtnDeleteMedicamento()
 
     }
 

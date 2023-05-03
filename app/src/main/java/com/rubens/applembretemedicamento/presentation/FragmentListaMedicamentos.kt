@@ -16,6 +16,7 @@ import com.google.android.gms.ads.MobileAds
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.FragmentListaMedicamentosBinding
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiver
+import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiverInterface
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentLista
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
@@ -31,6 +32,8 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper {
     private lateinit var adapter: AdapterListaMedicamentos
     lateinit var viewModel: ViewModelFragmentLista
     private lateinit var mainActivityInterface: MainActivityInterface
+    private lateinit var alarmReceiverInterface: AlarmReceiverInterface
+    private lateinit var alarmReceiver: AlarmReceiver
 
 
 
@@ -42,6 +45,8 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper {
     ): View? {
         // Inflate the layout for this fragment
         initMainActivityInterface()
+        initAlarmReceiver()
+        initAlarmReceiverInterface()
         setupToolbar()
 
         binding = FragmentListaMedicamentosBinding.inflate(inflater)
@@ -50,6 +55,14 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper {
 
 
         return binding.root
+    }
+
+    private fun initAlarmReceiver() {
+        alarmReceiver = AlarmReceiver()
+    }
+
+    private fun initAlarmReceiverInterface() {
+        alarmReceiverInterface = alarmReceiver as AlarmReceiverInterface
     }
 
     private fun initMainActivityInterface() {
@@ -125,8 +138,8 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper {
     }
 
     private fun escutarMediaPlayer() {
-        AlarmReceiver.alarmeTocando.observe(viewLifecycleOwner){
-            if (AlarmReceiver.mp.isPlaying){
+        alarmReceiverInterface.getAlarmeTocandoLiveData().observe(viewLifecycleOwner){
+            if (alarmReceiverInterface.getMediaPlayerInstance().isPlaying){
                 setAdapter(listaMedicamentos)
             }
         }

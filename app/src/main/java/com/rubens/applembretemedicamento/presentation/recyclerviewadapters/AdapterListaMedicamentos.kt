@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.MedicamentoBinding
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiver
+import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiverInterface
 import com.rubens.applembretemedicamento.framework.data.AppDatabase
 import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
@@ -37,6 +38,8 @@ import kotlin.collections.ArrayList
 class AdapterListaMedicamentos(private val list: ArrayList<MedicamentoComDoses>, val context: Context): RecyclerView.Adapter<AdapterListaMedicamentos.ViewHolder>() {
     var idNotificacao = 1
     var idMedicamentoTocandoAtualmente = -1
+    private lateinit var alarmReceiverInterface: AlarmReceiverInterface
+    private var alarmReceiver: AlarmReceiver = AlarmReceiver()
     companion object{
 
         var listaIdMedicamentos: ArrayList<Int> = ArrayList()
@@ -51,14 +54,20 @@ class AdapterListaMedicamentos(private val list: ArrayList<MedicamentoComDoses>,
     init{
         db = AppDatabase.getAppDatabase(context)
         //medicamentoDoseDao = db!!.medicamentoDoseDao()
+        initAlarmReceiverInterface(context)
         idMedicamentoTocandoObserver()
     }
 
     private fun idMedicamentoTocandoObserver() {
-        AlarmReceiver.idMedicamentoTocandoAtualmente.observe(context as LifecycleOwner){
+
+        alarmReceiverInterface.getAlarmeTocandoLiveData().observe(context as LifecycleOwner){
             //idMedicamentoTocandoAtualmente = it
             //listaIdMedicamentos.add(it.first())
         }
+    }
+
+    private fun initAlarmReceiverInterface(ctx: Context){
+        alarmReceiverInterface = alarmReceiver as AlarmReceiverInterface
     }
 
 
@@ -87,7 +96,7 @@ class AdapterListaMedicamentos(private val list: ArrayList<MedicamentoComDoses>,
                     val shake = AnimationUtils.loadAnimation(binding.root.context, R.anim.shake)
                     //binding.alarmeAtivado.startAnimation(shake)
                     binding.alarmeAtivado.visibility = View.VISIBLE
-                    if(AlarmReceiver.mp.isPlaying){
+                    if(alarmReceiverInterface.getMediaPlayerInstance().isPlaying){
                         listaIdMedicamentos.forEach {
                             Log.d("testeids", "$it")
                             if (medicamento.medicamentoTratamento.idMedicamento == it && it > -1){
@@ -214,7 +223,7 @@ class AdapterListaMedicamentos(private val list: ArrayList<MedicamentoComDoses>,
 
         var binding = holder.getItemBinding()
 
-        if(AlarmReceiver.mp.isPlaying){
+        if(alarmReceiverInterface.getMediaPlayerInstance().isPlaying){
             //val shake = AnimationUtils.loadAnimation(binding.root.context, R.anim.shake)
             //binding.alarmeAtivado.startAnimation(shake)
 

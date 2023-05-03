@@ -1,18 +1,18 @@
 package com.rubens.applembretemedicamento.framework.domain
 
-import android.content.Context
 import android.util.Log
-import android.view.View
 import androidx.lifecycle.MutableLiveData
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiver
+import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiverInterface
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
+import com.rubens.applembretemedicamento.presentation.FragmentDetalhesMedicamentos
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentDetalhesMedicamentosUi
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import java.io.Serializable
 
 class MedicamentoManager: CalendarHelper, Serializable {
-    private lateinit var context: Context
+    private lateinit var context: FragmentDetalhesMedicamentos
     var nomeMedicamento = ""
     var horaProxDose: String? = null
     private lateinit var medicamento: MedicamentoTratamento
@@ -23,6 +23,7 @@ class MedicamentoManager: CalendarHelper, Serializable {
     var horaProximaDoseObserver = _horaProximaDoseObserver
     private var intervaloEntreDoses = 0.0
     private lateinit var fragmentDetalhesMedicamentosUi: FragmentDetalhesMedicamentosUi
+    private lateinit var alarmReceiverInterface: AlarmReceiverInterface
 
 
     private lateinit var extra: Serializable
@@ -87,7 +88,7 @@ class MedicamentoManager: CalendarHelper, Serializable {
 
 
 
-        if(AlarmReceiver.nomeMedicamento != ""){
+        if(alarmReceiverInterface.getNomeMedicamentoFromAlarmReceiver() != ""){
             Log.d("alarmessimulta", "ja armei um alarme anteriormente")
         }else{
             Log.d("alarmessimulta", "ainda não armei nenhum alarme")
@@ -133,7 +134,7 @@ class MedicamentoManager: CalendarHelper, Serializable {
         if(podeTocar){
 
 
-            horaProxDose?.let { receiver.setAlarm2(intervaloEntreDoses, (extra as MedicamentoComDoses).medicamentoTratamento.idMedicamento, (extra as MedicamentoComDoses).listaDoses, context, it) }
+            horaProxDose?.let { receiver.setAlarm2(intervaloEntreDoses, (extra as MedicamentoComDoses).medicamentoTratamento.idMedicamento, (extra as MedicamentoComDoses).listaDoses, context.requireContext(), it) }
 
             _updateDataStore.value = medicamento.stringDataStore
 
@@ -211,30 +212,51 @@ class MedicamentoManager: CalendarHelper, Serializable {
 
     }
 
-    fun startAlarmManager(context: Context){
+    fun startAlarmManager(context: FragmentDetalhesMedicamentos){
         this.context = context
         initFragmentDetalhesUiInterface()
+        initAlarmReceiverInterface()
         initializeAlarmManager()
     }
 
     private fun initFragmentDetalhesUiInterface() {
         if(!this::fragmentDetalhesMedicamentosUi.isInitialized){
-            fragmentDetalhesMedicamentosUi = context as FragmentDetalhesMedicamentosUi
+            fragmentDetalhesMedicamentosUi =  context as FragmentDetalhesMedicamentosUi
         }
     }
 
-    fun startChecarSeAlarmeEstaAtivado(ctx: Context) {
+    fun startChecarSeAlarmeEstaAtivado(ctx: FragmentDetalhesMedicamentos) {
         this.context = ctx
         initFragmentDetalhesUiInterface()
-        checarSeAlarmeEstaAtivado()
+        initAlarmReceiverInterface()
+        //checarSeAlarmeEstaAtivado()
+    }
+
+    private fun initAlarmReceiverInterface() {
+        if(!this::alarmReceiverInterface.isInitialized){
+            if(this::receiver.isInitialized){
+                alarmReceiverInterface = receiver as AlarmReceiverInterface
+
+            }else{
+                initAlarmReceiver()
+                alarmReceiverInterface = receiver
+
+            }
+        }
+    }
+
+    private fun initAlarmReceiver() {
+        receiver = AlarmReceiver()
     }
 
     private fun checarSeAlarmeEstaAtivado() {
         if(medicamento.alarmeAtivado){
-            if(AlarmReceiver.mp.isPlaying){
+            if(alarmReceiverInterface.getMediaPlayerInstance().isPlaying){
                 Log.d("testeisplaying", "o mp esta tocando")
 
-                AlarmReceiver.listaIdMedicamentosTocandoNoMomento.forEach {
+
+
+                alarmReceiverInterface.getListaIdMedicamentosTocandoNoMomentoFromAlarmReceiver().forEach {
                     if(it == medicamento.idMedicamento){
                         fragmentDetalhesMedicamentosUi.showBtnPararSom()
                     }

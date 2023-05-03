@@ -27,6 +27,7 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.gms.ads.MobileAds
 import com.rubens.applembretemedicamento.databinding.FragmentDetalhesMedicamentosBinding
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiver
+import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiverInterface
 import com.rubens.applembretemedicamento.framework.data.AppDatabase
 import com.rubens.applembretemedicamento.framework.data.MyDataStore
 import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
@@ -62,6 +63,9 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     private lateinit var medicamentoDoseDao: MedicamentoDao
     private lateinit var mainActivityInterface: MainActivityInterface
     private lateinit var binding: FragmentDetalhesMedicamentosBinding
+    private lateinit var alarmReceiverInterface: AlarmReceiverInterface
+    private var alarmReceiver: AlarmReceiver = AlarmReceiver()
+
 
 
 
@@ -73,9 +77,14 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     ): View {
         binding = FragmentDetalhesMedicamentosBinding.inflate(inflater)
 
+        initAlarmReceiverInterface()
         setupToolbar()
 
         return binding.root
+    }
+
+    private fun initAlarmReceiverInterface() {
+        alarmReceiverInterface = alarmReceiver as AlarmReceiverInterface
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -152,7 +161,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         }
 
         medicamentoManager.horaProximaDoseObserver.observe(viewLifecycleOwner){
-                if(AlarmReceiver.mp.isPlaying){
+                if(alarmReceiverInterface.getMediaPlayerInstance().isPlaying){
                     showBtnCancelarAlarme()
                     hideBtnArmarAlarme()
                 }
@@ -223,7 +232,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
         medicamentoAdicionadoObserver.observe(this){
             medicamentoManager.startUpdateMedicamento(it)
-            medicamentoManager.startChecarSeAlarmeEstaAtivado(requireContext())
+            medicamentoManager.startChecarSeAlarmeEstaAtivado(this)
 
 
         }
@@ -254,7 +263,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         }
         binding.btnPararSom.setOnClickListener {
             markToastAsNotShownInDataStore()
-            if (AlarmReceiver.mp.isPlaying){
+            if (alarmReceiverInterface.getMediaPlayerInstance().isPlaying){
                 stopMusicPlayer()
                 hideBtnPararSom()
                 createListaAuxiliarERemoverOMedicamentoDasListasDeAlarmeTocando()
@@ -313,7 +322,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     }
 
     private fun ligarAlarme() {
-        medicamentoManager.startAlarmManager(requireContext())
+        medicamentoManager.startAlarmManager(this)
     }
 
     private fun salvarNoBancoAInformacaoDeQueOAlarmeDoMedicamentoEstaLigado() {
@@ -331,7 +340,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
             if(it == medicamentoManager.getMedicamento().idMedicamento){
                 removeMedicamentoDaListaDeAlarmesTocando()
 
-                if(AlarmReceiver.listaIdMedicamentosTocandoNoMomento.contains(medicamentoManager.getMedicamento().idMedicamento)){
+                if(alarmReceiverInterface.getListaIdMedicamentosTocandoNoMomentoFromAlarmReceiver().contains(medicamentoManager.getMedicamento().idMedicamento)){
                     avisaQueEsseMedicamentoNaoEstaComOAlarmeTocandoNoMomento()
 
                 }
@@ -340,7 +349,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     }
 
     private fun avisaQueEsseMedicamentoNaoEstaComOAlarmeTocandoNoMomento() {
-        AlarmReceiver.listaIdMedicamentosTocandoNoMomento.remove(medicamentoManager.getMedicamento().idMedicamento)
+        alarmReceiverInterface.removeFromListaIdMedicamentoTocandoNoMomento(medicamentoManager.getMedicamento().idMedicamento)
     }
 
     private fun removeMedicamentoDaListaDeAlarmesTocando() {
@@ -352,7 +361,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     }
 
     private fun stopMusicPlayer() {
-        AlarmReceiver.mp.stop()
+        alarmReceiverInterface.stopMediaPlayer()
     }
 
     private fun markToastAsNotShownInDataStore() {

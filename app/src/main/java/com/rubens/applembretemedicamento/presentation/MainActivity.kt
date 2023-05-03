@@ -28,7 +28,6 @@ class MainActivity : AppCompatActivity(), MainActivityInterface {
 
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var mIntent: Intent
     private lateinit var myDataStore: MyDataStore
     private lateinit var viewModel: MainActivityViewModel
 
@@ -113,6 +112,10 @@ class MainActivity : AppCompatActivity(), MainActivityInterface {
 
     override fun hideToolbar() {
         binding.toolbar.visibility = View.GONE
+    }
+
+    override fun hideBtnDeleteMedicamento() {
+        binding.btnDeleteMedicamento.visibility = View.GONE
     }
 
 
