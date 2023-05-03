@@ -292,7 +292,7 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
         preencherListaDeDoses(listaDoses)
         showBtnCancelarAlarme()
         hideBtnArmarAlarme()
-        
+
         var intervaloEntreDoses = interEntreDoses
         if (intervaloEntreDoses < 1) {
             intervaloEntreDoses = pegarIntervaloEmMinutos(intervaloEntreDoses)

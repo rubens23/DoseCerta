@@ -11,7 +11,7 @@ import com.rubens.applembretemedicamento.presentation.interfaces.FragmentDetalhe
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import java.io.Serializable
 
-class MedicamentoManager: CalendarHelper, Serializable {
+class MedicamentoManager : CalendarHelper, Serializable {
     private lateinit var context: FragmentDetalhesMedicamentos
     var nomeMedicamento = ""
     var horaProxDose: String? = null
@@ -29,45 +29,45 @@ class MedicamentoManager: CalendarHelper, Serializable {
     private lateinit var extra: Serializable
 
 
-    private fun updateMedicamento(medicamento: MedicamentoTratamento){
+    private fun updateMedicamento(medicamento: MedicamentoTratamento) {
         this.medicamento = medicamento
         nomeMedicamento = medicamento.nomeMedicamento
     }
 
-    fun getReceiver(): AlarmReceiver{
+    fun getReceiver(): AlarmReceiver {
         return receiver
     }
 
-    fun initializeExtra(extra: Serializable){
+    fun initializeExtra(extra: Serializable) {
         initExtra(extra)
 
     }
 
-    fun getHrProxDose(): String?{
+    fun getHrProxDose(): String? {
         return horaProxDose
     }
 
-    private fun updateIntervaloEntreDoses(num: Double){
+    private fun updateIntervaloEntreDoses(num: Double) {
         intervaloEntreDoses = num
     }
 
-    fun startUpdateIntervaloEntreDoses(num: Double){
+    fun startUpdateIntervaloEntreDoses(num: Double) {
         updateIntervaloEntreDoses(num)
     }
 
-    fun checkIfReceiverIsInitialized(): Boolean{
+    fun checkIfReceiverIsInitialized(): Boolean {
         return this::receiver.isInitialized
     }
 
-    fun startUpdateMedicamento(medicamento: MedicamentoTratamento){
+    fun startUpdateMedicamento(medicamento: MedicamentoTratamento) {
         updateMedicamento(medicamento)
     }
 
-    fun getMedicamento(): MedicamentoTratamento{
+    fun getMedicamento(): MedicamentoTratamento {
         return medicamento
     }
 
-    fun startArmarProximoAlarme(){
+    fun startArmarProximoAlarme() {
         armarProximoAlarme()
     }
 
@@ -76,129 +76,116 @@ class MedicamentoManager: CalendarHelper, Serializable {
 
     }
 
-    private fun updateHoraProxDose(str: String){
+    private fun updateHoraProxDose(str: String) {
         horaProxDose = str
     }
 
-    fun startUpdateHoraProxDose(str: String){
+    fun startUpdateHoraProxDose(str: String) {
         updateHoraProxDose(str)
     }
 
     private fun initializeAlarmManager() {
-
-
-
-        if(alarmReceiverInterface.getNomeMedicamentoFromAlarmReceiver() != ""){
-            Log.d("alarmessimulta", "ja armei um alarme anteriormente")
-        }else{
-            Log.d("alarmessimulta", "ainda não armei nenhum alarme")
-        }
-
-
-
-        receiver = AlarmReceiver()
-
-
-        _horaProximaDoseObserver.value = horaProxDose
-
-
+        initAlarmReceiver()
+        colocaHoraProximaDoseNoObserver()
 
         var podeTocar = false
 
-        horaProxDose?.let {
-                hora->
+        horaProxDose?.let { hora ->
             Log.d("smartalarm", "hora iterada $hora")
             var hr = hora
 
-            //todo consertar isso. A proxima dose esta sendo as 5:10 ao inves das 23:10
-            if(hora.length < 17){
-                hr = hora+":00"
+            if (hora.length < 17) {
+                hr = adicionarZeroZeroAoFinalDaHora(hora)
             }
 
+            //converte a string para uma data, se essa data estiver no futuro, o alarme pode tocar
+            //nesse horário
             convertStringToDate(hr)?.let {
-                Log.d("smartalarm", "data em millisegundos: $hora                       ${it.time}")
-                Log.d("smartalarm", "current time em millis: ${System.currentTimeMillis()}")
-                if(it.time >= System.currentTimeMillis()){
-                    Log.d("smartalarm2", "essa dose ainda nao passou entao pode tocar: $hr")
-                    podeTocar = true
-                }else{
-                    Log.d("smartalarm2", "essa dose ja passou $hr")
-                    podeTocar = false
-
-                }
+                podeTocar = it.time >= System.currentTimeMillis()
             }
 
 
         }
 
-        if(podeTocar){
-
-
-            horaProxDose?.let { receiver.setAlarm2(intervaloEntreDoses, (extra as MedicamentoComDoses).medicamentoTratamento.idMedicamento, (extra as MedicamentoComDoses).listaDoses, context.requireContext(), it) }
-
-            _updateDataStore.value = medicamento.stringDataStore
-
-
-
-        }else{
+        if (podeTocar) {
+            //se pode tocar, seta o alarme
+            chamarMetodoParaSetarOAlarmNoAlarmReceiver()
+        } else {
+            //se não pode tocar nesse horário
+            //pega o outro horario, para ver
+            //se dá para setar o alarme
             armarProximoAlarme()
 
         }
 
 
+    }
+
+    private fun chamarMetodoParaSetarOAlarmNoAlarmReceiver() {
+        horaProxDose?.let {
+            receiver.setAlarm2(
+                intervaloEntreDoses,
+                (extra as MedicamentoComDoses).medicamentoTratamento.idMedicamento,
+                (extra as MedicamentoComDoses).listaDoses,
+                context.requireContext(),
+                it
+            )
+        }
+
+        markToastAsShown()
 
     }
 
+    private fun markToastAsShown() {
+        _updateDataStore.value = medicamento.stringDataStore
+    }
+
+    private fun adicionarZeroZeroAoFinalDaHora(hora: String): String {
+        return "$hora:00"
+
+    }
+
+    private fun colocaHoraProximaDoseNoObserver() {
+        _horaProximaDoseObserver.value = horaProxDose
+    }
+
     private fun armarProximoAlarme() {
-        if((extra as MedicamentoComDoses).listaDoses.size > 0){
-
-
+        if ((extra as MedicamentoComDoses).listaDoses.size > 0) {
             val limiteFor = (extra as MedicamentoComDoses).listaDoses.size - 1
-
             iterarSobreDosesEAcharProxima(limiteFor)
-
-
         }
 
-        _updateDataStore.value = medicamento.stringDataStore
-
+        markToastAsShown()
         initializeAlarmManager()
     }
 
     private fun iterarSobreDosesEAcharProxima(limiteFor: Int) {
-        for(i in 0..limiteFor){
-            horaProxDose?.let {
-                    horaProxDose->
-                if(horaProxDose.length < 17){
-                    if ((extra as MedicamentoComDoses).listaDoses[i].horarioDose + ":00" == horaProxDose +":00"){
-                        Log.d("armarproximo7", "if 1 foram encontrados valores iguais!! horarioDose ${(extra as MedicamentoComDoses).listaDoses[i].horarioDose + ":00"} == horarioProxDose ${horaProxDose}:00")
+        for (i in 0..limiteFor) {
+            horaProxDose?.let { horaProxDose ->
+                if (horaProxDose.length < 17) {
+                    if ((extra as MedicamentoComDoses).listaDoses[i].horarioDose + ":00" == "$horaProxDose:00") {
 
-
-
-
-                        if(i+1 == limiteFor){
+                        if (i + 1 == limiteFor) {
                             //acabaram as doses
-
-                        }else{
-                            this.horaProxDose = (extra as MedicamentoComDoses).listaDoses[i+1].horarioDose + ":00"
+                        } else {
+                            //pega horario da dose e concatena ":00" no final para a string ficar
+                            //formato certo
+                            this.horaProxDose =
+                                (extra as MedicamentoComDoses).listaDoses[i + 1].horarioDose + ":00"
                             return
                         }
 
-                        /**
-                         * dois medicamentos com o alarme tocando ao mesmo tempo...o botão de parar som some...o ideal
-                         * era identificar que o alarme ja esta tocando e fazer uma lista ao inves de uma variavel com um espaço só.
-                         */
+
                     }
-                }else{
-
-                    if ((extra as MedicamentoComDoses).listaDoses[i].horarioDose + ":00" == horaProxDose){
-                        Log.d("armarproximo7", "if 2 foram encontrados valores iguais!! horarioDose ${(extra as MedicamentoComDoses).listaDoses[i].horarioDose + ":00"} == horarioProxDose $horaProxDose")
-
-                        if(i+1 == limiteFor){
-                            //acabaram as doses
-
-                        }else{
-                            this.horaProxDose = (extra as MedicamentoComDoses).listaDoses[i+1].horarioDose + ":00"
+                } else {
+                    //se hora proxDose for maior que 17 significa que já tem o sufixo no horaProxDose
+                    if ((extra as MedicamentoComDoses).listaDoses[i].horarioDose + ":00" == horaProxDose) {
+                        if (i + 1 == limiteFor) {
+                            //doses acabaram
+                        } else {
+                            //coloca o sufixo pois ele não esta no valor salvo no banco
+                            this.horaProxDose =
+                                (extra as MedicamentoComDoses).listaDoses[i + 1].horarioDose + ":00"
                             return
 
                         }
@@ -212,7 +199,7 @@ class MedicamentoManager: CalendarHelper, Serializable {
 
     }
 
-    fun startAlarmManager(context: FragmentDetalhesMedicamentos){
+    fun startAlarmManager(context: FragmentDetalhesMedicamentos) {
         this.context = context
         initFragmentDetalhesUiInterface()
         initAlarmReceiverInterface()
@@ -220,8 +207,8 @@ class MedicamentoManager: CalendarHelper, Serializable {
     }
 
     private fun initFragmentDetalhesUiInterface() {
-        if(!this::fragmentDetalhesMedicamentosUi.isInitialized){
-            fragmentDetalhesMedicamentosUi =  context as FragmentDetalhesMedicamentosUi
+        if (!this::fragmentDetalhesMedicamentosUi.isInitialized) {
+            fragmentDetalhesMedicamentosUi = context as FragmentDetalhesMedicamentosUi
         }
     }
 
@@ -233,11 +220,11 @@ class MedicamentoManager: CalendarHelper, Serializable {
     }
 
     private fun initAlarmReceiverInterface() {
-        if(!this::alarmReceiverInterface.isInitialized){
-            if(this::receiver.isInitialized){
+        if (!this::alarmReceiverInterface.isInitialized) {
+            if (this::receiver.isInitialized) {
                 alarmReceiverInterface = receiver as AlarmReceiverInterface
 
-            }else{
+            } else {
                 initAlarmReceiver()
                 alarmReceiverInterface = receiver
 
@@ -250,28 +237,22 @@ class MedicamentoManager: CalendarHelper, Serializable {
     }
 
     private fun checarSeAlarmeEstaAtivado() {
-        if(medicamento.alarmeAtivado){
-            if(alarmReceiverInterface.getMediaPlayerInstance().isPlaying){
-                Log.d("testeisplaying", "o mp esta tocando")
-
-
-
-                alarmReceiverInterface.getListaIdMedicamentosTocandoNoMomentoFromAlarmReceiver().forEach {
-                    if(it == medicamento.idMedicamento){
-                        fragmentDetalhesMedicamentosUi.showBtnPararSom()
+        if (medicamento.alarmeAtivado) {
+            if (alarmReceiverInterface.getMediaPlayerInstance().isPlaying) {
+                alarmReceiverInterface.getListaIdMedicamentosTocandoNoMomentoFromAlarmReceiver()
+                    .forEach {
+                        if (it == medicamento.idMedicamento) {
+                            fragmentDetalhesMedicamentosUi.showBtnPararSom()
+                        }
                     }
-                }
-
-            }else{
+            } else {
                 Log.d("testeisplaying", "o mp nao esta tocando")
-
                 initializeAlarmManager()
             }
 
         }
 
     }
-
 
 
 }

@@ -1,7 +1,6 @@
 package com.rubens.applembretemedicamento.presentation
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +10,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.FragmentListaMedicamentosBinding
@@ -50,10 +48,6 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper {
         setupToolbar()
 
         binding = FragmentListaMedicamentosBinding.inflate(inflater)
-
-
-
-
         return binding.root
     }
 
@@ -72,33 +66,34 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-
-
         initViewModel()
 
-
-
-
-
         initAds()
-        binding.dataAtual.text = pegarDataAtual()
+        colocarDataAtualNaTextViewDaData()
 
         escutarMediaPlayer()
 
         onClickListeners()
 
+        getRecyclerViewPositionIfItWasSaved(savedInstanceState)
+
+    }
+
+    private fun getRecyclerViewPositionIfItWasSaved(savedInstanceState: Bundle?) {
         savedInstanceState?.let {
             viewModel.recyclerViewPosition = it.getInt("RECYCLER_VIEW_POSITION")
         }
+
     }
 
+    private fun colocarDataAtualNaTextViewDaData() {
+        binding.dataAtual.text = pegarDataAtual()
+
+    }
 
 
     private fun initAds() {
         MobileAds.initialize(requireContext()) {}
-
-
         val adRequest = AdRequest.Builder().build()
         binding.adView.loadAd(adRequest)
     }
@@ -111,30 +106,58 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper {
 
     private fun initViewModel(){
         viewModel = ViewModelProvider(requireActivity())[ViewModelFragmentLista::class.java]
+        initObservers()
+
+    }
+
+    private fun initObservers() {
         viewModel.medicamentos.observe(viewLifecycleOwner){
-            //recebe lista de medicamentos que usuario esta utilizando
-            //a partir dessa lista eu preciso de uma lista de cada medicamento com suas doses
-            Log.d("testemedicamentos", "tamanho da lista ${it.size}")
-            if(it != null){
-                if(it.size > 0){
-                    binding.txtNoData.visibility = View.INVISIBLE
-                    binding.caixaVazia.visibility = View.INVISIBLE
+           listaMedicamentoComDoses->
+            if(listaMedicamentoComDoses != null){
+                if(listaMedicamentoComDoses.isNotEmpty()){
+                    hideTVNoData()
+                    hideCaixaVazia()
                 }else{
-                    binding.txtNoData.visibility = View.VISIBLE
-                    binding.caixaVazia.visibility = View.VISIBLE
+                    showTVNoData()
+                    showCaixaVazia()
                 }
-                listaMedicamentos.clear()
-                it.forEach {
-                    if(!listaMedicamentos.contains(it)){
-                        listaMedicamentos.add(it)
-                    }
-                }
-                setAdapter(it)
+                updateListaMedicamento(listaMedicamentoComDoses)
+
+                setAdapter(listaMedicamentoComDoses)
             }
 
 
 
         }
+    }
+
+    private fun updateListaMedicamento(listaMedicamentoComDoses: List<MedicamentoComDoses>) {
+        listaMedicamentos.clear()
+        listaMedicamentoComDoses.forEach {
+            if(!listaMedicamentos.contains(it)){
+                listaMedicamentos.add(it)
+            }
+        }
+    }
+
+    private fun showCaixaVazia() {
+        binding.caixaVazia.visibility = View.VISIBLE
+    }
+
+    private fun showTVNoData() {
+        binding.txtNoData.visibility = View.VISIBLE
+    }
+
+    private fun hideCaixaVazia() {
+        binding.caixaVazia.visibility = View.INVISIBLE
+
+
+    }
+
+    private fun hideTVNoData() {
+        binding.txtNoData.visibility = View.INVISIBLE
+
+
     }
 
     private fun escutarMediaPlayer() {
