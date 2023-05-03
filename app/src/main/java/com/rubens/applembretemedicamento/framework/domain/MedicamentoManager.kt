@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiver
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
-import com.rubens.applembretemedicamento.presentation.FragmentDetalhesMedicamentos
+import com.rubens.applembretemedicamento.presentation.interfaces.FragmentDetalhesMedicamentosUi
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import java.io.Serializable
 
@@ -22,6 +22,8 @@ class MedicamentoManager: CalendarHelper, Serializable {
     private var _horaProximaDoseObserver: MutableLiveData<String> = MutableLiveData()
     var horaProximaDoseObserver = _horaProximaDoseObserver
     private var intervaloEntreDoses = 0.0
+    private lateinit var fragmentDetalhesMedicamentosUi: FragmentDetalhesMedicamentosUi
+
 
     private lateinit var extra: Serializable
 
@@ -214,11 +216,19 @@ class MedicamentoManager: CalendarHelper, Serializable {
 
     fun startAlarmManager(context: Context){
         this.context = context
+        initFragmentDetalhesUiInterface()
         initializeAlarmManager()
+    }
+
+    private fun initFragmentDetalhesUiInterface() {
+        if(!this::fragmentDetalhesMedicamentosUi.isInitialized){
+            fragmentDetalhesMedicamentosUi = context as FragmentDetalhesMedicamentosUi
+        }
     }
 
     fun startChecarSeAlarmeEstaAtivado(ctx: Context) {
         this.context = ctx
+        initFragmentDetalhesUiInterface()
         checarSeAlarmeEstaAtivado()
     }
 
@@ -229,7 +239,7 @@ class MedicamentoManager: CalendarHelper, Serializable {
 
                 AlarmReceiver.listaIdMedicamentosTocandoNoMomento.forEach {
                     if(it == medicamento.idMedicamento){
-                        FragmentDetalhesMedicamentos.binding.btnPararSom.visibility = View.VISIBLE
+                        fragmentDetalhesMedicamentosUi.showBtnPararSom()
                     }
                 }
 

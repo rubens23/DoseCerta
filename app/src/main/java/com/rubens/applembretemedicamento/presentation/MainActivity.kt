@@ -32,12 +32,12 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity(), MainActivityInterface {
 
     companion object{
-        lateinit var binding: ActivityMainBinding
         val pendingIntentsList = ArrayList<PendingIntent>()
 
 
     }
 
+    private lateinit var binding: ActivityMainBinding
     private lateinit var mIntent: Intent
     private lateinit var myDataStore: MyDataStore
     private lateinit var viewModel: MainActivityViewModel

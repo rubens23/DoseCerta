@@ -22,8 +22,8 @@ import androidx.lifecycle.MutableLiveData
 import com.example.appmedicamentos.utils.WakeLocker
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
-import com.rubens.applembretemedicamento.presentation.FragmentDetalhesMedicamentos
 import com.rubens.applembretemedicamento.presentation.MainActivity
+import com.rubens.applembretemedicamento.presentation.interfaces.FragmentDetalhesMedicamentosUi
 import com.rubens.applembretemedicamento.presentation.recyclerviewadapters.AdapterListaMedicamentos
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
@@ -38,6 +38,9 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
     private lateinit var alarmManager: AlarmManager
     private lateinit var pendingIntent: PendingIntent
     private var listaDoses: ArrayList<Doses> = ArrayList()
+    private lateinit var fragmentDetalhesMedicamentosUi: FragmentDetalhesMedicamentosUi
+
+
 
 
 
@@ -54,6 +57,10 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
 
 
     override fun onReceive(p0: Context?, p1: Intent?) {
+
+        if(!this::fragmentDetalhesMedicamentosUi.isInitialized){
+            fragmentDetalhesMedicamentosUi = p0 as FragmentDetalhesMedicamentosUi
+        }
 
         var idMedicamento = p1?.getIntExtra("medicamentoid", -1)
         val horaDose = p1?.data
@@ -84,7 +91,7 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
 
 
 
-        FragmentDetalhesMedicamentos.binding.btnPararSom.visibility = View.VISIBLE
+        fragmentDetalhesMedicamentosUi.showBtnPararSom()
 
 
 
@@ -159,9 +166,8 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
     fun cancelAlarm() {
         if(alarmManager != null){
             alarmManager.cancel(pendingIntent)
-            FragmentDetalhesMedicamentos.binding.btnCancelarAlarme.visibility = View.GONE
-            FragmentDetalhesMedicamentos.binding.btnArmarAlarme.visibility = View.VISIBLE
-            FragmentDetalhesMedicamentos.binding.btnArmarAlarme.isClickable = true
+            fragmentDetalhesMedicamentosUi.hideBtnCancelarAlarme()
+            fragmentDetalhesMedicamentosUi.showBtnArmarAlarme()
             WakeLocker.release()
         }
         if (mp.isPlaying){
@@ -232,13 +238,10 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
 
         Log.d("smartalarm2", "eu to aqui no metodo que vai setar o alarme para a hora: $horaProxDose")
 
-
-
         listaDoses.addAll(medicamento)
 
-        FragmentDetalhesMedicamentos.binding.btnCancelarAlarme.visibility = View.VISIBLE
-        FragmentDetalhesMedicamentos.binding.btnArmarAlarme.visibility = View.INVISIBLE
-        FragmentDetalhesMedicamentos.binding.btnArmarAlarme.isClickable = false
+        fragmentDetalhesMedicamentosUi.showBtnCancelarAlarme()
+        fragmentDetalhesMedicamentosUi.hideBtnArmarAlarme()
 
 
 

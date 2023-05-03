@@ -34,6 +34,7 @@ import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoC
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentCadastrarNovoMedicamento
+import com.rubens.applembretemedicamento.presentation.interfaces.FragmentDetalhesMedicamentosUi
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.OnDeleteMedicamentoListener
 import com.rubens.applembretemedicamento.presentation.recyclerviewadapters.AdapterListaMedicamentos
@@ -45,7 +46,7 @@ import kotlinx.coroutines.launch
 import java.io.Serializable
 
 
-class FragmentDetalhesMedicamentos() : Fragment(), FuncoesDeTempo, CalendarHelper, comunicacaoFragmentAdapter, OnDeleteMedicamentoListener {
+class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, comunicacaoFragmentAdapter, OnDeleteMedicamentoListener, FragmentDetalhesMedicamentosUi {
 
 
     private lateinit var extra: Serializable
@@ -60,18 +61,16 @@ class FragmentDetalhesMedicamentos() : Fragment(), FuncoesDeTempo, CalendarHelpe
     private var mInterstitial: InterstitialAd? = null
     private lateinit var medicamentoDoseDao: MedicamentoDao
     private lateinit var mainActivityInterface: MainActivityInterface
+    private lateinit var binding: FragmentDetalhesMedicamentosBinding
 
 
-    companion object{
-        lateinit var binding: FragmentDetalhesMedicamentosBinding
 
-    }
 
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentDetalhesMedicamentosBinding.inflate(inflater)
 
         setupToolbar()
@@ -135,8 +134,6 @@ class FragmentDetalhesMedicamentos() : Fragment(), FuncoesDeTempo, CalendarHelpe
 
     private fun initMedicamentoManager() {
         medicamentoManager = args.medicamentoManager
-
-
     }
 
     private fun initExtraFromListaMedicamentosFragment() {
@@ -146,37 +143,53 @@ class FragmentDetalhesMedicamentos() : Fragment(), FuncoesDeTempo, CalendarHelpe
 
     private fun observers() {
         excluirDaListaDeMedicamentosNoAlarme.observe(viewLifecycleOwner){
-            AdapterListaMedicamentos.listaIdMedicamentos.remove(it)
+            removeMedicamentoById(it)
+
         }
 
         medicamentoManager.updateDataStore.observe(viewLifecycleOwner){
-            viewLifecycleOwner.lifecycleScope.launch {
-                val TOAST_ALREADY_SHOWN = booleanPreferencesKey(medicamentoManager.getMedicamento().stringDataStore)
-
-                val hasToastAlreadyShow = myDataStore.hasToastAlreadyShown(TOAST_ALREADY_SHOWN)
-                if (hasToastAlreadyShow){
-                    Log.d("testepodetocar", "toast ja foi mostrado, portanto ele não vai aparecer denovo")
-
-                }else{
-                    Log.d("testepodetocar", "toast ainda não foi mostrado, portanto ele aparecerá")
-
-
-                    Toast.makeText(requireContext(), "Alarme ativado! próxima dose às: ${medicamentoManager.getHrProxDose()}", Toast.LENGTH_LONG).show()
-                    myDataStore.markToastAsShown(TOAST_ALREADY_SHOWN)
-
-                }
-            }
+            markToastAsShownInDataStore()
         }
 
         medicamentoManager.horaProximaDoseObserver.observe(viewLifecycleOwner){
                 if(AlarmReceiver.mp.isPlaying){
-                    binding.btnCancelarAlarme.visibility = View.VISIBLE
-                    binding.btnArmarAlarme.visibility = View.INVISIBLE
-                    binding.btnArmarAlarme.isClickable = false
+                    showBtnCancelarAlarme()
+                    hideBtnArmarAlarme()
                 }
-
-
         }
+    }
+
+    override fun hideBtnArmarAlarme() {
+        binding.btnArmarAlarme.visibility = View.INVISIBLE
+        binding.btnArmarAlarme.isClickable = false
+    }
+
+    override fun showBtnCancelarAlarme() {
+        binding.btnCancelarAlarme.visibility = View.VISIBLE
+    }
+
+    private fun markToastAsShownInDataStore() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val TOAST_ALREADY_SHOWN = booleanPreferencesKey(medicamentoManager.getMedicamento().stringDataStore)
+
+            val hasToastAlreadyShow = myDataStore.hasToastAlreadyShown(TOAST_ALREADY_SHOWN)
+            if (hasToastAlreadyShow){
+                Log.d("testepodetocar", "toast ja foi mostrado, portanto ele não vai aparecer denovo")
+
+            }else{
+                Log.d("testepodetocar", "toast ainda não foi mostrado, portanto ele aparecerá")
+
+
+                Toast.makeText(requireContext(), "Alarme ativado! próxima dose às: ${medicamentoManager.getHrProxDose()}", Toast.LENGTH_LONG).show()
+                myDataStore.markToastAsShown(TOAST_ALREADY_SHOWN)
+
+            }
+        }
+    }
+
+    private fun removeMedicamentoById(id: Int?) {
+        AdapterListaMedicamentos.listaIdMedicamentos.remove(id)
+
     }
 
     override fun onAttach(context: Context) {
@@ -322,8 +335,6 @@ class FragmentDetalhesMedicamentos() : Fragment(), FuncoesDeTempo, CalendarHelpe
                     avisaQueEsseMedicamentoNaoEstaComOAlarmeTocandoNoMomento()
 
                 }
-
-
             }
         }
     }
@@ -342,7 +353,6 @@ class FragmentDetalhesMedicamentos() : Fragment(), FuncoesDeTempo, CalendarHelpe
 
     private fun stopMusicPlayer() {
         AlarmReceiver.mp.stop()
-
     }
 
     private fun markToastAsNotShownInDataStore() {
@@ -478,6 +488,23 @@ class FragmentDetalhesMedicamentos() : Fragment(), FuncoesDeTempo, CalendarHelpe
     }
 
 
+
+    override fun hideBtnCancelarAlarme() {
+        binding.btnCancelarAlarme.visibility = View.GONE
+
+
+    }
+
+    override fun showBtnArmarAlarme() {
+        binding.btnArmarAlarme.visibility = View.VISIBLE
+        binding.btnArmarAlarme.isClickable = true
+
+    }
+
+    override fun showBtnPararSom() {
+        binding.btnPararSom.visibility = View.VISIBLE
+
+    }
 
 
 }
