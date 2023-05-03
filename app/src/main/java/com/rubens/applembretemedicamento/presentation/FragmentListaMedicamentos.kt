@@ -40,7 +40,7 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         initMainActivityInterface()
         initAlarmReceiver()
@@ -56,7 +56,7 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper {
     }
 
     private fun initAlarmReceiverInterface() {
-        alarmReceiverInterface = alarmReceiver as AlarmReceiverInterface
+        alarmReceiverInterface = alarmReceiver
     }
 
     private fun initMainActivityInterface() {
@@ -206,7 +206,7 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper {
         super.onSaveInstanceState(outState)
 
         if(this::viewModel.isInitialized){
-            viewModel.recyclerViewPosition?.let {
+            viewModel.recyclerViewPosition.let {
                 outState.putInt("RECYCLER_VIEW_POSITION", it)
             }
         }
