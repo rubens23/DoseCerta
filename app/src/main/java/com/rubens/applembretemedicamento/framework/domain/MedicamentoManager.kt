@@ -28,9 +28,6 @@ class MedicamentoManager: CalendarHelper, Serializable {
     private lateinit var extra: Serializable
 
 
-
-
-
     private fun updateMedicamento(medicamento: MedicamentoTratamento){
         this.medicamento = medicamento
         nomeMedicamento = medicamento.nomeMedicamento

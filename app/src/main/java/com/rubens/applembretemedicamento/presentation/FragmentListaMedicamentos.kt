@@ -1,17 +1,12 @@
 package com.rubens.applembretemedicamento.presentation
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavController
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,6 +18,7 @@ import com.rubens.applembretemedicamento.databinding.FragmentListaMedicamentosBi
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiver
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentLista
+import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import com.rubens.applembretemedicamento.presentation.recyclerviewadapters.AdapterListaMedicamentos
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
@@ -34,16 +30,18 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper {
     private var listaMedicamentos: ArrayList<MedicamentoComDoses> = ArrayList()
     private lateinit var adapter: AdapterListaMedicamentos
     lateinit var viewModel: ViewModelFragmentLista
+    private lateinit var mainActivityInterface: MainActivityInterface
 
 
 
 
-    lateinit var mAdView : AdView
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
+        initMainActivityInterface()
         setupToolbar()
 
         binding = FragmentListaMedicamentosBinding.inflate(inflater)
@@ -52,6 +50,10 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper {
 
 
         return binding.root
+    }
+
+    private fun initMainActivityInterface() {
+        mainActivityInterface = requireContext() as MainActivityInterface
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -89,8 +91,8 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper {
     }
 
     private fun setupToolbar() {
-        MainActivity.binding.toolbar.visibility = View.GONE
-        MainActivity.binding.toolbar.title = ""
+        mainActivityInterface.hideToolbar()
+        mainActivityInterface.hideToolbarTitle()
 
     }
 

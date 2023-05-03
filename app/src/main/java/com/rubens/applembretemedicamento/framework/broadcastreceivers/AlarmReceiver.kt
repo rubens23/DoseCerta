@@ -24,6 +24,7 @@ import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.presentation.MainActivity
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentDetalhesMedicamentosUi
+import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import com.rubens.applembretemedicamento.presentation.recyclerviewadapters.AdapterListaMedicamentos
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
@@ -39,8 +40,7 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
     private lateinit var pendingIntent: PendingIntent
     private var listaDoses: ArrayList<Doses> = ArrayList()
     private lateinit var fragmentDetalhesMedicamentosUi: FragmentDetalhesMedicamentosUi
-
-
+    private lateinit var mainActivityInterface: MainActivityInterface
 
 
 
@@ -58,9 +58,13 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
 
     override fun onReceive(p0: Context?, p1: Intent?) {
 
-        if(!this::fragmentDetalhesMedicamentosUi.isInitialized){
-            fragmentDetalhesMedicamentosUi = p0 as FragmentDetalhesMedicamentosUi
+        if (p0 != null) {
+            initFragmentDetalhesInterface(p0)
         }
+        if (p0 != null) {
+            initMainActivityInterface(p0)
+        }
+
 
         var idMedicamento = p1?.getIntExtra("medicamentoid", -1)
         val horaDose = p1?.data
@@ -131,6 +135,18 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
 
     }
 
+    private fun initMainActivityInterface(ctx: Context) {
+        if(!this::mainActivityInterface.isInitialized){
+            mainActivityInterface = ctx as MainActivityInterface
+        }
+    }
+
+    private fun initFragmentDetalhesInterface(ctx: Context) {
+        if(!this::fragmentDetalhesMedicamentosUi.isInitialized){
+            fragmentDetalhesMedicamentosUi = ctx as FragmentDetalhesMedicamentosUi
+        }
+    }
+
     private fun initOnAudioFocusChangeListener(context: Context?) {
         Log.d("testeaudiofocus", "to no init audio focus")
         val afChangeListener: AudioManager.OnAudioFocusChangeListener =
@@ -181,42 +197,44 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
 
     fun cancelAllAlarms(applicationContext: Context) {
 
-        if(MainActivity.pendingIntentsList.size > 0){
-            Log.d("testedeletepi", "é maior do que 0 ${MainActivity.pendingIntentsList.size}")
-            for(pendingIntent in MainActivity.pendingIntentsList){
+        if(this::mainActivityInterface.isInitialized){
+            if(mainActivityInterface.getPendingIntentsList().size > 0){
+                Log.d("testedeletepi", "é maior do que 0 ${mainActivityInterface.getPendingIntentsList().size}")
+                for(pendingIntent in mainActivityInterface.getPendingIntentsList()){
+                    if(this::alarmManager.isInitialized){
+                        Log.d("testedeletepi", "entrei aqui no if que vai cancelar o alarmManager")
+
+                        alarmManager.cancel(pendingIntent)
+
+                    }else{
+                        alarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                        alarmManager.cancel(pendingIntent)
+
+                        Log.d("testedeletepi", "alarm manager ainda nao foi iniciallizado")
+
+                    }
+                }
+
+            }else{
+
                 if(this::alarmManager.isInitialized){
-                    Log.d("testedeletepi", "entrei aqui no if que vai cancelar o alarmManager")
+                    Log.d("testedeletepi", "entrei aqui no if 2 que vai cancelar o alarmManager")
 
                     alarmManager.cancel(pendingIntent)
 
                 }else{
                     alarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
                     alarmManager.cancel(pendingIntent)
-
-                    Log.d("testedeletepi", "alarm manager ainda nao foi iniciallizado")
+                    Log.d("testedeletepi", "else 2: alarm manager ainda não foi inicializado")
 
                 }
-            }
-
-        }else{
-            Log.d("testedeletepi", "é menor ou igual a 0 ${MainActivity.pendingIntentsList.size}")
-
-            if(this::alarmManager.isInitialized){
-                Log.d("testedeletepi", "entrei aqui no if 2 que vai cancelar o alarmManager")
-
-                alarmManager.cancel(pendingIntent)
-
-            }else{
-                alarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                alarmManager.cancel(pendingIntent)
-                Log.d("testedeletepi", "else 2: alarm manager ainda não foi inicializado")
 
             }
 
+
+            mainActivityInterface.clearPendingIntentsList()
         }
 
-
-        MainActivity.pendingIntentsList.clear()
     }
 
     fun cancelAlarmByMedicamentoId(medicamentoId: Int, context: Context){
@@ -431,8 +449,7 @@ class AlarmReceiver: BroadcastReceiver(), CalendarHelper, FuncoesDeTempo {
 
 
 
-        MainActivity.pendingIntentsList.add(pendingIntent)
-        Log.d("testedeletepi", "acabei de adicionar algo na lista de pendingIntents ${MainActivity.pendingIntentsList.size}")
+        mainActivityInterface.addPendingIntentToPendingIntentsList(pendingIntent)
 
 
     }
