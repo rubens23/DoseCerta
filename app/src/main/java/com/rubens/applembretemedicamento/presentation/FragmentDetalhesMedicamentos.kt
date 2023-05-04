@@ -27,6 +27,7 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.gms.ads.MobileAds
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.FragmentDetalhesMedicamentosBinding
+import com.rubens.applembretemedicamento.databinding.ItemDetalhesMedicamentosBinding
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiver
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiverInterface
 import com.rubens.applembretemedicamento.framework.data.AppDatabase
@@ -37,13 +38,11 @@ import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentCadastrarNovoMedicamento
-import com.rubens.applembretemedicamento.presentation.interfaces.AdapterListaMedicamentosInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.ConexaoBindingAdapterDetalhesMedicamentos
 import com.rubens.applembretemedicamento.presentation.interfaces.DetalhesMedicamentosAdapterInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentDetalhesMedicamentosUi
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.OnDeleteMedicamentoListener
-import com.rubens.applembretemedicamento.presentation.recyclerviewadapters.AdapterListaMedicamentos
 import com.rubens.applembretemedicamento.presentation.recyclerviewadapters.DetalhesMedicamentoAdapter
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.comunicacaoFragmentAdapter
@@ -69,11 +68,11 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     private var mInterstitial: InterstitialAd? = null
     private lateinit var mainActivityInterface: MainActivityInterface
     private lateinit var binding: FragmentDetalhesMedicamentosBinding
+    private lateinit var bindingItemAdapter: ItemDetalhesMedicamentosBinding
     private lateinit var alarmReceiverInterface: AlarmReceiverInterface
     private var alarmReceiver: AlarmReceiver = AlarmReceiver()
     private lateinit var medicamentoDoseDao: MedicamentoDao
     private lateinit var conexaoBindingAdapterDetalhesMedicamentos: ConexaoBindingAdapterDetalhesMedicamentos
-    private lateinit var adapterListaMedicamentosInterface: AdapterListaMedicamentosInterface
 
 
     override fun onCreateView(
@@ -81,25 +80,23 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentDetalhesMedicamentosBinding.inflate(inflater)
+        bindingItemAdapter = ItemDetalhesMedicamentosBinding.inflate(inflater)
+
 
         initAlarmReceiverInterface()
         setupToolbar()
-        initConexaoComAdapterBinding()
-        initAdapterListaMedicamentosInterface()
 
         return binding.root
     }
 
-    private fun initAdapterListaMedicamentosInterface() {
-        adapterListaMedicamentosInterface = context as AdapterListaMedicamentosInterface
-    }
+
 
     private fun initConexaoComAdapterBinding() {
-        conexaoBindingAdapterDetalhesMedicamentos = requireContext() as ConexaoBindingAdapterDetalhesMedicamentos
+        conexaoBindingAdapterDetalhesMedicamentos = adapter.ViewHolder(bindingItemAdapter)
     }
 
     private fun initAlarmReceiverInterface() {
-        alarmReceiverInterface = alarmReceiver as AlarmReceiverInterface
+        alarmReceiverInterface = alarmReceiver
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -112,6 +109,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         sendExtraToMedicamentoManagerClass()
         getHorarioStringFromExtraAndInitMedicamentoManagerMethods()
         initDetalhesMedicamentosAdapter()
+        initConexaoComAdapterBinding()
         dizerObserverQueMedicamentoFoiRecebidoDoExtra()
         configTextViewsDuracaoTratamento()
         setAdapterToRecyclerView()
@@ -141,7 +139,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
                 viewLifecycleOwner.lifecycleScope.launch {
                     medicamentoDoseDao.tomarDoseMedicamento(true, doses.idDose)
                 }
-                conexaoBindingAdapterDetalhesMedicamentos.getBinding().ivStatusDosage.setImageResource(R.drawable.med_taken)
+                conexaoBindingAdapterDetalhesMedicamentos.getBindingFromAdapterDetalhes().ivStatusDosage.setImageResource(R.drawable.med_taken)
 
                 dialog.dismiss()
             })
@@ -177,11 +175,11 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
             alert.setMessage("Você quer tomar a dose de ${doses.horarioDose} agora?")
             alert.setPositiveButton("Sim", DialogInterface.OnClickListener { dialog, which ->
 
-                GlobalScope.launch {
+                viewLifecycleOwner.lifecycleScope.launch {
                     medicamentoDoseDao.tomarDoseMedicamento(true, doses.idDose)
                 }
 
-                conexaoBindingAdapterDetalhesMedicamentos.getBinding().ivStatusDosage.setImageResource(R.drawable.med_taken)
+                conexaoBindingAdapterDetalhesMedicamentos.getBindingFromAdapterDetalhes().ivStatusDosage.setImageResource(R.drawable.med_taken)
 
                 dialog.dismiss()
             })
@@ -223,7 +221,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     }
 
     private fun initDetalhesMedicamentosAdapter() {
-        adapter = DetalhesMedicamentoAdapter(extra as MedicamentoComDoses, requireContext())
+        adapter = DetalhesMedicamentoAdapter(extra as MedicamentoComDoses, requireContext(), this@FragmentDetalhesMedicamentos)
     }
 
     private fun getHorarioStringFromExtraAndInitMedicamentoManagerMethods() {
@@ -246,10 +244,6 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
 
     private fun observers() {
-        excluirDaListaDeMedicamentosNoAlarme.observe(viewLifecycleOwner){
-            removeMedicamentoById(it)
-
-        }
 
         medicamentoManager.updateDataStore.observe(viewLifecycleOwner){
             markToastAsShownInDataStore()
@@ -291,12 +285,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         }
     }
 
-    private fun removeMedicamentoById(id: Int?) {
-        if (id != null) {
-            adapterListaMedicamentosInterface.removeFromListaIdMedicamentosFromListaAdapter(id)
-        }
 
-    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -363,8 +352,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
             if (alarmReceiverInterface.getMediaPlayerInstance().isPlaying){
                 stopMusicPlayer()
                 hideBtnPararSom()
-                createListaAuxiliarERemoverOMedicamentoDasListasDeAlarmeTocando()
-                removeMedicamentoDaListaDeAlarmesTocando()
+                avisarQueMedicamentoNaoEstaTocandoNoMomento()
             }
             armarProximoAlarme()
         }
@@ -430,28 +418,21 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         medicamentoManager.startArmarProximoAlarme()
     }
 
-    private fun createListaAuxiliarERemoverOMedicamentoDasListasDeAlarmeTocando() {
-        val listaAuxiliar = ArrayList<Int>()
-        listaAuxiliar.addAll(adapterListaMedicamentosInterface.getListaIdMedicamentosFromAdapterListaMedicamentos())
-        listaAuxiliar.forEach {
-            if(it == medicamentoManager.getMedicamento().idMedicamento){
-                removeMedicamentoDaListaDeAlarmesTocando()
+    private fun avisarQueMedicamentoNaoEstaTocandoNoMomento() {
 
                 if(alarmReceiverInterface.getListaIdMedicamentosTocandoNoMomentoFromAlarmReceiver().contains(medicamentoManager.getMedicamento().idMedicamento)){
                     avisaQueEsseMedicamentoNaoEstaComOAlarmeTocandoNoMomento()
 
                 }
-            }
-        }
+
+
     }
 
     private fun avisaQueEsseMedicamentoNaoEstaComOAlarmeTocandoNoMomento() {
         alarmReceiverInterface.removeFromListaIdMedicamentoTocandoNoMomento(medicamentoManager.getMedicamento().idMedicamento)
     }
 
-    private fun removeMedicamentoDaListaDeAlarmesTocando() {
-        adapterListaMedicamentosInterface.removeFromListaIdMedicamentosFromListaAdapter(medicamentoManager.getMedicamento().idMedicamento)
-    }
+
 
     private fun hideBtnPararSom() {
         binding.btnPararSom.visibility = View.GONE

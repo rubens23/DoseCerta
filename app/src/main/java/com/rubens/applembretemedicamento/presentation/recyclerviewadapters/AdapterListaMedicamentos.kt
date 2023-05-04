@@ -18,6 +18,7 @@ import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
+import com.rubens.applembretemedicamento.presentation.FragmentListaMedicamentos
 import com.rubens.applembretemedicamento.presentation.FragmentListaMedicamentosDirections
 import com.rubens.applembretemedicamento.presentation.interfaces.AdapterListaMedicamentosInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentListaMedicamentosInterface
@@ -25,7 +26,8 @@ import kotlin.collections.ArrayList
 
 class AdapterListaMedicamentos(
     private val list: ArrayList<MedicamentoComDoses>,
-    val context: Context
+    val context: Context,
+    val ctxFragment: FragmentListaMedicamentos
 ) : RecyclerView.Adapter<AdapterListaMedicamentos.ViewHolder>(), AdapterListaMedicamentosInterface {
     private lateinit var alarmReceiverInterface: AlarmReceiverInterface
     private var alarmReceiver: AlarmReceiver = AlarmReceiver()
@@ -39,14 +41,14 @@ class AdapterListaMedicamentos(
     private val medicamentoManager: MedicamentoManager = MedicamentoManager()
 
     init {
-        initFragmentListaInterface(context)
+        initFragmentListaInterface()
         fragmentListaMedicamentosInterface.initDb()
         initAlarmReceiverInterface()
         idMedicamentoTocandoObserver()
     }
 
-    private fun initFragmentListaInterface(context: Context) {
-        fragmentListaMedicamentosInterface = context as FragmentListaMedicamentosInterface
+    private fun initFragmentListaInterface() {
+        fragmentListaMedicamentosInterface = ctxFragment
 
     }
 
@@ -223,6 +225,10 @@ class AdapterListaMedicamentos(
 
     override fun removeFromListaIdMedicamentosFromListaAdapter(id: Int) {
         listaIdMedicamentos.remove(id)
+    }
+
+    override fun addToListaIdMedicamentos(id: Int) {
+        listaIdMedicamentos.add(id)
     }
 
 

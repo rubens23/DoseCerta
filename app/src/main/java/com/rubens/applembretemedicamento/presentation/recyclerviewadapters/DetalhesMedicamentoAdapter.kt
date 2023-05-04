@@ -12,6 +12,7 @@ import com.rubens.applembretemedicamento.databinding.ItemDetalhesMedicamentosBin
 import com.rubens.applembretemedicamento.framework.data.AppDatabase
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
+import com.rubens.applembretemedicamento.presentation.FragmentDetalhesMedicamentos
 import com.rubens.applembretemedicamento.presentation.interfaces.ConexaoBindingAdapterDetalhesMedicamentos
 import com.rubens.applembretemedicamento.presentation.interfaces.DetalhesMedicamentosAdapterInterface
 import com.rubens.applembretemedicamento.utils.CalendarHelper
@@ -19,7 +20,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 
-class DetalhesMedicamentoAdapter(listaDosagemMedicamento: MedicamentoComDoses, val context: Context): RecyclerView.Adapter<DetalhesMedicamentoAdapter.ViewHolder>(), CalendarHelper{
+class DetalhesMedicamentoAdapter(listaDosagemMedicamento: MedicamentoComDoses, val context: Context, val fragmentDetalhes: FragmentDetalhesMedicamentos): RecyclerView.Adapter<DetalhesMedicamentoAdapter.ViewHolder>(), CalendarHelper{
     private var listaDoses: ArrayList<Doses> = ArrayList()
     private lateinit var detalhesMedicamentosAdapterInterface: DetalhesMedicamentosAdapterInterface
 
@@ -28,11 +29,11 @@ class DetalhesMedicamentoAdapter(listaDosagemMedicamento: MedicamentoComDoses, v
     init {
         populateListaDoses(listaDosagemMedicamento)
         configureList()
-        initDetalhesMedicaemtosAdapterInterface(context)
+        initDetalhesMedicaemtosAdapterInterface(fragmentDetalhes)
     }
 
-    private fun initDetalhesMedicaemtosAdapterInterface(context: Context) {
-        detalhesMedicamentosAdapterInterface = context as DetalhesMedicamentosAdapterInterface
+    private fun initDetalhesMedicaemtosAdapterInterface(context: FragmentDetalhesMedicamentos) {
+        detalhesMedicamentosAdapterInterface = context
     }
 
     private fun populateListaDoses(listaDosagemMedicamento: MedicamentoComDoses) {
@@ -110,7 +111,7 @@ class DetalhesMedicamentoAdapter(listaDosagemMedicamento: MedicamentoComDoses, v
 
         }
 
-        override fun getBinding(): ItemDetalhesMedicamentosBinding {
+        override fun getBindingFromAdapterDetalhes(): ItemDetalhesMedicamentosBinding {
             return binding
         }
     }

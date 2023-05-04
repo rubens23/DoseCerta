@@ -7,5 +7,7 @@ interface AdapterListaMedicamentosInterface {
 
     fun removeFromListaIdMedicamentosFromListaAdapter(id: Int)
 
+    fun addToListaIdMedicamentos(id: Int)
+
 
 }

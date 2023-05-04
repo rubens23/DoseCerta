@@ -1,5 +1,6 @@
 package com.rubens.applembretemedicamento.framework.broadcastreceivers
 
+import android.Manifest
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_IMMUTABLE
@@ -7,6 +8,7 @@ import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.MediaPlayer
@@ -14,6 +16,7 @@ import android.net.Uri
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -23,6 +26,7 @@ import com.example.appmedicamentos.utils.WakeLocker
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.presentation.MainActivity
+import com.rubens.applembretemedicamento.presentation.interfaces.AdapterListaMedicamentosInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentDetalhesMedicamentosUi
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import com.rubens.applembretemedicamento.presentation.recyclerviewadapters.AdapterListaMedicamentos
@@ -48,11 +52,15 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
     private var listaIdMedicamentosTocandoNoMomento: ArrayList<Int> = ArrayList()
     private var alarmeTocando: MutableLiveData<Boolean> = MutableLiveData()
     private var idMedicamentoTocandoAtualmente: MutableLiveData<List<Int>> = MutableLiveData()
+    private var appContext: Context? = null
+    private lateinit var adapterListaMedicamentosInterface: AdapterListaMedicamentosInterface
 
 
     override fun onReceive(p0: Context?, p1: Intent?) {
         initFragmentDetalhesInterface(p0)
         initMainActivityInterface(p0)
+        initAppContext(p0)
+        initAdapterListaMedicamentosInterface()
 
 
         //extras from intent
@@ -81,6 +89,15 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
     }
 
+    private fun initAdapterListaMedicamentosInterface() {
+        adapterListaMedicamentosInterface = appContext as AdapterListaMedicamentosInterface
+    }
+
+    private fun initAppContext(p0: Context?) {
+        appContext = p0?.applicationContext
+
+    }
+
     private fun createNotificationForMedicationAlarmThatIsRinging(
         nomeMedicamento: String?,
         p0: Context?,
@@ -106,6 +123,22 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
         notification?.let {
             if (idMedicamento != null) {
+                if (appContext?.let { it1 ->
+                        ActivityCompat.checkSelfPermission(
+                            it1.applicationContext,
+                            Manifest.permission.POST_NOTIFICATIONS
+                        )
+                    } != PackageManager.PERMISSION_GRANTED
+                ) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return
+                }
                 manager?.notify(idMedicamento, notification)
             }
 
@@ -140,7 +173,7 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
             idMed = idMedicamento.toString()
             listaIdMedicamentosTocandoNoMomento.add(idMed.toInt())
             listaNumeroInteiro.add(idMedicamento)
-            AdapterListaMedicamentos.listaIdMedicamentos.add(idMed.toInt())
+            adapterListaMedicamentosInterface.addToListaIdMedicamentos(idMed.toInt())
 
         }
 

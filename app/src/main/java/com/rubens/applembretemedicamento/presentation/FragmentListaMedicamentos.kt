@@ -185,7 +185,7 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
     }
 
     fun setAdapter(medicamentos: List<MedicamentoComDoses>?) {
-        adapter = AdapterListaMedicamentos(medicamentos as ArrayList<MedicamentoComDoses>, requireContext())
+        adapter = AdapterListaMedicamentos(medicamentos as ArrayList<MedicamentoComDoses>, requireContext(), this)
         adapter.listaComDosesToast.observe(viewLifecycleOwner){
 
         }
@@ -313,6 +313,8 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
         return SimpleDateFormat("dd/MM/yyyy")
 
     }
+
+
 
 
 }
