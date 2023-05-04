@@ -25,6 +25,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.gms.ads.MobileAds
+import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.FragmentDetalhesMedicamentosBinding
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiver
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiverInterface
@@ -32,9 +33,13 @@ import com.rubens.applembretemedicamento.framework.data.AppDatabase
 import com.rubens.applembretemedicamento.framework.data.MyDataStore
 import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
+import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentCadastrarNovoMedicamento
+import com.rubens.applembretemedicamento.presentation.interfaces.AdapterListaMedicamentosInterface
+import com.rubens.applembretemedicamento.presentation.interfaces.ConexaoBindingAdapterDetalhesMedicamentos
+import com.rubens.applembretemedicamento.presentation.interfaces.DetalhesMedicamentosAdapterInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentDetalhesMedicamentosUi
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.OnDeleteMedicamentoListener
@@ -43,11 +48,13 @@ import com.rubens.applembretemedicamento.presentation.recyclerviewadapters.Detal
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.comunicacaoFragmentAdapter
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.Serializable
 
 
-class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, comunicacaoFragmentAdapter, OnDeleteMedicamentoListener, FragmentDetalhesMedicamentosUi {
+class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, comunicacaoFragmentAdapter,
+    OnDeleteMedicamentoListener, FragmentDetalhesMedicamentosUi, DetalhesMedicamentosAdapterInterface {
 
 
     private lateinit var extra: Serializable
@@ -60,15 +67,13 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     private val args: FragmentDetalhesMedicamentosArgs by navArgs()
     private lateinit var myDataStore: MyDataStore
     private var mInterstitial: InterstitialAd? = null
-    private lateinit var medicamentoDoseDao: MedicamentoDao
     private lateinit var mainActivityInterface: MainActivityInterface
     private lateinit var binding: FragmentDetalhesMedicamentosBinding
     private lateinit var alarmReceiverInterface: AlarmReceiverInterface
     private var alarmReceiver: AlarmReceiver = AlarmReceiver()
-
-
-
-
+    private lateinit var medicamentoDoseDao: MedicamentoDao
+    private lateinit var conexaoBindingAdapterDetalhesMedicamentos: ConexaoBindingAdapterDetalhesMedicamentos
+    private lateinit var adapterListaMedicamentosInterface: AdapterListaMedicamentosInterface
 
 
     override fun onCreateView(
@@ -79,8 +84,18 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
         initAlarmReceiverInterface()
         setupToolbar()
+        initConexaoComAdapterBinding()
+        initAdapterListaMedicamentosInterface()
 
         return binding.root
+    }
+
+    private fun initAdapterListaMedicamentosInterface() {
+        adapterListaMedicamentosInterface = context as AdapterListaMedicamentosInterface
+    }
+
+    private fun initConexaoComAdapterBinding() {
+        conexaoBindingAdapterDetalhesMedicamentos = requireContext() as ConexaoBindingAdapterDetalhesMedicamentos
     }
 
     private fun initAlarmReceiverInterface() {
@@ -106,12 +121,92 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         onClickListeners()
     }
 
-    private fun initDao() {
+    override fun initDao() {
         medicamentoDoseDao = db!!.medicamentoDao
     }
 
-    private fun initDataBase() {
+    override fun initDataBase() {
         db = AppDatabase.getAppDatabase(requireContext())
+    }
+
+    override fun onDoseClick(doses: Doses) {
+        if(!doses.jaTomouDose){
+            //mostrar o dialog confirmando a dose a ser tomada
+            val alert: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(requireContext())
+            alert.setTitle("Tomar ${doses.nomeMedicamento}")
+            alert.setMessage("Você quer tomar a dose de ${doses.horarioDose} agora?")
+            Log.d("testehora", "${doses.horarioDose}")
+            alert.setPositiveButton("Sim", DialogInterface.OnClickListener { dialog, which ->
+
+                viewLifecycleOwner.lifecycleScope.launch {
+                    medicamentoDoseDao.tomarDoseMedicamento(true, doses.idDose)
+                }
+                conexaoBindingAdapterDetalhesMedicamentos.getBinding().ivStatusDosage.setImageResource(R.drawable.med_taken)
+
+                dialog.dismiss()
+            })
+
+            alert.setNegativeButton("Não",
+                DialogInterface.OnClickListener { dialog, which ->
+                    dialog.dismiss() })
+
+            alert.show()
+        }else{
+            //mostrar o dialog confirmando a dose a ser tomada
+            val alert: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(requireContext())
+            alert.setTitle("Dose Tomada!")
+            alert.setMessage("Você já tomou a dose das ${doses.horarioDose}!")
+            alert.setPositiveButton("OK", DialogInterface.OnClickListener { dialog, which ->
+
+
+                dialog.dismiss()
+            })
+
+
+            alert.show()
+
+        }
+    }
+
+    override fun onDoseImageViewClick(doses: Doses) {
+
+        if(!doses.jaTomouDose){
+            //mostrar o dialog confirmando a dose a ser tomada
+            val alert: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(requireContext())
+            alert.setTitle("Tomar ${doses.nomeMedicamento}")
+            alert.setMessage("Você quer tomar a dose de ${doses.horarioDose} agora?")
+            alert.setPositiveButton("Sim", DialogInterface.OnClickListener { dialog, which ->
+
+                GlobalScope.launch {
+                    medicamentoDoseDao.tomarDoseMedicamento(true, doses.idDose)
+                }
+
+                conexaoBindingAdapterDetalhesMedicamentos.getBinding().ivStatusDosage.setImageResource(R.drawable.med_taken)
+
+                dialog.dismiss()
+            })
+
+            alert.setNegativeButton("Não",
+                DialogInterface.OnClickListener { dialog, which ->
+                    dialog.dismiss() })
+
+            alert.show()
+        }else{
+            //mostrar o dialog confirmando a dose a ser tomada
+            val alert: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(requireContext())
+            alert.setTitle("Dose Tomada!")
+            alert.setMessage("Você já tomou a dose das ${doses.horarioDose}!")
+            alert.setPositiveButton("OK", DialogInterface.OnClickListener { dialog, which ->
+
+
+                dialog.dismiss()
+            })
+
+
+            alert.show()
+
+        }
+
     }
 
     private fun setAdapterToRecyclerView() {
@@ -128,7 +223,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     }
 
     private fun initDetalhesMedicamentosAdapter() {
-        adapter = DetalhesMedicamentoAdapter(extra as MedicamentoComDoses, this)
+        adapter = DetalhesMedicamentoAdapter(extra as MedicamentoComDoses, requireContext())
     }
 
     private fun getHorarioStringFromExtraAndInitMedicamentoManagerMethods() {
@@ -197,7 +292,9 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     }
 
     private fun removeMedicamentoById(id: Int?) {
-        AdapterListaMedicamentos.listaIdMedicamentos.remove(id)
+        if (id != null) {
+            adapterListaMedicamentosInterface.removeFromListaIdMedicamentosFromListaAdapter(id)
+        }
 
     }
 
@@ -335,7 +432,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
     private fun createListaAuxiliarERemoverOMedicamentoDasListasDeAlarmeTocando() {
         val listaAuxiliar = ArrayList<Int>()
-        listaAuxiliar.addAll(AdapterListaMedicamentos.listaIdMedicamentos)
+        listaAuxiliar.addAll(adapterListaMedicamentosInterface.getListaIdMedicamentosFromAdapterListaMedicamentos())
         listaAuxiliar.forEach {
             if(it == medicamentoManager.getMedicamento().idMedicamento){
                 removeMedicamentoDaListaDeAlarmesTocando()
@@ -353,7 +450,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     }
 
     private fun removeMedicamentoDaListaDeAlarmesTocando() {
-        AdapterListaMedicamentos.listaIdMedicamentos.remove(medicamentoManager.getMedicamento().idMedicamento)
+        adapterListaMedicamentosInterface.removeFromListaIdMedicamentosFromListaAdapter(medicamentoManager.getMedicamento().idMedicamento)
     }
 
     private fun hideBtnPararSom() {

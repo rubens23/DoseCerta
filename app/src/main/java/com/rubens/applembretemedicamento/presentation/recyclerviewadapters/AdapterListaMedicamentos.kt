@@ -23,7 +23,10 @@ import com.rubens.applembretemedicamento.presentation.interfaces.AdapterListaMed
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentListaMedicamentosInterface
 import kotlin.collections.ArrayList
 
-class AdapterListaMedicamentos(private val list: ArrayList<MedicamentoComDoses>, val context: Context): RecyclerView.Adapter<AdapterListaMedicamentos.ViewHolder>(), AdapterListaMedicamentosInterface {
+class AdapterListaMedicamentos(
+    private val list: ArrayList<MedicamentoComDoses>,
+    val context: Context
+) : RecyclerView.Adapter<AdapterListaMedicamentos.ViewHolder>(), AdapterListaMedicamentosInterface {
     private lateinit var alarmReceiverInterface: AlarmReceiverInterface
     private var alarmReceiver: AlarmReceiver = AlarmReceiver()
     private var listaIdMedicamentos: ArrayList<Int> = ArrayList()
@@ -35,7 +38,7 @@ class AdapterListaMedicamentos(private val list: ArrayList<MedicamentoComDoses>,
 
     private val medicamentoManager: MedicamentoManager = MedicamentoManager()
 
-    init{
+    init {
         initFragmentListaInterface(context)
         fragmentListaMedicamentosInterface.initDb()
         initAlarmReceiverInterface()
@@ -49,17 +52,18 @@ class AdapterListaMedicamentos(private val list: ArrayList<MedicamentoComDoses>,
 
     private fun idMedicamentoTocandoObserver() {
 
-        alarmReceiverInterface.getAlarmeTocandoLiveData().observe(context as LifecycleOwner){
+        alarmReceiverInterface.getAlarmeTocandoLiveData().observe(context as LifecycleOwner) {
 
         }
     }
 
-    private fun initAlarmReceiverInterface(){
+    private fun initAlarmReceiverInterface() {
         alarmReceiverInterface = alarmReceiver
     }
 
 
-    inner class ViewHolder(val binding: MedicamentoBinding): RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(val binding: MedicamentoBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
 
         fun bind(medicamento: MedicamentoComDoses) {
@@ -69,38 +73,38 @@ class AdapterListaMedicamentos(private val list: ArrayList<MedicamentoComDoses>,
 
         }
 
-    private fun pegarHorarioProximaDose(medicamento: MedicamentoComDoses) {
-        var proxDose: String? = null
-        var intervaloEntreDoses = 0.0
-        var definiuProxDose = false
-        for (i in 0..medicamento.listaDoses.size -1){
-            //pega primeira dose da lista e seleciona o intervalo
-            intervaloEntreDoses = medicamento.listaDoses.get(i).intervaloEntreDoses
-            val dose = medicamento.listaDoses.get(i)
-            if(!dose.jaTomouDose && !definiuProxDose){
-                proxDose = dose.horarioDose
-                definiuProxDose = true
+        private fun pegarHorarioProximaDose(medicamento: MedicamentoComDoses) {
+            var proxDose: String? = null
+            var intervaloEntreDoses = 0.0
+            var definiuProxDose = false
+            for (i in 0..medicamento.listaDoses.size - 1) {
+                //pega primeira dose da lista e seleciona o intervalo
+                intervaloEntreDoses = medicamento.listaDoses.get(i).intervaloEntreDoses
+                val dose = medicamento.listaDoses.get(i)
+                if (!dose.jaTomouDose && !definiuProxDose) {
+                    proxDose = dose.horarioDose
+                    definiuProxDose = true
+                }
+                checarSeAlarmeDoMedicamentoEstaAtivado(medicamento)
+
+                if (dose.jaTomouDose && i != medicamento.listaDoses.size - 1) {
+                    definiuProxDose = false
+                } else if (i == medicamento.listaDoses.size - 1 && dose.jaTomouDose) {
+                    proxDose = medicamento.medicamentoTratamento.horaPrimeiraDose
+                    fragmentListaMedicamentosInterface.launchCoroutineScope(medicamento)
+
+
+                }
+
             }
-            checarSeAlarmeDoMedicamentoEstaAtivado(medicamento)
 
-            if(dose.jaTomouDose && i != medicamento.listaDoses.size -1){
-                definiuProxDose = false
-            }else if(i == medicamento.listaDoses.size -1 && dose.jaTomouDose){
-                proxDose = medicamento.medicamentoTratamento.horaPrimeiraDose
-                fragmentListaMedicamentosInterface.launchCoroutineScope(medicamento)
-
-
-            }
+            formataStringProximaDoseIfStringSize15(proxDose)
+            formataStringProximaDoseIfStringSize16(proxDose)
+            initDb()
+            initClickListeners(proxDose, intervaloEntreDoses, medicamento)
+            setMedNameOnItem(medicamento)
 
         }
-
-        formataStringProximaDoseIfStringSize15(proxDose)
-        formataStringProximaDoseIfStringSize16(proxDose)
-        initDb()
-        initClickListeners(proxDose, intervaloEntreDoses, medicamento)
-        setMedNameOnItem(medicamento)
-
-    }
 
         private fun setMedNameOnItem(medicamento: MedicamentoComDoses) {
             binding.medName.text = medicamento.medicamentoTratamento.nomeMedicamento
@@ -114,7 +118,12 @@ class AdapterListaMedicamentos(private val list: ArrayList<MedicamentoComDoses>,
             medicamento: MedicamentoComDoses
         ) {
             binding.medicamento.setOnClickListener {
-                fragmentListaMedicamentosInterface.onMedicamentoClick(proxDose, intervaloEntreDoses, medicamento, medicamentoManager)
+                fragmentListaMedicamentosInterface.onMedicamentoClick(
+                    proxDose,
+                    intervaloEntreDoses,
+                    medicamento,
+                    medicamentoManager
+                )
             }
 
         }
@@ -124,11 +133,13 @@ class AdapterListaMedicamentos(private val list: ArrayList<MedicamentoComDoses>,
             medicamentoDoseDao = fragmentListaMedicamentosInterface.getMedicamentoDao()
         }
 
+
+
         private fun formataStringProximaDoseIfStringSize16(proxDose: String?) {
             if (proxDose != null) {
                 Log.d("testeformatadapter", "to no if ${proxDose.length}")
 
-                if (proxDose.length == 16){
+                if (proxDose.length == 16) {
                     Log.d("testeformatadapter", "to no if length == 18")
 
                     binding.horaProximaDose.text = proxDose.subSequence(11, 16)
@@ -140,10 +151,10 @@ class AdapterListaMedicamentos(private val list: ArrayList<MedicamentoComDoses>,
         private fun formataStringProximaDoseIfStringSize15(proxDose: String?) {
             if (proxDose != null) {
                 Log.d("testeformatadapter", "to no if ${proxDose.length}")
-                if(proxDose.length == 15){
+                if (proxDose.length == 15) {
                     Log.d("testeformatadapter", "to no if length é 17")
 
-                    binding.horaProximaDose.text = proxDose.subSequence(11,15)
+                    binding.horaProximaDose.text = proxDose.subSequence(11, 15)
                 }
             }
 
@@ -151,7 +162,7 @@ class AdapterListaMedicamentos(private val list: ArrayList<MedicamentoComDoses>,
 
 
         private fun checarSeAlarmeDoMedicamentoEstaAtivado(medicamento: MedicamentoComDoses) {
-            if (medicamento.medicamentoTratamento.alarmeAtivado){
+            if (medicamento.medicamentoTratamento.alarmeAtivado) {
                 showReloginhoDeAlarmeAtivado()
                 checkIfMediaPlayerIsPlaying(medicamento)
 
@@ -160,10 +171,9 @@ class AdapterListaMedicamentos(private val list: ArrayList<MedicamentoComDoses>,
         }
 
         private fun checkIfMediaPlayerIsPlaying(medicamento: MedicamentoComDoses) {
-            if(alarmReceiverInterface.getMediaPlayerInstance().isPlaying){
-                listaIdMedicamentos.forEach {
-                    id->
-                    if (medicamento.medicamentoTratamento.idMedicamento == id && id > -1){
+            if (alarmReceiverInterface.getMediaPlayerInstance().isPlaying) {
+                listaIdMedicamentos.forEach { id ->
+                    if (medicamento.medicamentoTratamento.idMedicamento == id && id > -1) {
                         initShakingClockAnimation()
 
                     }
@@ -202,8 +212,7 @@ class AdapterListaMedicamentos(private val list: ArrayList<MedicamentoComDoses>,
     }
 
 
-
-    override fun getItemCount(): Int{
+    override fun getItemCount(): Int {
         Log.d("testehoranot", "list size: ${list.size}")
         return list.size
     }
@@ -211,6 +220,11 @@ class AdapterListaMedicamentos(private val list: ArrayList<MedicamentoComDoses>,
     override fun getListaIdMedicamentosFromAdapterListaMedicamentos(): ArrayList<Int> {
         return listaIdMedicamentos
     }
+
+    override fun removeFromListaIdMedicamentosFromListaAdapter(id: Int) {
+        listaIdMedicamentos.remove(id)
+    }
+
 
 }
 
