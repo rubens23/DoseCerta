@@ -24,7 +24,6 @@ class FragmentHistoricoMedicamentos : Fragment() {
     private lateinit var viewModel: ViewModelFragmentHistoricoMedicamentos
 
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

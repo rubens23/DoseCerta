@@ -1,11 +1,15 @@
 package com.rubens.applembretemedicamento.presentation
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -15,15 +19,25 @@ import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.FragmentListaMedicamentosBinding
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiver
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiverInterface
+import com.rubens.applembretemedicamento.framework.data.AppDatabase
+import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
+import com.rubens.applembretemedicamento.framework.data.entities.HistoricoMedicamentos
+import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentLista
+import com.rubens.applembretemedicamento.presentation.interfaces.FragmentListaMedicamentosInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import com.rubens.applembretemedicamento.presentation.recyclerviewadapters.AdapterListaMedicamentos
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
 
 
-class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper {
+class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, FragmentListaMedicamentosInterface {
 
     private lateinit var binding: FragmentListaMedicamentosBinding
     private var listaMedicamentos: ArrayList<MedicamentoComDoses> = ArrayList()
@@ -32,6 +46,8 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper {
     private lateinit var mainActivityInterface: MainActivityInterface
     private lateinit var alarmReceiverInterface: AlarmReceiverInterface
     private lateinit var alarmReceiver: AlarmReceiver
+    private var db: AppDatabase? = null
+
 
 
 
@@ -226,6 +242,75 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper {
 
     override fun onStop() {
         super.onStop()
+
+    }
+
+    override fun initDb() {
+        db = AppDatabase.getAppDatabase(requireContext())
+
+    }
+
+    override fun getMedicamentoDao(): MedicamentoDao {
+        return db!!.medicamentoDao
+    }
+
+
+    override fun launchCoroutineScope(medicamento: MedicamentoComDoses) {
+        //todo fazer a viewModel correspondente fazer essas operações
+        lifecycleScope.launch {
+
+            val medicamentoDao = getMedicamentoDao()
+            if(medicamento.medicamentoTratamento.diasRestantesDeTratamento > 1){
+                medicamentoDao.diaConcluido(medicamento.medicamentoTratamento.diasRestantesDeTratamento - 1, medicamento.medicamentoTratamento.nomeMedicamento)
+                medicamentoDao.resetarDosesTomadasParaDiaNovoDeTratamento(false, medicamento.medicamentoTratamento.nomeMedicamento)
+            }else{
+                val sdf = getSimpleDateFormat()
+                val c = Calendar.getInstance()
+                val date = sdf.format(c.time)
+
+
+                medicamentoDao.insertNaTabelaHistoricoMedicamentos(
+                    HistoricoMedicamentos(
+                        medicamento.medicamentoTratamento.nomeMedicamento,
+                        medicamento.medicamentoTratamento.totalDiasTratamento,
+                        date
+                    )
+                )
+
+
+                medicamentoDao.deleteMedicamentoFromMedicamentoTratamento(medicamento.medicamentoTratamento.nomeMedicamento)
+                medicamentoDao.deleteDosesDoMedicamentoFinalizado(medicamento.medicamentoTratamento.nomeMedicamento)
+            }
+
+
+
+
+        }
+    }
+
+    override fun onMedicamentoClick(
+        proxDose: String?,
+        intervaloEntreDoses: Double,
+        medicamento: MedicamentoComDoses,
+        medicamentoManager: MedicamentoManager
+    ) {
+        val action = proxDose?.let { it1 ->
+            FragmentListaMedicamentosDirections.actionMedicamentosFragmentToFragmentDetalhesMedicamentos(medicamento,
+                it1, intervaloEntreDoses.toString(),
+                medicamentoManager
+            )
+        }
+
+        if (action != null) {
+            view?.findNavController()?.navigate(action)
+        }
+
+
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    private fun getSimpleDateFormat(): SimpleDateFormat {
+        return SimpleDateFormat("dd/MM/yyyy")
 
     }
 
