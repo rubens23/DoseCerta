@@ -65,7 +65,8 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
         initOnAudioFocusChangeListener(p0)
         initMediaPlayer(p0)
         startMediaPlayer()
-        adicionarIdDoMedicamentoAListaDeMedicamentosTocandoNoMomento(idMedicamento)
+        //todo se o fragment não estiver aberto quando o alarme tocar, eu nao tenho como acessar a variavel
+        //adicionarIdDoMedicamentoAListaDeMedicamentosTocandoNoMomento(idMedicamento)
         mostrarBtnPararSom()
 
         val pendingIntent = criarPendingIntentComIdDoMedicamento(p0, idMedicamento)
@@ -140,7 +141,8 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
             idMed = idMedicamento.toString()
             listaIdMedicamentosTocandoNoMomento.add(idMed.toInt())
             listaNumeroInteiro.add(idMedicamento)
-            AdapterListaMedicamentos.listaIdMedicamentos.add(idMed.toInt())
+            //todo eu tenho que consertar essa referencia pois pode ser que o adapter nao esteja instanciado quando eu chamar essa linha abaixo
+            //AdapterListaMedicamentos.listaIdMedicamentos.add(idMed.toInt())
 
         }
 

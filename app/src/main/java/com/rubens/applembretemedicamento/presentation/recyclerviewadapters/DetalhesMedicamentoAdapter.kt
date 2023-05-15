@@ -1,22 +1,16 @@
 package com.rubens.applembretemedicamento.presentation.recyclerviewadapters
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.content.DialogInterface
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.ItemDetalhesMedicamentosBinding
-import com.rubens.applembretemedicamento.framework.data.AppDatabase
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.presentation.interfaces.ConexaoBindingAdapterDetalhesMedicamentos
 import com.rubens.applembretemedicamento.presentation.interfaces.DetalhesMedicamentosAdapterInterface
 import com.rubens.applembretemedicamento.utils.CalendarHelper
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 
 class DetalhesMedicamentoAdapter(listaDosagemMedicamento: MedicamentoComDoses, val context: Context): RecyclerView.Adapter<DetalhesMedicamentoAdapter.ViewHolder>(), CalendarHelper{
@@ -110,7 +104,7 @@ class DetalhesMedicamentoAdapter(listaDosagemMedicamento: MedicamentoComDoses, v
 
         }
 
-        override fun getBinding(): ItemDetalhesMedicamentosBinding {
+        override fun getItemDetalhesMedicamentosBinding(): ItemDetalhesMedicamentosBinding {
             return binding
         }
     }

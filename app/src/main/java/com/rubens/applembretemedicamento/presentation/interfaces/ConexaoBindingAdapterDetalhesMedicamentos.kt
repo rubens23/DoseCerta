@@ -3,5 +3,5 @@ package com.rubens.applembretemedicamento.presentation.interfaces
 import com.rubens.applembretemedicamento.databinding.ItemDetalhesMedicamentosBinding
 
 interface ConexaoBindingAdapterDetalhesMedicamentos {
-    fun getBinding(): ItemDetalhesMedicamentosBinding
+    fun getItemDetalhesMedicamentosBinding(): ItemDetalhesMedicamentosBinding
 }

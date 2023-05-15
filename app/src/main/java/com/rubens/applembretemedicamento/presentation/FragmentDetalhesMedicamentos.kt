@@ -43,7 +43,6 @@ import com.rubens.applembretemedicamento.presentation.interfaces.DetalhesMedicam
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentDetalhesMedicamentosUi
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.OnDeleteMedicamentoListener
-import com.rubens.applembretemedicamento.presentation.recyclerviewadapters.AdapterListaMedicamentos
 import com.rubens.applembretemedicamento.presentation.recyclerviewadapters.DetalhesMedicamentoAdapter
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.comunicacaoFragmentAdapter
@@ -141,7 +140,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
                 viewLifecycleOwner.lifecycleScope.launch {
                     medicamentoDoseDao.tomarDoseMedicamento(true, doses.idDose)
                 }
-                conexaoBindingAdapterDetalhesMedicamentos.getBinding().ivStatusDosage.setImageResource(R.drawable.med_taken)
+                conexaoBindingAdapterDetalhesMedicamentos.getItemDetalhesMedicamentosBinding().ivStatusDosage.setImageResource(R.drawable.med_taken)
 
                 dialog.dismiss()
             })
@@ -181,7 +180,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
                     medicamentoDoseDao.tomarDoseMedicamento(true, doses.idDose)
                 }
 
-                conexaoBindingAdapterDetalhesMedicamentos.getBinding().ivStatusDosage.setImageResource(R.drawable.med_taken)
+                conexaoBindingAdapterDetalhesMedicamentos.getItemDetalhesMedicamentosBinding().ivStatusDosage.setImageResource(R.drawable.med_taken)
 
                 dialog.dismiss()
             })
