@@ -1,5 +1,7 @@
 package com.rubens.applembretemedicamento.framework.domain
 
+import android.os.Parcel
+import android.os.Parcelable
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiver
@@ -11,7 +13,7 @@ import com.rubens.applembretemedicamento.presentation.interfaces.FragmentDetalhe
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import java.io.Serializable
 
-class MedicamentoManager : CalendarHelper, Serializable {
+class MedicamentoManager() : CalendarHelper, Parcelable {
     private lateinit var context: FragmentDetalhesMedicamentos
     var nomeMedicamento = ""
     var horaProxDose: String? = null
@@ -27,6 +29,12 @@ class MedicamentoManager : CalendarHelper, Serializable {
 
 
     private lateinit var extra: Serializable
+
+    constructor(parcel: Parcel) : this() {
+        nomeMedicamento = parcel.readString()!!
+        horaProxDose = parcel.readString()
+        intervaloEntreDoses = parcel.readDouble()
+    }
 
 
     private fun updateMedicamento(medicamento: MedicamentoTratamento) {
@@ -252,6 +260,26 @@ class MedicamentoManager : CalendarHelper, Serializable {
 
         }
 
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(nomeMedicamento)
+        parcel.writeString(horaProxDose)
+        parcel.writeDouble(intervaloEntreDoses)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<MedicamentoManager> {
+        override fun createFromParcel(parcel: Parcel): MedicamentoManager {
+            return MedicamentoManager(parcel)
+        }
+
+        override fun newArray(size: Int): Array<MedicamentoManager?> {
+            return arrayOfNulls(size)
+        }
     }
 
 
