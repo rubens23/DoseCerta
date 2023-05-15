@@ -52,6 +52,11 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
     override fun onReceive(p0: Context?, p1: Intent?) {
         //initFragmentDetalhesInterface(p0)
         initMainActivityInterface(p0)
+        
+            val fragment = (context as MainActivity).supportFragmentManager
+                .findFragmentById(R.id.fragmentContainerView) as FragmentDetalhesMedicamentos
+            fragment.setButtonState(true)
+        
 
 
         //extras from intent
