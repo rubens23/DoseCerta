@@ -8,15 +8,18 @@ import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.ItemDetalhesMedicamentosBinding
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
+import com.rubens.applembretemedicamento.presentation.FragmentDetalhesMedicamentos
+import com.rubens.applembretemedicamento.presentation.interfaces.AccessAdapterMethodsInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.ConexaoBindingAdapterDetalhesMedicamentos
 import com.rubens.applembretemedicamento.presentation.interfaces.DetalhesMedicamentosAdapterInterface
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 
 
-class DetalhesMedicamentoAdapter(listaDosagemMedicamento: MedicamentoComDoses, val context: Context): RecyclerView.Adapter<DetalhesMedicamentoAdapter.ViewHolder>(), CalendarHelper{
+class DetalhesMedicamentoAdapter(listaDosagemMedicamento: MedicamentoComDoses, val context: FragmentDetalhesMedicamentos): RecyclerView.Adapter<DetalhesMedicamentoAdapter.ViewHolder>(), CalendarHelper,
+    AccessAdapterMethodsInterface {
     private var listaDoses: ArrayList<Doses> = ArrayList()
     private lateinit var detalhesMedicamentosAdapterInterface: DetalhesMedicamentosAdapterInterface
-
+    private var viewHolder: DetalhesMedicamentoAdapter.ViewHolder? = null
 
 
     init {
@@ -25,8 +28,16 @@ class DetalhesMedicamentoAdapter(listaDosagemMedicamento: MedicamentoComDoses, v
         initDetalhesMedicaemtosAdapterInterface(context)
     }
 
-    private fun initDetalhesMedicaemtosAdapterInterface(context: Context) {
-        detalhesMedicamentosAdapterInterface = context as DetalhesMedicamentosAdapterInterface
+    private fun initDetalhesMedicaemtosAdapterInterface(context: FragmentDetalhesMedicamentos) {
+        detalhesMedicamentosAdapterInterface = context
+    }
+
+    override fun getViewHolderBinding(): ItemDetalhesMedicamentosBinding? {
+        return viewHolder?.getItemDetalhesMedicamentosBinding()
+    }
+
+    override fun getViewHolderInstance(): ViewHolder? {
+        return viewHolder
     }
 
     private fun populateListaDoses(listaDosagemMedicamento: MedicamentoComDoses) {
@@ -107,11 +118,16 @@ class DetalhesMedicamentoAdapter(listaDosagemMedicamento: MedicamentoComDoses, v
         override fun getItemDetalhesMedicamentosBinding(): ItemDetalhesMedicamentosBinding {
             return binding
         }
+
+        override fun getViewHolderInstance(): DetalhesMedicamentoAdapter.ViewHolder {
+            return ViewHolder(binding)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemDetalhesMedicamentosBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHolder(binding)
+        viewHolder = ViewHolder(binding)
+        return viewHolder as ViewHolder
 
     }
 

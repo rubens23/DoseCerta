@@ -37,6 +37,7 @@ import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentCadastrarNovoMedicamento
+import com.rubens.applembretemedicamento.presentation.interfaces.AccessAdapterMethodsInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.AdapterListaMedicamentosInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.ConexaoBindingAdapterDetalhesMedicamentos
 import com.rubens.applembretemedicamento.presentation.interfaces.DetalhesMedicamentosAdapterInterface
@@ -67,6 +68,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     private lateinit var myDataStore: MyDataStore
     private var mInterstitial: InterstitialAd? = null
     private lateinit var mainActivityInterface: MainActivityInterface
+    private lateinit var adapterMethodsInterface: AccessAdapterMethodsInterface
     private lateinit var binding: FragmentDetalhesMedicamentosBinding
     private lateinit var alarmReceiverInterface: AlarmReceiverInterface
     private var alarmReceiver: AlarmReceiver = AlarmReceiver()
@@ -83,22 +85,29 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
         initAlarmReceiverInterface()
         setupToolbar()
-        initConexaoComAdapterBinding()
         initAdapterListaMedicamentosInterface()
 
         return binding.root
     }
 
+    private fun initAdapterMethodsInterface() {
+        adapterMethodsInterface = adapter
+    }
+
     private fun initAdapterListaMedicamentosInterface() {
-        adapterListaMedicamentosInterface = context as AdapterListaMedicamentosInterface
+        //todo o adapter lista medicamentos ja ta fechado quando eu abro a tela de detalhes, essa soluçao que eu implementei não é boa
+        //adapterListaMedicamentosInterface = context as AdapterListaMedicamentosInterface
     }
 
     private fun initConexaoComAdapterBinding() {
-        conexaoBindingAdapterDetalhesMedicamentos = requireContext() as ConexaoBindingAdapterDetalhesMedicamentos
+        if(adapterMethodsInterface.getViewHolderBinding() != null){
+            conexaoBindingAdapterDetalhesMedicamentos = adapterMethodsInterface.getViewHolderInstance()!!
+
+        }
     }
 
     private fun initAlarmReceiverInterface() {
-        alarmReceiverInterface = alarmReceiver as AlarmReceiverInterface
+        alarmReceiverInterface = alarmReceiver
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -111,6 +120,8 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         sendExtraToMedicamentoManagerClass()
         getHorarioStringFromExtraAndInitMedicamentoManagerMethods()
         initDetalhesMedicamentosAdapter()
+        initAdapterMethodsInterface()
+        initConexaoComAdapterBinding()
         dizerObserverQueMedicamentoFoiRecebidoDoExtra()
         configTextViewsDuracaoTratamento()
         setAdapterToRecyclerView()
@@ -222,7 +233,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     }
 
     private fun initDetalhesMedicamentosAdapter() {
-        adapter = DetalhesMedicamentoAdapter(extra as MedicamentoComDoses, requireContext())
+        adapter = DetalhesMedicamentoAdapter(extra as MedicamentoComDoses, this)
     }
 
     private fun getHorarioStringFromExtraAndInitMedicamentoManagerMethods() {
@@ -292,7 +303,8 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
     private fun removeMedicamentoById(id: Int?) {
         if (id != null) {
-            adapterListaMedicamentosInterface.removeFromListaIdMedicamentosFromListaAdapter(id)
+            //todo achar outra solucao pois o adapter da lista de medicamentos já esta morto
+            //adapterListaMedicamentosInterface.removeFromListaIdMedicamentosFromListaAdapter(id)
         }
 
     }
@@ -430,6 +442,8 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     }
 
     private fun createListaAuxiliarERemoverOMedicamentoDasListasDeAlarmeTocando() {
+        //todo achar outra solução pois adapter lista de medicamentos ja esta morto
+        /*
         val listaAuxiliar = ArrayList<Int>()
         listaAuxiliar.addAll(adapterListaMedicamentosInterface.getListaIdMedicamentosFromAdapterListaMedicamentos())
         listaAuxiliar.forEach {
@@ -442,6 +456,8 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
                 }
             }
         }
+
+         */
     }
 
     private fun avisaQueEsseMedicamentoNaoEstaComOAlarmeTocandoNoMomento() {
@@ -449,7 +465,8 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     }
 
     private fun removeMedicamentoDaListaDeAlarmesTocando() {
-        adapterListaMedicamentosInterface.removeFromListaIdMedicamentosFromListaAdapter(medicamentoManager.getMedicamento().idMedicamento)
+        //todo achar outra solução pois adapter lista de medicmaneots ja esta morto
+        //adapterListaMedicamentosInterface.removeFromListaIdMedicamentosFromListaAdapter(medicamentoManager.getMedicamento().idMedicamento)
     }
 
     private fun hideBtnPararSom() {
