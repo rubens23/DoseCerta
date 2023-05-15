@@ -77,11 +77,14 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     private lateinit var adapterListaMedicamentosInterface: AdapterListaMedicamentosInterface
 
 
+    private lateinit var buttonStateLiveData: ButtonStateLiveData
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentDetalhesMedicamentosBinding.inflate(inflater)
+        
+        initButtonStateLiveData()
 
         initAlarmReceiverInterface()
         setupToolbar()
@@ -92,6 +95,10 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
     private fun initAdapterMethodsInterface() {
         adapterMethodsInterface = adapter
+    }
+    
+    private fun initButtonStateLiveData(){
+        buttonStateLiveData = ButtonStateLiveData()
     }
 
     private fun initAdapterListaMedicamentosInterface() {
@@ -270,6 +277,15 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
                     showBtnCancelarAlarme()
                     hideBtnArmarAlarme()
                 }
+        }
+        
+        buttonStateLiveData.observe(viewLifecycleOwner){
+            enabled->
+            showBtnCancelarAlarme()
+            hideBtnArmarAlarme()
+            showBtnPararSom()
+            
+            
         }
     }
 
