@@ -22,13 +22,12 @@ import androidx.lifecycle.MutableLiveData
 import com.example.appmedicamentos.utils.WakeLocker
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
+import com.rubens.applembretemedicamento.presentation.FragmentDetalhesMedicamentos
 import com.rubens.applembretemedicamento.presentation.MainActivity
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentDetalhesMedicamentosUi
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
-import com.rubens.applembretemedicamento.presentation.recyclerviewadapters.AdapterListaMedicamentos
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -51,7 +50,7 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
 
     override fun onReceive(p0: Context?, p1: Intent?) {
-        initFragmentDetalhesInterface(p0)
+        //initFragmentDetalhesInterface(p0)
         initMainActivityInterface(p0)
 
 
@@ -179,12 +178,9 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
         }
     }
 
-    private fun initFragmentDetalhesInterface(ctx: Context?) {
-        if (ctx != null) {
-            if (!this::fragmentDetalhesMedicamentosUi.isInitialized) {
-                fragmentDetalhesMedicamentosUi = ctx as FragmentDetalhesMedicamentosUi
-            }
-
+    private fun initFragmentDetalhesInterface(ctx: FragmentDetalhesMedicamentos) {
+        if (!this::fragmentDetalhesMedicamentosUi.isInitialized) {
+            fragmentDetalhesMedicamentosUi = ctx
         }
     }
 
@@ -287,13 +283,14 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
         interEntreDoses: Double,
         medicamentoId: Int,
         listaDoses: List<Doses>,
-        context: Context,
+        context: FragmentDetalhesMedicamentos,
+        ctxActivity: Context,
         horaProxDose: String
     ) {
 
         preencherListaDeDoses(listaDoses)
-        showBtnCancelarAlarme()
-        hideBtnArmarAlarme()
+        showBtnCancelarAlarme(context)
+        hideBtnArmarAlarme(context)
 
         var intervaloEntreDoses = interEntreDoses
         if (intervaloEntreDoses < 1) {
@@ -301,8 +298,8 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
         }
 
 
-        initAlarmManager(context)
-        initAlarmIntent(context)
+        initAlarmManager(ctxActivity)
+        initAlarmIntent(ctxActivity)
         var horaProximaDose = ""
 
         var mudarFormatador = false
@@ -387,7 +384,7 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
             //faz configurações finais na intent e inicializa o alarme
             putNomeMedicamentoEHoraProximaDoseNoExtraDoAlarmIntent(horaProximaDose)
-            pendingIntent = makePendingIntent(context, medicamentoId, alarmIntent, 0)
+            pendingIntent = makePendingIntent(ctxActivity, medicamentoId, alarmIntent, 0)
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 System.currentTimeMillis() + millisegundosAteProximaDose,
@@ -422,7 +419,7 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
             //faz configurações finais na alarm Intent e seta o alarme
             putNomeMedicamentoEHoraProximaDoseNoExtraDoAlarmIntent(horaProximaDose)
-            pendingIntent = makePendingIntent(context, medicamentoId, alarmIntent, 0)
+            pendingIntent = makePendingIntent(ctxActivity, medicamentoId, alarmIntent, 0)
             val millisegundosAteProximaDose =
                 horaProximaDoseMenosHoraAtual(horaProximaDoseInMilliseconds, horaAtualEmMillisegundos)
             alarmManager.setExactAndAllowWhileIdle(
@@ -432,11 +429,12 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
             )
 
         }
-        addPendingIntentToIntentList(pendingIntent)
+        addPendingIntentToIntentList(pendingIntent, ctxActivity)
 
     }
 
-    private fun addPendingIntentToIntentList(pendingIntent: PendingIntent) {
+    private fun addPendingIntentToIntentList(pendingIntent: PendingIntent, ctxActivity: Context) {
+        initMainActivityInterface(ctxActivity)
         mainActivityInterface.addPendingIntentToPendingIntentsList(pendingIntent)
 
     }
@@ -545,14 +543,18 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
     }
 
-    private fun hideBtnArmarAlarme() {
+    private fun hideBtnArmarAlarme(context: FragmentDetalhesMedicamentos) {
+        initFragmentDetalhesInterface(context)
         fragmentDetalhesMedicamentosUi.hideBtnArmarAlarme()
     }
 
-    private fun showBtnCancelarAlarme() {
+    private fun showBtnCancelarAlarme(context: FragmentDetalhesMedicamentos) {
+        initFragmentDetalhesInterface(context)
         fragmentDetalhesMedicamentosUi.showBtnCancelarAlarme()
 
     }
+
+
 
     private fun preencherListaDeDoses(lstDoses: List<Doses>) {
         this.listaDoses.addAll(lstDoses)

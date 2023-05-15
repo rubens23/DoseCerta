@@ -135,6 +135,7 @@ class MedicamentoManager() : CalendarHelper, Parcelable {
                 intervaloEntreDoses,
                 (extra as MedicamentoComDoses).medicamentoTratamento.idMedicamento,
                 (extra as MedicamentoComDoses).listaDoses,
+                context,
                 context.requireContext(),
                 it
             )
