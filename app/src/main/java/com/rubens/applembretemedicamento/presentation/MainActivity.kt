@@ -97,6 +97,8 @@ class MainActivity : AppCompatActivity(), MainActivityInterface {
         Log.d("testedeletepi", "to aqui no onDestroy")
 
         alarmReceiver.cancelAllAlarms(this.applicationContext)
+        Log.d("testealarme", "metodo da main activity de cancelar todos os alarmes ao fechar, foi chamado")
+
 
     }
 

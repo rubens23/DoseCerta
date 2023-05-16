@@ -86,13 +86,7 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
         initOnAudioFocusChangeListener(p0)
         initMediaPlayer(p0)
         startMediaPlayer()
-        //todo se o fragment não estiver aberto quando o alarme tocar, eu nao tenho como acessar a variavel
-        //adicionarIdDoMedicamentoAListaDeMedicamentosTocandoNoMomento(idMedicamento)
-        //buttonStateLiveData.value = true
-        //Log.d("testebtn", "acabei de passar o valor para o live data. live data: ${buttonStateLiveData}")
 
-
-        //mostrarBtnPararSom(p0)
 
         val pendingIntent = criarPendingIntentComIdDoMedicamento(p0, idMedicamento)
 
@@ -171,10 +165,6 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
     }
 
-    private fun mostrarBtnPararSom(p0: Context?) {
-        fragmentDetalhesMedicamentosUi.showBtnPararSom()
-
-    }
 
     private fun adicionarIdDoMedicamentoAListaDeMedicamentosTocandoNoMomento(idMedicamento: Int?) {
         val listaNumeroInteiro: ArrayList<Int> = ArrayList()
@@ -192,6 +182,7 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
     private fun startMediaPlayer() {
         mp.start()
         alarmeTocando.postValue(true)
+        Log.d("testealarme", "alarme começou a tocar")
 
 
     }
@@ -260,15 +251,15 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
 
     fun cancelAlarm() {
-        if (alarmManager != null) {
-            alarmManager.cancel(pendingIntent)
-            fragmentDetalhesMedicamentosUi.hideBtnCancelarAlarme()
-            fragmentDetalhesMedicamentosUi.showBtnArmarAlarme()
-            WakeLocker.release()
-        }
+        alarmManager.cancel(pendingIntent)
+        fragmentDetalhesMedicamentosUi.hideBtnCancelarAlarme()
+        fragmentDetalhesMedicamentosUi.showBtnArmarAlarme()
+        WakeLocker.release()
         if (mp.isPlaying) {
             mp.stop()
             alarmeTocando.postValue(false)
+            Log.d("testealarme", "alarme tava tocqando e parou depois de passar por aqui")
+
 
 
         }

@@ -7,4 +7,6 @@ interface AccessAdapterMethodsInterface {
     fun getViewHolderBinding(): ItemDetalhesMedicamentosBinding?
 
     fun getViewHolderInstance(): DetalhesMedicamentoAdapter.ViewHolder?
+
+
 }

@@ -3,6 +3,7 @@ package com.rubens.applembretemedicamento.presentation.recyclerviewadapters
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.ItemDetalhesMedicamentosBinding
@@ -28,6 +29,7 @@ class DetalhesMedicamentoAdapter(listaDosagemMedicamento: MedicamentoComDoses, v
         initDetalhesMedicaemtosAdapterInterface(context)
     }
 
+
     private fun initDetalhesMedicaemtosAdapterInterface(context: FragmentDetalhesMedicamentos) {
         detalhesMedicamentosAdapterInterface = context
     }
@@ -36,9 +38,11 @@ class DetalhesMedicamentoAdapter(listaDosagemMedicamento: MedicamentoComDoses, v
         return viewHolder?.getItemDetalhesMedicamentosBinding()
     }
 
-    override fun getViewHolderInstance(): ViewHolder? {
+    override fun getViewHolderInstance(): DetalhesMedicamentoAdapter.ViewHolder? {
         return viewHolder
     }
+
+
 
     private fun populateListaDoses(listaDosagemMedicamento: MedicamentoComDoses) {
         listaDoses.addAll(listaDosagemMedicamento.listaDoses)
@@ -127,6 +131,7 @@ class DetalhesMedicamentoAdapter(listaDosagemMedicamento: MedicamentoComDoses, v
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemDetalhesMedicamentosBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         viewHolder = ViewHolder(binding)
+        detalhesMedicamentosAdapterInterface.setViewHolderLiveDataValue(viewHolder!!)
         return viewHolder as ViewHolder
 
     }

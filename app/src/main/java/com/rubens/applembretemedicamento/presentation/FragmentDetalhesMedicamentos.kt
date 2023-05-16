@@ -1,12 +1,9 @@
 package com.rubens.applembretemedicamento.presentation
 
-import ButtonStateLiveData
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.DialogInterface
-import android.content.IntentFilter
-import android.media.metrics.Event
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -30,7 +27,6 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.gms.ads.MobileAds
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.FragmentDetalhesMedicamentosBinding
-import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiver
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiverInterface
 import com.rubens.applembretemedicamento.framework.data.AppDatabase
 import com.rubens.applembretemedicamento.framework.data.MyDataStore
@@ -68,6 +64,8 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     lateinit var viewModel: ViewModelFragmentCadastrarNovoMedicamento
     private var medicamentoAdicionadoObserver: MutableLiveData<MedicamentoTratamento> = MutableLiveData()
     private var excluirDaListaDeMedicamentosNoAlarme: MutableLiveData<Int> = MutableLiveData()
+    private var viewHolderInstanceLiveData: MutableLiveData<DetalhesMedicamentoAdapter.ViewHolder> = MutableLiveData()
+
     private var db: AppDatabase? = null
     private lateinit var medicamentoManager: MedicamentoManager
     private val args: FragmentDetalhesMedicamentosArgs by navArgs()
@@ -80,6 +78,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     //private var alarmReceiver: AlarmReceiver = AlarmReceiverSingleton.getInstance()
     private lateinit var medicamentoDoseDao: MedicamentoDao
     private lateinit var conexaoBindingAdapterDetalhesMedicamentos: ConexaoBindingAdapterDetalhesMedicamentos
+
 
 
     override fun onCreateView(
@@ -107,11 +106,10 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         //adapterListaMedicamentosInterface = context as AdapterListaMedicamentosInterface
     }
 
-    private fun initConexaoComAdapterBinding() {
-        if(adapterMethodsInterface.getViewHolderBinding() != null){
-            conexaoBindingAdapterDetalhesMedicamentos = adapterMethodsInterface.getViewHolderInstance()!!
+    private fun initConexaoComAdapterBinding(viewHolderInstance: DetalhesMedicamentoAdapter.ViewHolder) {
 
-        }
+            conexaoBindingAdapterDetalhesMedicamentos = viewHolderInstance
+
     }
 
     private fun initAlarmReceiverInterface() {
@@ -127,12 +125,12 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         initMedicamentoManager()
         sendExtraToMedicamentoManagerClass()
         getHorarioStringFromExtraAndInitMedicamentoManagerMethods()
-        initDetalhesMedicamentosAdapter()
-        initAdapterMethodsInterface()
-        initConexaoComAdapterBinding()
+
         dizerObserverQueMedicamentoFoiRecebidoDoExtra()
         configTextViewsDuracaoTratamento()
+        initDetalhesMedicamentosAdapter()
         setAdapterToRecyclerView()
+        initAdapterMethodsInterface()
         initDataBase()
         initDao()
         registerAlarmEventBus()
@@ -249,6 +247,10 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
     }
 
+    override fun setViewHolderLiveDataValue(vh: DetalhesMedicamentoAdapter.ViewHolder) {
+        viewHolderInstanceLiveData.value = vh
+    }
+
     private fun setAdapterToRecyclerView() {
         binding.medDetalhesRecyclerView.adapter = adapter
     }
@@ -319,6 +321,11 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
             //showBtnCancelarAlarme()
             //hideBtnArmarAlarme()
             showBtnPararSom()
+        }
+
+        viewHolderInstanceLiveData.observe(viewLifecycleOwner){
+            viewHolderInstance->
+            initConexaoComAdapterBinding(viewHolderInstance)
         }
 
 
