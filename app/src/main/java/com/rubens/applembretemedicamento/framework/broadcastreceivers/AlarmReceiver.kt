@@ -1,5 +1,6 @@
 package com.rubens.applembretemedicamento.framework.broadcastreceivers
 
+import ButtonStateLiveData
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_IMMUTABLE
@@ -19,15 +20,18 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.appmedicamentos.utils.WakeLocker
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
+import com.rubens.applembretemedicamento.framework.domain.AlarmEvent
 import com.rubens.applembretemedicamento.presentation.FragmentDetalhesMedicamentos
 import com.rubens.applembretemedicamento.presentation.MainActivity
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentDetalhesMedicamentosUi
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
+import org.greenrobot.eventbus.EventBus
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -48,15 +52,27 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
     private var alarmeTocando: MutableLiveData<Boolean> = MutableLiveData()
     private var idMedicamentoTocandoAtualmente: MutableLiveData<List<Int>> = MutableLiveData()
 
+    private lateinit var buttonStateLiveData: MutableLiveData<Boolean>
+
+    init {
+        Log.d("testebtn", "iniciei o alarm receiver")
+        //initButtonStateLiveData()
+
+        /*
+        o alarmReceiver é criado no list fragment
+        o alarmreceiver é criado tambem ao apertar no botao do alarme
+
+        - o observer pega a instancia do livedata antes do livedata iniciar novamente
+
+         */
+
+    }
+
 
     override fun onReceive(p0: Context?, p1: Intent?) {
-        //initFragmentDetalhesInterface(p0)
-        initMainActivityInterface(p0)
-        
-            val fragment = (context as MainActivity).supportFragmentManager
-                .findFragmentById(R.id.fragmentContainerView) as FragmentDetalhesMedicamentos
-            fragment.setButtonState(true)
-        
+
+        val data = "pode mostrar o botão parar som!"
+        EventBus.getDefault().post(AlarmEvent(data))
 
 
         //extras from intent
@@ -71,7 +87,11 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
         startMediaPlayer()
         //todo se o fragment não estiver aberto quando o alarme tocar, eu nao tenho como acessar a variavel
         //adicionarIdDoMedicamentoAListaDeMedicamentosTocandoNoMomento(idMedicamento)
-        mostrarBtnPararSom()
+        //buttonStateLiveData.value = true
+        //Log.d("testebtn", "acabei de passar o valor para o live data. live data: ${buttonStateLiveData}")
+
+
+        //mostrarBtnPararSom(p0)
 
         val pendingIntent = criarPendingIntentComIdDoMedicamento(p0, idMedicamento)
 
@@ -83,6 +103,22 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
             idMedicamento
         )
 
+
+    }
+
+    override fun initButtonStateLiveData() {
+        if(!this::buttonStateLiveData.isInitialized){
+            buttonStateLiveData = MutableLiveData()
+
+            Log.d("testebtn", "eu to aqui iniciando o livedata $buttonStateLiveData")
+            /*
+            -inicia livedata no onReceive
+            -fragment recebe a informação de que o livedata foi iniciado
+            - observer inicia outro observer?
+             */
+
+
+        }
 
     }
 
@@ -134,7 +170,7 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
     }
 
-    private fun mostrarBtnPararSom() {
+    private fun mostrarBtnPararSom(p0: Context?) {
         fragmentDetalhesMedicamentosUi.showBtnPararSom()
 
     }
@@ -175,7 +211,7 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
     }
 
-    private fun initMainActivityInterface(ctx: Context?) {
+    private fun initMainActivityInterface(ctx: MainActivity?) {
         if (ctx != null) {
             if (!this::mainActivityInterface.isInitialized) {
                 mainActivityInterface = ctx as MainActivityInterface
@@ -289,7 +325,7 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
         medicamentoId: Int,
         listaDoses: List<Doses>,
         context: FragmentDetalhesMedicamentos,
-        ctxActivity: Context,
+        ctxActivity: MainActivity,
         horaProxDose: String
     ) {
 
@@ -438,7 +474,7 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
     }
 
-    private fun addPendingIntentToIntentList(pendingIntent: PendingIntent, ctxActivity: Context) {
+    private fun addPendingIntentToIntentList(pendingIntent: PendingIntent, ctxActivity: MainActivity) {
         initMainActivityInterface(ctxActivity)
         mainActivityInterface.addPendingIntentToPendingIntentsList(pendingIntent)
 
@@ -596,6 +632,12 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
     override fun stopMediaPlayer() {
         mp.stop()
+    }
+
+    override fun getButtonChangeLiveData(): MutableLiveData<Boolean> {
+        Log.d("testebtn", "eu to aqui pegando a instancia do live data. livedata: $buttonStateLiveData")
+
+        return buttonStateLiveData
     }
 
 

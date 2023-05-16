@@ -11,4 +11,6 @@ interface FragmentDetalhesMedicamentosUi {
     fun showBtnArmarAlarme()
 
     fun showBtnPararSom()
+
+
 }

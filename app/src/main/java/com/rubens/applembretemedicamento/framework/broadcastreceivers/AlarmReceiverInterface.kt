@@ -1,5 +1,6 @@
 package com.rubens.applembretemedicamento.framework.broadcastreceivers
 
+import ButtonStateLiveData
 import android.media.MediaPlayer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -21,5 +22,11 @@ interface AlarmReceiverInterface {
     fun removeFromListaIdMedicamentoTocandoNoMomento(id: Int)
 
     fun stopMediaPlayer()
+
+    fun getButtonChangeLiveData(): MutableLiveData<Boolean>
+
+    fun initButtonStateLiveData()
+
+
 
 }

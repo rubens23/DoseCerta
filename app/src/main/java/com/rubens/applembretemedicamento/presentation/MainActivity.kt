@@ -16,6 +16,7 @@ import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.ActivityMainBinding
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiver
 import com.rubens.applembretemedicamento.framework.data.MyDataStore
+import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
 import com.rubens.applembretemedicamento.framework.viewModels.MainActivityViewModel
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,7 +32,7 @@ class MainActivity : AppCompatActivity(), MainActivityInterface {
     private lateinit var myDataStore: MyDataStore
     private lateinit var viewModel: MainActivityViewModel
 
-    private val alarmReceiver = AlarmReceiver()
+    private val alarmReceiver = AlarmReceiverSingleton.getInstance()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {

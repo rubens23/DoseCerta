@@ -1,9 +1,12 @@
 package com.rubens.applembretemedicamento.presentation
 
+import ButtonStateLiveData
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.DialogInterface
+import android.content.IntentFilter
+import android.media.metrics.Event
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -35,10 +38,11 @@ import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
+import com.rubens.applembretemedicamento.framework.domain.AlarmEvent
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
+import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentCadastrarNovoMedicamento
 import com.rubens.applembretemedicamento.presentation.interfaces.AccessAdapterMethodsInterface
-import com.rubens.applembretemedicamento.presentation.interfaces.AdapterListaMedicamentosInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.ConexaoBindingAdapterDetalhesMedicamentos
 import com.rubens.applembretemedicamento.presentation.interfaces.DetalhesMedicamentosAdapterInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentDetalhesMedicamentosUi
@@ -50,6 +54,8 @@ import com.rubens.applembretemedicamento.utils.comunicacaoFragmentAdapter
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 import java.io.Serializable
 
 
@@ -71,20 +77,17 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     private lateinit var adapterMethodsInterface: AccessAdapterMethodsInterface
     private lateinit var binding: FragmentDetalhesMedicamentosBinding
     private lateinit var alarmReceiverInterface: AlarmReceiverInterface
-    private var alarmReceiver: AlarmReceiver = AlarmReceiver()
+    //private var alarmReceiver: AlarmReceiver = AlarmReceiverSingleton.getInstance()
     private lateinit var medicamentoDoseDao: MedicamentoDao
     private lateinit var conexaoBindingAdapterDetalhesMedicamentos: ConexaoBindingAdapterDetalhesMedicamentos
-    private lateinit var adapterListaMedicamentosInterface: AdapterListaMedicamentosInterface
 
 
-    private lateinit var buttonStateLiveData: ButtonStateLiveData
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentDetalhesMedicamentosBinding.inflate(inflater)
         
-        initButtonStateLiveData()
 
         initAlarmReceiverInterface()
         setupToolbar()
@@ -97,9 +100,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         adapterMethodsInterface = adapter
     }
     
-    private fun initButtonStateLiveData(){
-        buttonStateLiveData = ButtonStateLiveData()
-    }
+
 
     private fun initAdapterListaMedicamentosInterface() {
         //todo o adapter lista medicamentos ja ta fechado quando eu abro a tela de detalhes, essa soluçao que eu implementei não é boa
@@ -114,7 +115,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     }
 
     private fun initAlarmReceiverInterface() {
-        alarmReceiverInterface = alarmReceiver
+        alarmReceiverInterface = AlarmReceiverSingleton.getInstance()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -134,8 +135,24 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         setAdapterToRecyclerView()
         initDataBase()
         initDao()
+        registerAlarmEventBus()
         observers()
         onClickListeners()
+    }
+
+    private fun registerAlarmEventBus() {
+        EventBus.getDefault().register(this)
+    }
+
+    @Subscribe
+    fun onAlarmEvent(event: AlarmEvent){
+        val data = event.data
+        Log.d("testebtn", "data recebido no event bus: $data")
+
+        showBtnPararSom()
+
+        //todo pode notificar algum observer que atualize e mostre o botao
+        //alarmReceiver iniciado eu posso chamar a interface que me da acesso aos metodos de la
     }
 
     override fun initDao() {
@@ -183,6 +200,12 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
             alert.show()
 
         }
+    }
+
+
+
+    override fun onStop() {
+        super.onStop()
     }
 
     override fun onDoseImageViewClick(doses: Doses) {
@@ -278,15 +301,32 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
                     hideBtnArmarAlarme()
                 }
         }
-        
-        buttonStateLiveData.observe(viewLifecycleOwner){
-            enabled->
-            showBtnCancelarAlarme()
-            hideBtnArmarAlarme()
+        initButtonChangeListener()
+        /*
+        - botao livedata só é inicializado no onReceive
+        - nao da para eu instanciar o observer do livedata pq ele nao esta inicializado
+        - só posso instanciar o livedata no onreceive
+        - o onreceive inicializa o livedata mas o fragment nao sabe disso
+
+
+         */
+        //alarmReceiverInterface.initButtonStateLiveData()
+        Log.d("testebtn", "eu to aqui bem acima do observer ${alarmReceiverInterface.getButtonChangeLiveData()}")
+        alarmReceiverInterface.initButtonStateLiveData()
+
+        alarmReceiverInterface.getButtonChangeLiveData().observe(viewLifecycleOwner){
+            Log.d("testebtn", "eu to aqui no observer")
+            //showBtnCancelarAlarme()
+            //hideBtnArmarAlarme()
             showBtnPararSom()
-            
-            
         }
+
+
+
+    }
+
+    private fun initButtonChangeListener() {
+        alarmReceiverInterface.initButtonStateLiveData()
     }
 
     override fun hideBtnArmarAlarme() {
@@ -643,6 +683,10 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         binding.btnPararSom.visibility = View.VISIBLE
 
     }
+
+
+
+
 
 
 }

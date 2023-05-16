@@ -17,6 +17,7 @@ import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
+import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
 import com.rubens.applembretemedicamento.presentation.FragmentListaMedicamentos
 import com.rubens.applembretemedicamento.presentation.interfaces.AdapterListaMedicamentosInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentListaMedicamentosInterface
@@ -27,7 +28,7 @@ class AdapterListaMedicamentos(
     val context: FragmentListaMedicamentos
 ) : RecyclerView.Adapter<AdapterListaMedicamentos.ViewHolder>(), AdapterListaMedicamentosInterface {
     private lateinit var alarmReceiverInterface: AlarmReceiverInterface
-    private var alarmReceiver: AlarmReceiver = AlarmReceiver()
+    //private var alarmReceiver: AlarmReceiver = AlarmReceiverSingleton.getInstance()
     private var listaIdMedicamentos: ArrayList<Int> = ArrayList()
     private lateinit var fragmentListaMedicamentosInterface: FragmentListaMedicamentosInterface
 
@@ -57,7 +58,7 @@ class AdapterListaMedicamentos(
     }
 
     private fun initAlarmReceiverInterface() {
-        alarmReceiverInterface = alarmReceiver
+        alarmReceiverInterface = AlarmReceiverSingleton.getInstance()
     }
 
 

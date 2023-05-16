@@ -23,6 +23,7 @@ import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.HistoricoMedicamentos
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
+import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentLista
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentListaMedicamentosInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
@@ -65,8 +66,10 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
     }
 
     private fun initAlarmReceiver() {
-        alarmReceiver = AlarmReceiver()
+        alarmReceiver = AlarmReceiverSingleton.getInstance()
     }
+
+
 
     private fun initAlarmReceiverInterface() {
         alarmReceiverInterface = alarmReceiver

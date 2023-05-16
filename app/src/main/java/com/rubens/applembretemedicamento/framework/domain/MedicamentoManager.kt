@@ -8,7 +8,9 @@ import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmRecei
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiverInterface
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
+import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
 import com.rubens.applembretemedicamento.presentation.FragmentDetalhesMedicamentos
+import com.rubens.applembretemedicamento.presentation.MainActivity
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentDetalhesMedicamentosUi
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import java.io.Serializable
@@ -18,7 +20,7 @@ class MedicamentoManager() : CalendarHelper, Parcelable {
     var nomeMedicamento = ""
     var horaProxDose: String? = null
     private lateinit var medicamento: MedicamentoTratamento
-    private lateinit var receiver: AlarmReceiver
+    //private lateinit var receiver: AlarmReceiver
     private var _updateDataStore: MutableLiveData<String> = MutableLiveData()
     var updateDataStore = _updateDataStore
     private var _horaProximaDoseObserver: MutableLiveData<String> = MutableLiveData()
@@ -43,7 +45,7 @@ class MedicamentoManager() : CalendarHelper, Parcelable {
     }
 
     fun getReceiver(): AlarmReceiver {
-        return receiver
+        return AlarmReceiverSingleton.getInstance()
     }
 
     fun initializeExtra(extra: Serializable) {
@@ -64,7 +66,7 @@ class MedicamentoManager() : CalendarHelper, Parcelable {
     }
 
     fun checkIfReceiverIsInitialized(): Boolean {
-        return this::receiver.isInitialized
+        return true
     }
 
     fun startUpdateMedicamento(medicamento: MedicamentoTratamento) {
@@ -93,7 +95,7 @@ class MedicamentoManager() : CalendarHelper, Parcelable {
     }
 
     private fun initializeAlarmManager() {
-        initAlarmReceiver()
+        //initAlarmReceiver()
         colocaHoraProximaDoseNoObserver()
 
         var podeTocar = false
@@ -131,12 +133,12 @@ class MedicamentoManager() : CalendarHelper, Parcelable {
 
     private fun chamarMetodoParaSetarOAlarmNoAlarmReceiver() {
         horaProxDose?.let {
-            receiver.setAlarm2(
+            AlarmReceiverSingleton.getInstance().setAlarm2(
                 intervaloEntreDoses,
                 (extra as MedicamentoComDoses).medicamentoTratamento.idMedicamento,
                 (extra as MedicamentoComDoses).listaDoses,
                 context,
-                context.requireContext(),
+                context.requireActivity() as MainActivity,
                 it
             )
         }
@@ -230,19 +232,12 @@ class MedicamentoManager() : CalendarHelper, Parcelable {
 
     private fun initAlarmReceiverInterface() {
         if (!this::alarmReceiverInterface.isInitialized) {
-            if (this::receiver.isInitialized) {
-                alarmReceiverInterface = receiver as AlarmReceiverInterface
-
-            } else {
-                initAlarmReceiver()
-                alarmReceiverInterface = receiver
-
-            }
+            alarmReceiverInterface = AlarmReceiverSingleton.getInstance()
         }
     }
 
     private fun initAlarmReceiver() {
-        receiver = AlarmReceiver()
+        //receiver = AlarmReceiverSingleton.getInstance()
     }
 
     private fun checarSeAlarmeEstaAtivado() {
