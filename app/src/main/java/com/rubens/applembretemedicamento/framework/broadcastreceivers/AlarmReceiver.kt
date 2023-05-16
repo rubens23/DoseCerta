@@ -25,6 +25,7 @@ import com.example.appmedicamentos.utils.WakeLocker
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.domain.AlarmEvent
+import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
 import com.rubens.applembretemedicamento.presentation.FragmentDetalhesMedicamentos
 import com.rubens.applembretemedicamento.presentation.MainActivity
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentDetalhesMedicamentosUi
@@ -313,7 +314,7 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
     }
 
     fun cancelAlarmByMedicamentoId(medicamentoId: Int, context: Context) {
-        if (alarmManager != null) {
+        if(this::alarmManager.isInitialized){
             alarmManager.cancel(PendingIntent.getBroadcast(context, medicamentoId, alarmIntent, 0))
             WakeLocker.release()
         }
