@@ -19,5 +19,6 @@ data class MedicamentoTratamento(
     val dataInicioTratamento: String,
     val dataTerminoTratamento: String,
     val stringDataStore: String,
-    var alarmeTocando: Boolean = false
+    var alarmeTocando: Boolean = false,
+    var colunaTeste: String = ""
 ): Serializable

@@ -8,12 +8,13 @@ import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.data.entities.HistoricoMedicamentos
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
+import com.rubens.applembretemedicamento.framework.data.roommigrations.MigrationFrom1To2
 
 @Database(
     entities = [MedicamentoTratamento::class,
         Doses::class,
         HistoricoMedicamentos::class],
-    version = 1
+    version = 2
 )
 abstract class AppDatabase : RoomDatabase() {
 
@@ -26,6 +27,8 @@ abstract class AppDatabase : RoomDatabase() {
 
         private var INSTANCE: AppDatabase? = null
 
+        private val MIGRATION_1_2 = MigrationFrom1To2()
+
 
         fun getAppDatabase(context: Context): AppDatabase? {
             if (INSTANCE == null) {
@@ -35,8 +38,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "banco-app-medicamentos"
                 )
-                    .allowMainThreadQueries()
-                    .fallbackToDestructiveMigration().build()
+                    .addMigrations(MIGRATION_1_2)
+                    .allowMainThreadQueries().build()
             }
             return INSTANCE
         }
