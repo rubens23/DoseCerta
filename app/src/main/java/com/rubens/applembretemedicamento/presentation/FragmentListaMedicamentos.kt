@@ -2,6 +2,7 @@ package com.rubens.applembretemedicamento.presentation
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -96,6 +97,9 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
 
     }
 
+
+
+
     private fun getRecyclerViewPositionIfItWasSaved(savedInstanceState: Bundle?) {
         savedInstanceState?.let {
             viewModel.recyclerViewPosition = it.getInt("RECYCLER_VIEW_POSITION")
@@ -137,11 +141,13 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
                 }else{
                     showTVNoData()
                     showCaixaVazia()
+
                 }
                 pegarListaAtualizadaDeMedicamentos(listaMedicamentoComDoses)
 
                 setAdapter(listaMedicamentos)
             }
+
 
 
 
@@ -203,12 +209,27 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
     }
 
     fun setAdapter(medicamentos: List<MedicamentoComDoses>?) {
-        adapter = AdapterListaMedicamentos(medicamentos as ArrayList<MedicamentoComDoses>, this)
-        binding.recyclerView.adapter = adapter
 
-        setAdapterOnScrollListener()
-        voltarARecyclerParaAPosicaoSalva()
+            adapter = AdapterListaMedicamentos(medicamentos as ArrayList<MedicamentoComDoses>, this)
+            binding.recyclerView.adapter = adapter
 
+            hideLoading()
+
+            setAdapterOnScrollListener()
+            voltarARecyclerParaAPosicaoSalva()
+
+
+
+
+    }
+
+    private fun hideLoading() {
+        Log.d("listavazia", "eu to aqui antes de esconder o cardview")
+
+
+
+        binding.cardViewLoading?.visibility = View.GONE
+        binding.loadingProgressBar?.visibility = View.GONE
     }
 
     private fun voltarARecyclerParaAPosicaoSalva() {
