@@ -31,6 +31,10 @@ class ViewModelFragmentLista @Inject constructor(
         medicamentos.postValue(list)
     }
 
+    fun alarmeMedicamentoTocando(id: Int, tocando: Boolean){
+        medicationRepository.alarmeMedicamentoTocando(id, tocando)
+    }
+
     fun insertMedicamentos(medicamento: MedicamentoTratamento){
         medicationRepository.insertMedicamento(medicamento)
     }

@@ -25,6 +25,8 @@ import com.example.appmedicamentos.utils.WakeLocker
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.domain.AlarmEvent
+import com.rubens.applembretemedicamento.framework.domain.AlarmeMedicamentoTocando
+import com.rubens.applembretemedicamento.framework.domain.MediaPlayerTocando
 import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
 import com.rubens.applembretemedicamento.presentation.FragmentDetalhesMedicamentos
 import com.rubens.applembretemedicamento.presentation.MainActivity
@@ -72,8 +74,16 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
     override fun onReceive(p0: Context?, p1: Intent?) {
 
-        val data = "pode mostrar o botão parar som!"
-        EventBus.getDefault().post(AlarmEvent(data))
+        notificarOFragmentDetalhesDeQueJaPodeMostrarBotaoDePararSom()
+
+        /*
+        - tenho que pegar o medicamento o qual o alarme esta tocando
+        - e pegar o id desse medicamento
+         */
+
+
+
+
 
 
         //extras from intent
@@ -86,6 +96,12 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
         initOnAudioFocusChangeListener(p0)
         initMediaPlayer(p0)
         startMediaPlayer()
+        enviarInstanciaAtualDoMediaPlayerParaListFragment(mp)
+
+        val data = "pode mostrar o botão parar som!"
+        EventBus.getDefault().post(AlarmEvent(data))
+
+        notificarOFragmentListaDeQueOAlarmeDoMedicamentoEstaTocando(idMedicamento)
 
 
         val pendingIntent = criarPendingIntentComIdDoMedicamento(p0, idMedicamento)
@@ -99,6 +115,21 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
         )
 
 
+    }
+
+    private fun enviarInstanciaAtualDoMediaPlayerParaListFragment(mp: MediaPlayer) {
+        EventBus.getDefault().post(MediaPlayerTocando(mp))
+    }
+
+    private fun notificarOFragmentListaDeQueOAlarmeDoMedicamentoEstaTocando(idMedicamento: Int?) {
+        val id = idMedicamento
+        EventBus.getDefault().post(AlarmeMedicamentoTocando(id))
+
+    }
+
+    private fun notificarOFragmentDetalhesDeQueJaPodeMostrarBotaoDePararSom() {
+        val data = "pode mostrar o botão parar som!"
+        EventBus.getDefault().post(AlarmEvent(data))
     }
 
     override fun initButtonStateLiveData() {
@@ -182,7 +213,8 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
     private fun startMediaPlayer() {
         mp.start()
         alarmeTocando.postValue(true)
-        Log.d("testealarme", "alarme começou a tocar")
+        Log.d("testeshakingclock", "media player começou a tocar agora")
+
 
 
     }
@@ -405,7 +437,7 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
         val horaAtualEmMillisegundos = pegarDateTimeAtualEmMillisegundos(localDateHoraAtual)
 
         //colocar o id do medicamento na alarme intent para esse alarme ser unico para esse medicamento
-        putExtraNoAlarmIntent("medicamentoId", medicamentoId)
+        putExtraNoAlarmIntent("medicamentoid", medicamentoId)
 
 
 
@@ -595,6 +627,8 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
     }
 
     override fun getMediaPlayerInstance(): MediaPlayer {
+        Log.d("testeshakingclock", "peguei a instancia do media player")
+
         return mp
     }
 

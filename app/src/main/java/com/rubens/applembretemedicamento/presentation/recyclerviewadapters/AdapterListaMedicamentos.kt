@@ -1,6 +1,7 @@
 package com.rubens.applembretemedicamento.presentation.recyclerviewadapters
 
-import android.content.Context
+import android.media.MediaPlayer
+import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +12,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.MedicamentoBinding
-import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiver
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiverInterface
 import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
@@ -29,8 +29,9 @@ class AdapterListaMedicamentos(
 ) : RecyclerView.Adapter<AdapterListaMedicamentos.ViewHolder>(), AdapterListaMedicamentosInterface {
     private lateinit var alarmReceiverInterface: AlarmReceiverInterface
     //private var alarmReceiver: AlarmReceiver = AlarmReceiverSingleton.getInstance()
-    private var listaIdMedicamentos: ArrayList<Int> = ArrayList()
+    private var listaIdMedicamentosTocandoNoMomento: ArrayList<Int> = ArrayList()
     private lateinit var fragmentListaMedicamentosInterface: FragmentListaMedicamentosInterface
+    private var mediaPlayer = MediaPlayer.create(context.requireContext(), Settings.System.DEFAULT_RINGTONE_URI)
 
 
     private lateinit var medicamentoDoseDao: MedicamentoDao
@@ -69,6 +70,10 @@ class AdapterListaMedicamentos(
         fun bind(medicamento: MedicamentoComDoses) {
             //pega o horario da proxima dose para mostrar no item
             pegarHorarioProximaDose(medicamento)
+            Log.d("testeshakingclock", "medicamento atual: ${medicamento.medicamentoTratamento.nomeMedicamento} alarme tocando: ${medicamento.medicamentoTratamento.alarmeTocando}")
+
+
+
 
 
         }
@@ -163,24 +168,48 @@ class AdapterListaMedicamentos(
 
         private fun checarSeAlarmeDoMedicamentoEstaAtivado(medicamento: MedicamentoComDoses) {
             if (medicamento.medicamentoTratamento.alarmeAtivado) {
+                Log.d("testeshakingclock", "alarme ativado")
                 showReloginhoDeAlarmeAtivado()
                 checkIfMediaPlayerIsPlaying(medicamento)
+
+            }else{
+                Log.d("testeshakingclock", "alarme desativado")
 
             }
 
         }
 
         private fun checkIfMediaPlayerIsPlaying(medicamento: MedicamentoComDoses) {
-            if (alarmReceiverInterface.getMediaPlayerInstance().isPlaying) {
-                listaIdMedicamentos.forEach { id ->
-                    if (medicamento.medicamentoTratamento.idMedicamento == id && id > -1) {
+            if (medicamento.medicamentoTratamento.alarmeTocando){
+                if(fragmentListaMedicamentosInterface.getMediaPlayerInstance() != null){
+                    if (fragmentListaMedicamentosInterface.getMediaPlayerInstance()!!.isPlaying) {
+                        Log.d("testeshakingclock", "media player esta tocando")
+
+
                         initShakingClockAnimation()
+                        Log.d("testeshakingclock", "iniciei a shaking animation")
+
+
+                        /*
+                        listaIdMedicamentosTocandoNoMomento.forEach { id ->
+                            if (medicamento.medicamentoTratamento.idMedicamento == id && id > -1) {
+                                initShakingClockAnimation()
+
+                            }
+
+                        }
+
+                         */
+                        //todo a instancia do mediaplayer recebe outra instancia de mp mas ela nao esta tocando(provavelmente)
+
+                    }else{
+                        Log.d("testeshakingclock", "media player não está tocando")
 
                     }
-
                 }
 
             }
+
 
 
         }
@@ -218,11 +247,15 @@ class AdapterListaMedicamentos(
     }
 
     override fun getListaIdMedicamentosFromAdapterListaMedicamentos(): ArrayList<Int> {
-        return listaIdMedicamentos
+        return listaIdMedicamentosTocandoNoMomento
     }
 
     override fun removeFromListaIdMedicamentosFromListaAdapter(id: Int) {
-        listaIdMedicamentos.remove(id)
+        listaIdMedicamentosTocandoNoMomento.remove(id)
+    }
+
+    override fun setMediaPlayerInstance(mp: MediaPlayer) {
+        mediaPlayer = mp
     }
 
 

@@ -9,6 +9,7 @@ interface AlarmReceiverInterface {
 
     fun getMediaPlayerInstance(): MediaPlayer
 
+
     fun getNomeMedicamentoFromAlarmReceiver(): String
 
     fun getIdMedFromAlarmReceiver(): String

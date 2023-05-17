@@ -1,6 +1,7 @@
 package com.rubens.applembretemedicamento.presentation
 
 import android.annotation.SuppressLint
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -24,15 +25,21 @@ import com.rubens.applembretemedicamento.framework.data.AppDatabase
 import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.HistoricoMedicamentos
+import com.rubens.applembretemedicamento.framework.domain.AlarmEvent
+import com.rubens.applembretemedicamento.framework.domain.AlarmeMedicamentoTocando
+import com.rubens.applembretemedicamento.framework.domain.MediaPlayerTocando
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
 import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentLista
+import com.rubens.applembretemedicamento.presentation.interfaces.AdapterListaMedicamentosInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentListaMedicamentosInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import com.rubens.applembretemedicamento.presentation.recyclerviewadapters.AdapterListaMedicamentos
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
 import kotlinx.coroutines.launch
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
@@ -47,7 +54,10 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
     private lateinit var alarmReceiverInterface: AlarmReceiverInterface
     private lateinit var alarmReceiver: AlarmReceiver
     private var db: AppDatabase? = null
+    private var isEventBusRegistered = false
+    private lateinit var adapterListaMedicamentosInterface: AdapterListaMedicamentosInterface
 
+    private var mediaPlayer: MediaPlayer? = null
 
 
 
@@ -84,6 +94,8 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        registerAlarmeMedicamentoTocandoEventBus()
+
         initViewModel()
 
         initAds()
@@ -95,9 +107,21 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
 
         getRecyclerViewPositionIfItWasSaved(savedInstanceState)
 
+
+
     }
 
+    private fun initAdapterInterface() {
+        adapterListaMedicamentosInterface = adapter
+    }
 
+    private fun registerAlarmeMedicamentoTocandoEventBus() {
+        if(!isEventBusRegistered){
+            EventBus.getDefault().register(this)
+            isEventBusRegistered = true
+
+        }
+    }
 
 
     private fun getRecyclerViewPositionIfItWasSaved(savedInstanceState: Bundle?) {
@@ -134,6 +158,8 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
     private fun initObservers() {
         viewModel.medicamentos.observe(viewLifecycleOwner){
            listaMedicamentoComDoses->
+            Log.d("testeshakingclock", "to dentro do observer de getMedicamentos")
+
             if(listaMedicamentoComDoses != null){
                 if(listaMedicamentoComDoses.isNotEmpty()){
                     hideTVNoData()
@@ -208,10 +234,13 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
         }
     }
 
-    fun setAdapter(medicamentos: List<MedicamentoComDoses>?) {
+    fun setAdapter(medicamentos: List<MedicamentoComDoses>?){
+        Log.d("testeshakingclock", "to dentro do setadapter")
 
             adapter = AdapterListaMedicamentos(medicamentos as ArrayList<MedicamentoComDoses>, this)
             binding.recyclerView.adapter = adapter
+
+        initAdapterInterface()
 
             hideLoading()
 
@@ -230,6 +259,47 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
 
         binding.cardViewLoading?.visibility = View.GONE
         binding.loadingProgressBar?.visibility = View.GONE
+    }
+
+    @Subscribe
+    fun onAlarmeMedicamentoTocando(event: AlarmeMedicamentoTocando){
+        val idMedicamento = event.idMedicamentoTocando
+        Log.d("testenotrelogio", "data recebido no event bus: $idMedicamento")
+        setarAlarmeTocandoParaMedicamentoId(idMedicamento)
+
+    }
+
+    @Subscribe
+    fun onMediaPlayerTocando(event: MediaPlayerTocando) {
+        mediaPlayer = event.mp
+    }
+
+    override fun getMediaPlayerInstance(): MediaPlayer? {
+        return mediaPlayer
+    }
+
+
+
+
+
+    private fun setarAlarmeTocandoParaMedicamentoId(idMedicamento: Int?) {
+        listaMedicamentos.forEach {
+            medicamentoComDoses ->
+            if(medicamentoComDoses.medicamentoTratamento.idMedicamento == idMedicamento){
+                //atualiza esse medicamento para avisar que ele ta tocando
+                viewModel.alarmeMedicamentoTocando(idMedicamento, true)
+            }
+        }
+
+        pegarListaAtualizada()
+
+
+    }
+
+    private fun pegarListaAtualizada() {
+        viewModel.loadMedications()
+        Log.d("testeshakingclock", "to aqui no metodo que vai chamar o loading medications")
+
     }
 
     private fun voltarARecyclerParaAPosicaoSalva() {
@@ -323,6 +393,7 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
 
         }
     }
+
 
     override fun onMedicamentoClick(
         proxDose: String?,

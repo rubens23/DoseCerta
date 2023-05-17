@@ -14,6 +14,10 @@ class MedicationRepositoryImpl @Inject constructor(
         return medicamentoDao.getAllMedicamentoWithDoses()
     }
 
+    fun alarmeMedicamentoTocando(id: Int, tocando: Boolean){
+        return medicamentoDao.alarmeMedicamentoTocando(id, tocando)
+    }
+
     fun insertMedicamento(medicamento: MedicamentoTratamento){
         //medicamentoDao.insertMedicamento(medicamento)
     }

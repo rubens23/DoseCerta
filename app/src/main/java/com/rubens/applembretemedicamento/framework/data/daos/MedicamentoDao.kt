@@ -22,6 +22,9 @@ interface MedicamentoDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertNaTabelaHistoricoMedicamentos(novoMedicamentoFinalizado: HistoricoMedicamentos): Long
 
+    @Query("UPDATE MedicamentoTratamento SET alarmeTocando =:tocando WHERE idMedicamento =:id")
+    fun alarmeMedicamentoTocando(id: Int, tocando: Boolean)
+
 
 
 
