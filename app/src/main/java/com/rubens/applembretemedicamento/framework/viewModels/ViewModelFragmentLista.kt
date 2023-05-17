@@ -13,11 +13,10 @@ class ViewModelFragmentLista @Inject constructor(
     private val medicationRepository: MedicationRepositoryImpl
 ): ViewModel(){
 
-    lateinit var medicamentos: MutableLiveData<List<MedicamentoComDoses>>
+    var medicamentos: MutableLiveData<List<MedicamentoComDoses>?> = MutableLiveData()
     var recyclerViewPosition = 0
 
     init{
-        medicamentos = MutableLiveData()
         loadMedications()
     }
 

@@ -2,6 +2,7 @@ package com.rubens.applembretemedicamento.presentation
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -137,9 +138,9 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
                     showTVNoData()
                     showCaixaVazia()
                 }
-                updateListaMedicamento(listaMedicamentoComDoses)
+                pegarListaAtualizadaDeMedicamentos(listaMedicamentoComDoses)
 
-                setAdapter(listaMedicamentoComDoses)
+                setAdapter(listaMedicamentos)
             }
 
 
@@ -147,13 +148,30 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
         }
     }
 
-    private fun updateListaMedicamento(listaMedicamentoComDoses: List<MedicamentoComDoses>) {
+    private fun pegarListaAtualizadaDeMedicamentos(listaMedicamentoComDoses: List<MedicamentoComDoses>) {
         listaMedicamentos.clear()
+
+
+
         listaMedicamentoComDoses.forEach {
-            if(!listaMedicamentos.contains(it)){
-                listaMedicamentos.add(it)
+            Log.d("listaprincipal", "${it.medicamentoTratamento.nomeMedicamento} tempo restante de tratamento: ${it.medicamentoTratamento.diasRestantesDeTratamento} dia, ultima dose horario: ${it.listaDoses[it.listaDoses.size-1].horarioDose} dose ja tomada? ${it.listaDoses[it.listaDoses.size-1].jaTomouDose}")
+            if(it.medicamentoTratamento.diasRestantesDeTratamento == 1){
+                if(!it.listaDoses[it.listaDoses.size-1].jaTomouDose){
+                    passarMedicamentoParaListaMedicamentos(it)
+                }
+            }else{
+                passarMedicamentoParaListaMedicamentos(it)
             }
+
         }
+
+    }
+
+    private fun passarMedicamentoParaListaMedicamentos(medicamento: MedicamentoComDoses) {
+        if(!listaMedicamentos.contains(medicamento)){
+            listaMedicamentos.add(medicamento)
+        }
+
     }
 
     private fun showCaixaVazia() {
@@ -186,9 +204,6 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
 
     fun setAdapter(medicamentos: List<MedicamentoComDoses>?) {
         adapter = AdapterListaMedicamentos(medicamentos as ArrayList<MedicamentoComDoses>, this)
-        adapter.listaComDosesToast.observe(viewLifecycleOwner){
-
-        }
         binding.recyclerView.adapter = adapter
 
         setAdapterOnScrollListener()
