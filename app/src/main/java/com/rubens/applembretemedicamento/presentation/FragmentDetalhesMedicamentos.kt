@@ -459,7 +459,11 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
 
 
-            horaProxDose?.let { receiver.setAlarm2(intervaloEntreDoses, (extra as MedicamentoComDoses).medicamentoTratamento.idMedicamento, (extra as MedicamentoComDoses).listaDoses, requireContext(), it) }
+            horaProxDose?.let { 
+                receiver.setAlarm2(intervaloEntreDoses, 
+                                   (extra as MedicamentoComDoses).medicamentoTratamento.idMedicamento, 
+                                   (extra as MedicamentoComDoses).listaDoses, requireContext(), it) 
+                                Toast.makeText(requireContext(), "Alarme ativado! próxima dose às: ${horaProxDose}", Toast.LENGTH_LONG).show()}
 
             viewLifecycleOwner.lifecycleScope.launch {
                 val TOAST_ALREADY_SHOWN = booleanPreferencesKey(medicamento.stringDataStore)
@@ -472,7 +476,6 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
                     Log.d("testepodetocar", "toast ainda não foi mostrado, portanto ele aparecerá")
 
 
-                    Toast.makeText(requireContext(), "Alarme ativado! próxima dose às: ${horaProxDose}", Toast.LENGTH_LONG).show()
                     myDataStore.markToastAsShown(TOAST_ALREADY_SHOWN)
 
                 }
