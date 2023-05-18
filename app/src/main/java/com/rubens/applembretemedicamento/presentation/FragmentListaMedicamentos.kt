@@ -72,6 +72,7 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
         initAlarmReceiver()
         initAlarmReceiverInterface()
         setupToolbar()
+        initDb()
 
         binding = FragmentListaMedicamentosBinding.inflate(inflater)
         return binding.root
@@ -190,6 +191,8 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
             if(it.medicamentoTratamento.diasRestantesDeTratamento == 1){
                 if(!it.listaDoses[it.listaDoses.size-1].jaTomouDose){
                     passarMedicamentoParaListaMedicamentos(it)
+                }else{
+                    launchCoroutineScope(it)
                 }
             }else{
                 passarMedicamentoParaListaMedicamentos(it)
@@ -362,13 +365,15 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
 
 
     override fun launchCoroutineScope(medicamento: MedicamentoComDoses) {
-        //todo fazer a viewModel correspondente fazer essas operações
+        Log.d("testeinserthistorico", "eu to dentro do metodo launch coroutine scope")
         lifecycleScope.launch {
 
             val medicamentoDao = getMedicamentoDao()
             if(medicamento.medicamentoTratamento.diasRestantesDeTratamento > 1){
                 medicamentoDao.diaConcluido(medicamento.medicamentoTratamento.diasRestantesDeTratamento - 1, medicamento.medicamentoTratamento.nomeMedicamento)
                 medicamentoDao.resetarDosesTomadasParaDiaNovoDeTratamento(false, medicamento.medicamentoTratamento.nomeMedicamento)
+                Log.d("testeinserthistorico", "eu to dentro do if do coroutine scope")
+
             }else{
                 val sdf = getSimpleDateFormat()
                 val c = Calendar.getInstance()
@@ -386,6 +391,9 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
 
                 medicamentoDao.deleteMedicamentoFromMedicamentoTratamento(medicamento.medicamentoTratamento.nomeMedicamento)
                 medicamentoDao.deleteDosesDoMedicamentoFinalizado(medicamento.medicamentoTratamento.nomeMedicamento)
+
+                Log.d("testeinserthistorico", "eu to dentro do else do coroutine scope")
+
             }
 
 

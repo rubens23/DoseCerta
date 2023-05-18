@@ -97,6 +97,8 @@ class AdapterListaMedicamentos(
                 } else if (i == medicamento.listaDoses.size - 1 && dose.jaTomouDose) {
                     proxDose = medicamento.medicamentoTratamento.horaPrimeiraDose
                     fragmentListaMedicamentosInterface.launchCoroutineScope(medicamento)
+                    Log.d("testeinserthistorico", "eu to aqui no else if do adapter")
+
 
 
                 }
