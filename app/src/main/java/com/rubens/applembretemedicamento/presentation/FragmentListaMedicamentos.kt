@@ -67,6 +67,8 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.d("emptylist", "to no oncreateview")
+
         // Inflate the layout for this fragment
         initMainActivityInterface()
         initAlarmReceiver()
@@ -84,6 +86,8 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
 
 
 
+
+
     private fun initAlarmReceiverInterface() {
         alarmReceiverInterface = alarmReceiver
     }
@@ -94,6 +98,9 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        Log.d("emptylist", "to no onviewcreated")
+
 
         registerAlarmeMedicamentoTocandoEventBus()
 
@@ -165,14 +172,20 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
                 if(listaMedicamentoComDoses.isNotEmpty()){
                     hideTVNoData()
                     hideCaixaVazia()
+                    Log.d("emptylist", "lista não esta vazia")
                 }else{
                     showTVNoData()
                     showCaixaVazia()
+                    Log.d("emptylist", "lista esta vazia")
+
 
                 }
                 pegarListaAtualizadaDeMedicamentos(listaMedicamentoComDoses)
 
                 setAdapter(listaMedicamentos)
+            }else{
+                Log.d("emptylist", "lista é nula")
+
             }
 
 
@@ -338,6 +351,7 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
     }
     override fun onResume() {
         super.onResume()
+        Log.d("emptylist", "to aqui no onresume")
 
         viewModel.loadMedications()
     }

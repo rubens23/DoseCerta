@@ -133,6 +133,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         initDetalhesMedicamentosAdapter()
         setAdapterToRecyclerView()
         initAdapterMethodsInterface()
+        checarSeAlarmeEstaAtivado()
         checarSeDataSelecionadaIgualADataDeInicioTratamento()
         checarSeDataSelecionadaIgualADataDeTerminoDeTratamento()
         initDataBase()
@@ -140,6 +141,13 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         registerAlarmEventBus()
         observers()
         onClickListeners()
+    }
+
+    private fun checarSeAlarmeEstaAtivado() {
+        if((extra as MedicamentoComDoses).medicamentoTratamento.alarmeAtivado){
+            showBtnCancelarAlarme()
+            hideBtnArmarAlarme()
+        }
     }
 
     private fun checarSeDataSelecionadaIgualADataDeTerminoDeTratamento(): Boolean {
@@ -791,9 +799,12 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
     }
 
-
-
-
+    override fun showAlarmConfirmationToast(
+        horaProxDose: String,
+        medicamentoComDoses: MedicamentoComDoses
+    ) {
+        Toast.makeText(requireContext(), "Alarme ativado para próxima dose de ${medicamentoComDoses.medicamentoTratamento.nomeMedicamento} às $horaProxDose", Toast.LENGTH_LONG).show()
+    }
 
 
 }

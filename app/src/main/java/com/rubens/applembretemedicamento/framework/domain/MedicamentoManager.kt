@@ -141,9 +141,13 @@ class MedicamentoManager() : CalendarHelper, Parcelable {
                 context.requireActivity() as MainActivity,
                 it
             )
+
+            fragmentDetalhesMedicamentosUi.showAlarmConfirmationToast(it, extra as MedicamentoComDoses)
         }
 
-        markToastAsShown()
+
+
+        //markToastAsShown()
 
     }
 
