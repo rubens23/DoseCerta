@@ -64,6 +64,26 @@ interface CalendarHelper {
         return data
     }
 
+    fun subtrairUmDiaNumaData(data: String): String{
+        var data = data
+        val calendar = Calendar.getInstance()
+        val formatter = SimpleDateFormat("dd/MM/yyyy")
+
+
+        val dt = formatter.parse(data)
+        calendar.time = dt
+        calendar.add(Calendar.DATE, -1)
+        data = formatter.format(calendar.time)
+
+        /*
+        ele nao ta salvando todas as doses...
+         */
+
+
+
+        return data
+    }
+
 
 
     fun calculateHoursDifference(d2: Date): Long {

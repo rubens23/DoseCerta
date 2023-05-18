@@ -78,6 +78,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     //private var alarmReceiver: AlarmReceiver = AlarmReceiverSingleton.getInstance()
     private lateinit var medicamentoDoseDao: MedicamentoDao
     private lateinit var conexaoBindingAdapterDetalhesMedicamentos: ConexaoBindingAdapterDetalhesMedicamentos
+    private var diaAtualSelecionado = ""
 
 
 
@@ -122,6 +123,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         initAds()
         createNotificationChannel()
         initExtraFromListaMedicamentosFragment()
+        initTextViewWithCurrentDate()
         initMedicamentoManager()
         sendExtraToMedicamentoManagerClass()
         getHorarioStringFromExtraAndInitMedicamentoManagerMethods()
@@ -131,11 +133,64 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         initDetalhesMedicamentosAdapter()
         setAdapterToRecyclerView()
         initAdapterMethodsInterface()
+        checarSeDataSelecionadaIgualADataDeInicioTratamento()
+        checarSeDataSelecionadaIgualADataDeTerminoDeTratamento()
         initDataBase()
         initDao()
         registerAlarmEventBus()
         observers()
         onClickListeners()
+    }
+
+    private fun checarSeDataSelecionadaIgualADataDeTerminoDeTratamento(): Boolean {
+        if((extra as MedicamentoComDoses).medicamentoTratamento.dataTerminoTratamento == diaAtualSelecionado){
+            //apaga o botão de avançar
+            hideForwardArrow()
+            showBackArrow()
+            return false
+        }else{
+            //reativa o botao de avancar
+            showBackArrow()
+            showForwardArrow()
+            return true
+        }
+    }
+
+    private fun showForwardArrow() {
+        binding.forwardArrow.visibility = View.VISIBLE
+    }
+
+    private fun hideForwardArrow() {
+        binding.forwardArrow.visibility = View.GONE
+    }
+
+    private fun checarSeDataSelecionadaIgualADataDeInicioTratamento(): Boolean {
+        if((extra as MedicamentoComDoses).medicamentoTratamento.dataInicioTratamento == diaAtualSelecionado){
+            //apaga o botão de voltar
+            hideBackArrow()
+            showForwardArrow()
+            return false
+        }else{
+            //reativa o botao de voltar
+            showForwardArrow()
+            showBackArrow()
+            return true
+        }
+
+
+    }
+
+    private fun showBackArrow() {
+        binding.backArrow.visibility = View.VISIBLE
+    }
+
+    private fun hideBackArrow() {
+        binding.backArrow.visibility = View.GONE
+    }
+
+    private fun initTextViewWithCurrentDate() {
+        diaAtualSelecionado = pegarDataAtual()
+        binding.dataAtualSelecionada.text = diaAtualSelecionado
     }
 
     private fun registerAlarmEventBus() {
@@ -265,7 +320,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     }
 
     private fun initDetalhesMedicamentosAdapter() {
-        adapter = DetalhesMedicamentoAdapter(extra as MedicamentoComDoses, this)
+        adapter = DetalhesMedicamentoAdapter(extra as MedicamentoComDoses, this, diaAtualSelecionado)
     }
 
     private fun getHorarioStringFromExtraAndInitMedicamentoManagerMethods() {
@@ -295,6 +350,8 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
         medicamentoManager.updateDataStore.observe(viewLifecycleOwner){
             markToastAsShownInDataStore()
+
+
         }
 
         medicamentoManager.horaProximaDoseObserver.observe(viewLifecycleOwner){
@@ -357,7 +414,6 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
                 Log.d("testepodetocar", "toast ainda não foi mostrado, portanto ele aparecerá")
 
 
-                Toast.makeText(requireContext(), "Alarme ativado! próxima dose às: ${medicamentoManager.getHrProxDose()}", Toast.LENGTH_LONG).show()
                 myDataStore.markToastAsShown(TOAST_ALREADY_SHOWN)
 
             }
@@ -443,7 +499,50 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
             armarProximoAlarme()
         }
 
+        binding.backArrow.setOnClickListener {
+            pegarDosesDeOntem()
 
+        }
+
+        binding.forwardArrow.setOnClickListener {
+            pegarDosesDeAmanha()
+
+
+        }
+
+
+    }
+
+    private fun pegarDosesDeAmanha() {
+        val podeAvancar = checarSeDataSelecionadaIgualADataDeTerminoDeTratamento()
+        if(podeAvancar){
+            somarUmDiaADataAtual()
+            atualizarTextViewDaDataAtual()
+            adapterMethodsInterface.updateRecyclerViewOnDateChange(diaAtualSelecionado)
+        }
+        checarSeDataSelecionadaIgualADataDeTerminoDeTratamento()
+    }
+
+    private fun pegarDosesDeOntem() {
+        val podeVoltar = checarSeDataSelecionadaIgualADataDeInicioTratamento()
+        if(podeVoltar){
+            subtrairUmDiaDaDataAtual()
+            atualizarTextViewDaDataAtual()
+            adapterMethodsInterface.updateRecyclerViewOnDateChange(diaAtualSelecionado)
+        }
+        checarSeDataSelecionadaIgualADataDeInicioTratamento()
+    }
+
+    private fun subtrairUmDiaDaDataAtual() {
+        diaAtualSelecionado = subtrairUmDiaNumaData(diaAtualSelecionado)
+    }
+
+    private fun atualizarTextViewDaDataAtual() {
+        binding.dataAtualSelecionada.text = diaAtualSelecionado
+    }
+
+    private fun somarUmDiaADataAtual() {
+        diaAtualSelecionado = somarUmDiaNumaData(diaAtualSelecionado)
     }
 
     private fun createDeleteAlertDialog(medicamento: MedicamentoTratamento) {
@@ -494,6 +593,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
     private fun ligarAlarme() {
         medicamentoManager.startAlarmManager(this)
+
     }
 
     private fun salvarNoBancoAInformacaoDeQueOAlarmeDoMedicamentoEstaLigado() {

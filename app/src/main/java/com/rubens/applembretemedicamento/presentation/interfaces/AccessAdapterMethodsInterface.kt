@@ -8,5 +8,7 @@ interface AccessAdapterMethodsInterface {
 
     fun getViewHolderInstance(): DetalhesMedicamentoAdapter.ViewHolder?
 
+    fun updateRecyclerViewOnDateChange(diaAtualSelecionado: String)
+
 
 }
