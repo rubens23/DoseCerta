@@ -4,6 +4,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.DialogInterface
+import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -35,6 +36,7 @@ import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoC
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
 import com.rubens.applembretemedicamento.framework.domain.AlarmEvent
+import com.rubens.applembretemedicamento.framework.domain.MediaPlayerTocando
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
 import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentCadastrarNovoMedicamento
@@ -79,6 +81,9 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     private lateinit var medicamentoDoseDao: MedicamentoDao
     private lateinit var conexaoBindingAdapterDetalhesMedicamentos: ConexaoBindingAdapterDetalhesMedicamentos
     private var diaAtualSelecionado = ""
+
+    private var mediaPlayer: MediaPlayer? = null
+
 
 
 
@@ -497,12 +502,15 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
             markToastAsNotShownInDataStore()
         }
         binding.btnPararSom.setOnClickListener {
-            markToastAsNotShownInDataStore()
-            if (alarmReceiverInterface.getMediaPlayerInstance().isPlaying){
-                stopMusicPlayer()
-                hideBtnPararSom()
-                createListaAuxiliarERemoverOMedicamentoDasListasDeAlarmeTocando()
-                removeMedicamentoDaListaDeAlarmesTocando()
+            //markToastAsNotShownInDataStore()
+            if (getMediaPlayerInstance() != null){
+
+                if (getMediaPlayerInstance()!!.isPlaying){
+                    stopMusicPlayer()
+                    hideBtnPararSom()
+                    createListaAuxiliarERemoverOMedicamentoDasListasDeAlarmeTocando()
+                    removeMedicamentoDaListaDeAlarmesTocando()
+                }
             }
             armarProximoAlarme()
         }
@@ -520,6 +528,17 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
 
     }
+
+    private fun getMediaPlayerInstance(): MediaPlayer? {
+        return mediaPlayer
+    }
+
+    @Subscribe
+    fun onMediaPlayerTocando(event: MediaPlayerTocando) {
+        mediaPlayer = event.mp
+        Log.d("testebusdetalhes", "eu recebi o mp ${event.mp} e instanciei: ${mediaPlayer}")
+    }
+
 
     private fun pegarDosesDeAmanha() {
         val podeAvancar = checarSeDataSelecionadaIgualADataDeTerminoDeTratamento()
@@ -645,7 +664,10 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     }
 
     private fun stopMusicPlayer() {
-        alarmReceiverInterface.stopMediaPlayer()
+        if(mediaPlayer != null){
+
+            getMediaPlayerInstance()!!.stop()
+        }
     }
 
     private fun markToastAsNotShownInDataStore() {

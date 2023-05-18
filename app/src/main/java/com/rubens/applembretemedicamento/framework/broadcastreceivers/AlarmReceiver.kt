@@ -98,6 +98,9 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
         startMediaPlayer()
         enviarInstanciaAtualDoMediaPlayerParaListFragment(mp)
 
+        Log.d("testebusdetalhes", "instancia do mp aqui no onReceive: $mp")
+
+
         val data = "pode mostrar o botão parar som!"
         EventBus.getDefault().post(AlarmEvent(data))
 
