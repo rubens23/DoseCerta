@@ -1,6 +1,7 @@
 package com.rubens.applembretemedicamento.presentation.recyclerviewadapters
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.MutableLiveData
@@ -16,11 +17,12 @@ import com.rubens.applembretemedicamento.presentation.interfaces.DetalhesMedicam
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 
 
-class DetalhesMedicamentoAdapter(listaDosagemMedicamento: MedicamentoComDoses, val context: FragmentDetalhesMedicamentos): RecyclerView.Adapter<DetalhesMedicamentoAdapter.ViewHolder>(), CalendarHelper,
+class DetalhesMedicamentoAdapter(val listaDosagemMedicamento: MedicamentoComDoses, val context: FragmentDetalhesMedicamentos, private val dataAtual: String): RecyclerView.Adapter<DetalhesMedicamentoAdapter.ViewHolder>(), CalendarHelper,
     AccessAdapterMethodsInterface {
     private var listaDoses: ArrayList<Doses> = ArrayList()
     private lateinit var detalhesMedicamentosAdapterInterface: DetalhesMedicamentosAdapterInterface
     private var viewHolder: DetalhesMedicamentoAdapter.ViewHolder? = null
+    private var dataAtualSelecionada = dataAtual
 
 
     init {
@@ -42,6 +44,19 @@ class DetalhesMedicamentoAdapter(listaDosagemMedicamento: MedicamentoComDoses, v
         return viewHolder
     }
 
+    override fun updateRecyclerViewOnDateChange(diaAtualSelecionado: String) {
+        Log.d("testelistadedoses", "eu to aqui no metodo de update $diaAtualSelecionado")
+
+        dataAtualSelecionada = diaAtualSelecionado
+        limparListaDoses()
+        populateListaDoses(listaDosagemMedicamento)
+        configureList()
+        notifyDataSetChanged()
+    }
+
+    private fun limparListaDoses() {
+        listaDoses.clear()
+    }
 
 
     private fun populateListaDoses(listaDosagemMedicamento: MedicamentoComDoses) {
@@ -50,13 +65,19 @@ class DetalhesMedicamentoAdapter(listaDosagemMedicamento: MedicamentoComDoses, v
     }
 
     private fun configureList() {
+
         var listaAuxiliar = ArrayList<Doses>()
         listaAuxiliar.addAll(listaDoses)
         listaDoses.clear()
         for (i in 0..listaAuxiliar.size - 1){
-            if(pegarDataAtual() == listaAuxiliar[i].horarioDose.subSequence(0,10)){
+            if(dataAtualSelecionada == listaAuxiliar[i].horarioDose.subSequence(0,10)){
                 listaDoses.add(listaAuxiliar[i])
             }
+        }
+
+        listaDoses.forEach {
+            Log.d("testelistadedoses", "eu to no configure list: ${it.nomeMedicamento} ${it.horarioDose}")
+
         }
 
     }
@@ -93,6 +114,8 @@ class DetalhesMedicamentoAdapter(listaDosagemMedicamento: MedicamentoComDoses, v
             if(doses.horarioDose.length == 16){
 
                 binding.timeDosage.text = doses.horarioDose
+                Log.d("testelistadedoses", "${doses.nomeMedicamento} ${doses.horarioDose}")
+
             }
 
         }
@@ -100,6 +123,8 @@ class DetalhesMedicamentoAdapter(listaDosagemMedicamento: MedicamentoComDoses, v
         private fun formatarHorarioDoseSeHorarioDoseSize15(doses: Doses) {
             if(doses.horarioDose.length == 15){
                 binding.timeDosage.text = doses.horarioDose
+                Log.d("testelistadedoses", "${doses.nomeMedicamento} ${doses.horarioDose}")
+
             }
 
         }
@@ -137,6 +162,8 @@ class DetalhesMedicamentoAdapter(listaDosagemMedicamento: MedicamentoComDoses, v
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        Log.d("testelistadedoses", "to aqui no onBindViewHolder")
+
         holder.bind(listaDoses[position])
 
     }
