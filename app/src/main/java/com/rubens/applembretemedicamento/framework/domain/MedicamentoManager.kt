@@ -144,6 +144,10 @@ class MedicamentoManager() : CalendarHelper, Parcelable {
 
             Log.d("toastaparece", "to bem aqui antes de mostrar o toast de confirmação do alarme")
             fragmentDetalhesMedicamentosUi.showAlarmConfirmationToast(it, extra as MedicamentoComDoses)
+            Log.d("testeshowcancel", "toast ja apareceu, portnato eu ja posso alterar os botoes")
+            fragmentDetalhesMedicamentosUi.showBtnCancelarAlarme()
+            fragmentDetalhesMedicamentosUi.hideBtnArmarAlarme()
+            //fragmentDetalhesMedicamentosUi.showBtnArmarAlarme()
         }
 
 

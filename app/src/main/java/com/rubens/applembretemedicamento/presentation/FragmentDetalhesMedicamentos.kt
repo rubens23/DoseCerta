@@ -80,7 +80,6 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     private lateinit var adapterMethodsInterface: AccessAdapterMethodsInterface
     private lateinit var binding: FragmentDetalhesMedicamentosBinding
     private lateinit var alarmReceiverInterface: AlarmReceiverInterface
-    //private var alarmReceiver: AlarmReceiver = AlarmReceiverSingleton.getInstance()
     private lateinit var medicamentoDoseDao: MedicamentoDao
     private lateinit var conexaoBindingAdapterDetalhesMedicamentos: ConexaoBindingAdapterDetalhesMedicamentos
     private var diaAtualSelecionado = ""
@@ -95,6 +94,9 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentDetalhesMedicamentosBinding.inflate(inflater)
+
+        Log.d("testeshowcancel", "eu to aqui no onCreate view do fragment")
+
 
         Log.d("ciclodevida19", "to no oncreate view do fragment detalhes")
         
@@ -377,15 +379,15 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         }
 
         medicamentoManager.updateDataStore.observe(viewLifecycleOwner){
-            markToastAsShownInDataStore()
+            //markToastAsShownInDataStore()
 
 
         }
 
         medicamentoManager.horaProximaDoseObserver.observe(viewLifecycleOwner){
                 if(alarmReceiverInterface.getMediaPlayerInstance().isPlaying){
-                    showBtnCancelarAlarme()
-                    hideBtnArmarAlarme()
+                    //showBtnCancelarAlarme()
+                    //hideBtnArmarAlarme()
                 }
         }
         initButtonChangeListener()
@@ -424,12 +426,27 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     override fun hideBtnArmarAlarme() {
         binding.btnArmarAlarme.visibility = View.INVISIBLE
         binding.btnArmarAlarme.isClickable = false
+        Log.d("testeshowcancel", "eu to aqui no metodo de esconder botao de armar alarme, na implementação")
+
+    }
+
+    override fun showBtnArmarAlarme() {
+        binding.btnArmarAlarme.visibility = View.VISIBLE
+        binding.btnArmarAlarme.isClickable = true
+
+        Log.d("testeshowcancel", "eu to aqui no metodo que mostra o botao de armar alarme")
+
     }
 
     override fun showBtnCancelarAlarme() {
         binding.btnCancelarAlarme.visibility = View.VISIBLE
+        binding.btnCancelarAlarme.isClickable = true
+
+        Log.d("testeshowcancel", "to aqui no metodo de mostrar botao cancelar alarme, na implementação")
+
     }
 
+    /*
     private fun markToastAsShownInDataStore() {
         viewLifecycleOwner.lifecycleScope.launch {
             val TOAST_ALREADY_SHOWN = booleanPreferencesKey(medicamentoManager.getMedicamento().stringDataStore)
@@ -447,6 +464,8 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
             }
         }
     }
+
+     */
 
     private fun removeMedicamentoById(id: Int?) {
         if (id != null) {
@@ -498,6 +517,9 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
         setupToolbar()
 
+        Log.d("testeshowcancel", "eu to aqui no onResume do fragment")
+
+
         Log.d("ciclodevida19", "to no onresume view do fragment detalhes")
 
     }
@@ -512,12 +534,15 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         binding.btnArmarAlarme.setOnClickListener {
             salvarNoBancoAInformacaoDeQueOAlarmeDoMedicamentoEstaLigado()
             ligarAlarme()
+            Log.d("testeshowcancel", "eu to aqui no clique do botão armar alarme")
         }
         binding.btnCancelarAlarme.setOnClickListener {
             mostrarToastDeAlarmeDesativado()
             salvarNoBancoAInformacaoDeQueOAlarmeDoMedicamentoEstaDesligado()
             cancelarOAlarmeNoBroadcastReceiver()
-            markToastAsNotShownInDataStore()
+            hideBtnCancelarAlarme()
+            showBtnArmarAlarme()
+            //markToastAsNotShownInDataStore()
         }
         binding.btnPararSom.setOnClickListener {
             //markToastAsNotShownInDataStore()
@@ -823,16 +848,14 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
 
     override fun hideBtnCancelarAlarme() {
-        binding.btnCancelarAlarme.visibility = View.GONE
+        binding.btnCancelarAlarme.visibility = View.INVISIBLE
+        binding.btnCancelarAlarme.isClickable = false
 
 
-    }
-
-    override fun showBtnArmarAlarme() {
-        binding.btnArmarAlarme.visibility = View.VISIBLE
-        binding.btnArmarAlarme.isClickable = true
 
     }
+
+
 
     override fun showBtnPararSom() {
         binding.btnPararSom.visibility = View.VISIBLE

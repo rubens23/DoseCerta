@@ -287,8 +287,8 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
     fun cancelAlarm() {
         alarmManager.cancel(pendingIntent)
-        fragmentDetalhesMedicamentosUi.hideBtnCancelarAlarme()
-        fragmentDetalhesMedicamentosUi.showBtnArmarAlarme()
+        Log.d("testeshowcancel", "show button armar alarme foi chamado pelo metodo cancelAlarm do AlarmReceiver")
+
         WakeLocker.release()
         if (mp.isPlaying) {
             mp.stop()
@@ -614,11 +614,14 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
     private fun hideBtnArmarAlarme(context: FragmentDetalhesMedicamentos) {
         initFragmentDetalhesInterface(context)
         fragmentDetalhesMedicamentosUi.hideBtnArmarAlarme()
+        Log.d("testeshowcancel", "eu to aqui no metodo de esconder botao de armar alarme")
+
     }
 
     private fun showBtnCancelarAlarme(context: FragmentDetalhesMedicamentos) {
         initFragmentDetalhesInterface(context)
         fragmentDetalhesMedicamentosUi.showBtnCancelarAlarme()
+        Log.d("testeshowcancel", "to aqui no metodo de mostrar botao cancelar alarme")
 
     }
 
