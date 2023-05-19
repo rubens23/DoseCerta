@@ -40,11 +40,13 @@ class MainActivity : AppCompatActivity(), MainActivityInterface {
         binding = ActivityMainBinding.inflate(layoutInflater)
         myDataStore = MyDataStore(applicationContext)
         setContentView(binding.root)
-        configNavigation()
+        hideToolbarTitle()
         hideToolbar()
+        configNavigation()
         initViewModel()
         onClickListeners()
     }
+
 
     private fun configNavigation() {
         val navHostFragment = (supportFragmentManager.findFragmentById(binding.fragmentContainerView.id)) as NavHostFragment
@@ -54,7 +56,37 @@ class MainActivity : AppCompatActivity(), MainActivityInterface {
 
         val appBarConfiguration = AppBarConfiguration(navController.graph)
         binding.toolbar.setupWithNavController(navController, appBarConfiguration)
+
+        binding.bottomNavigationView.setOnItemSelectedListener { item ->
+            val currentDestination = navController.currentDestination
+            val isMedicamentosFragment = currentDestination?.id == R.id.medicamentosFragment
+            for (i in 0 until binding.bottomNavigationView.menu.size()) {
+                val menuItem = binding.bottomNavigationView.menu.getItem(i)
+                menuItem.isChecked = false
+            }
+
+            item.isChecked = true
+
+            when (item.itemId) {
+                R.id.medicamentosFragment -> {
+                    hideToolbarTitle()
+                    if(isMedicamentosFragment){
+                        navController.navigate(R.id.medicamentosFragment)
+                    }else{
+                        navController.popBackStack()
+                    }
+                }
+                R.id.historicoFragment -> {
+                    hideToolbarTitle()
+                    navController.navigate(R.id.historicoFragment)
+                }
+            }
+
+            true
+        }
     }
+
+
 
     private fun onClickListeners() {
         binding.btnDeleteMedicamento.setOnClickListener {

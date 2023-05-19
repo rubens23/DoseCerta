@@ -142,6 +142,7 @@ class MedicamentoManager() : CalendarHelper, Parcelable {
                 it
             )
 
+            Log.d("toastaparece", "to bem aqui antes de mostrar o toast de confirmação do alarme")
             fragmentDetalhesMedicamentosUi.showAlarmConfirmationToast(it, extra as MedicamentoComDoses)
         }
 
@@ -167,11 +168,15 @@ class MedicamentoManager() : CalendarHelper, Parcelable {
     private fun armarProximoAlarme() {
         if ((extra as MedicamentoComDoses).listaDoses.size > 0) {
             val limiteFor = (extra as MedicamentoComDoses).listaDoses.size - 1
-            iterarSobreDosesEAcharProxima(limiteFor)
+            if(limiteFor != 0){
+                iterarSobreDosesEAcharProxima(limiteFor)
+            }
         }
 
-        markToastAsShown()
-        initializeAlarmManager()
+        //markToastAsShown()
+        if((extra as MedicamentoComDoses).listaDoses.size - 1 != 0){
+            initializeAlarmManager()
+        }
     }
 
     private fun iterarSobreDosesEAcharProxima(limiteFor: Int) {
@@ -180,30 +185,38 @@ class MedicamentoManager() : CalendarHelper, Parcelable {
                 if (horaProxDose.length < 17) {
                     if ((extra as MedicamentoComDoses).listaDoses[i].horarioDose + ":00" == "$horaProxDose:00") {
 
-                        if (i + 1 == limiteFor) {
-                            //acabaram as doses
-                        } else {
-                            //pega horario da dose e concatena ":00" no final para a string ficar
-                            //formato certo
-                            this.horaProxDose =
-                                (extra as MedicamentoComDoses).listaDoses[i + 1].horarioDose + ":00"
-                            return
-                        }
+
+                            if (i + 1 == limiteFor) {
+                                //acabaram as doses
+                            } else {
+                                //pega horario da dose e concatena ":00" no final para a string ficar
+                                //formato certo
+                                this.horaProxDose =
+                                    (extra as MedicamentoComDoses).listaDoses[i + 1].horarioDose + ":00"
+                                return
+                            }
+
+
+
 
 
                     }
                 } else {
                     //se hora proxDose for maior que 17 significa que já tem o sufixo no horaProxDose
                     if ((extra as MedicamentoComDoses).listaDoses[i].horarioDose + ":00" == horaProxDose) {
-                        if (i + 1 == limiteFor) {
-                            //doses acabaram
-                        } else {
-                            //coloca o sufixo pois ele não esta no valor salvo no banco
-                            this.horaProxDose =
-                                (extra as MedicamentoComDoses).listaDoses[i + 1].horarioDose + ":00"
-                            return
 
-                        }
+
+                            if (i + 1 == limiteFor) {
+                                //doses acabaram
+                            } else {
+                                //coloca o sufixo pois ele não esta no valor salvo no banco
+                                this.horaProxDose =
+                                    (extra as MedicamentoComDoses).listaDoses[i + 1].horarioDose + ":00"
+                                return
+
+                            }
+
+
                     }
                 }
             }

@@ -1,6 +1,7 @@
 package com.rubens.applembretemedicamento.presentation
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
@@ -67,10 +68,11 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.d("hidingtitle", "eu to aqui no oncreateview")
+
         Log.d("emptylist", "to no oncreateview")
 
         // Inflate the layout for this fragment
-        initMainActivityInterface()
         initAlarmReceiver()
         initAlarmReceiverInterface()
         setupToolbar()
@@ -79,6 +81,13 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
         binding = FragmentListaMedicamentosBinding.inflate(inflater)
         return binding.root
     }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        initMainActivityInterface()
+    }
+
+
 
     private fun initAlarmReceiver() {
         alarmReceiver = AlarmReceiverSingleton.getInstance()
@@ -100,6 +109,8 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
         super.onViewCreated(view, savedInstanceState)
 
         Log.d("emptylist", "to no onviewcreated")
+        Log.d("hidingtitle", "eu to aqui no onViewCreated")
+
 
 
         registerAlarmeMedicamentoTocandoEventBus()
@@ -154,6 +165,7 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
     private fun setupToolbar() {
         mainActivityInterface.hideToolbar()
         mainActivityInterface.hideToolbarTitle()
+        Log.d("hidingtitle", "eu to aqui escondendo o title")
 
     }
 
@@ -162,6 +174,8 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
         initObservers()
 
     }
+
+
 
     private fun initObservers() {
         viewModel.medicamentos.observe(viewLifecycleOwner){
@@ -326,6 +340,8 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
+
     }
 
     private fun setAdapterOnScrollListener() {
@@ -352,6 +368,8 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
     override fun onResume() {
         super.onResume()
         Log.d("emptylist", "to aqui no onresume")
+        Log.d("hidingtitle", "eu to aqui no onResume")
+
 
         viewModel.loadMedications()
     }

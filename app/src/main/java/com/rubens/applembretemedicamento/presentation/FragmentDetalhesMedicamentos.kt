@@ -68,6 +68,9 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     private var excluirDaListaDeMedicamentosNoAlarme: MutableLiveData<Int> = MutableLiveData()
     private var viewHolderInstanceLiveData: MutableLiveData<DetalhesMedicamentoAdapter.ViewHolder> = MutableLiveData()
 
+    private var isEventBusRegistered = false
+
+
     private var db: AppDatabase? = null
     private lateinit var medicamentoManager: MedicamentoManager
     private val args: FragmentDetalhesMedicamentosArgs by navArgs()
@@ -92,6 +95,8 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentDetalhesMedicamentosBinding.inflate(inflater)
+
+        Log.d("ciclodevida19", "to no oncreate view do fragment detalhes")
         
 
         initAlarmReceiverInterface()
@@ -146,6 +151,9 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         registerAlarmEventBus()
         observers()
         onClickListeners()
+
+        Log.d("ciclodevida19", "to no onviewcreated view do fragment detalhes")
+
     }
 
     private fun checarSeAlarmeEstaAtivado() {
@@ -207,7 +215,11 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     }
 
     private fun registerAlarmEventBus() {
-        EventBus.getDefault().register(this)
+        if(!isEventBusRegistered){
+            EventBus.getDefault().register(this)
+            isEventBusRegistered = true
+
+        }
     }
 
     @Subscribe
@@ -272,6 +284,9 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
     override fun onStop() {
         super.onStop()
+
+        Log.d("ciclodevida19", "to no onStop do fragment detalhes")
+
     }
 
     override fun onDoseImageViewClick(doses: Doses) {
@@ -482,6 +497,9 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         super.onResume()
 
         setupToolbar()
+
+        Log.d("ciclodevida19", "to no onresume view do fragment detalhes")
+
     }
 
     private fun initViewModel() {
