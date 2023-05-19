@@ -54,6 +54,34 @@ class DetalhesMedicamentoAdapter(val listaDosagemMedicamento: MedicamentoComDose
         notifyDataSetChanged()
     }
 
+    override fun atualizarDose(doses: Doses) {
+        if (listaDoses.isNotEmpty()) {
+            if (listaDoses.size == 1) {
+                //lista só tem uma dose
+                if (listaDoses[0].idDose == doses.idDose) {
+                    //index 0 precisa receber a dose atualizada
+                    //preciso atualizar o item da recycler view e notificar para a lista ser atualizada
+                    listaDoses[0] = doses
+                    notifyItemChanged(0)
+                }
+            } else {
+                //lista tem mais de uma dose
+                for (i in listaDoses.indices) {
+                    if (listaDoses[i].idDose == doses.idDose) {
+                        // Preciso pegar o index do item
+                        val index = i
+                        // Preciso colocar a dose recebida no parâmetro no index da lista
+                        listaDoses[index] = doses
+                        // Preciso atualizar o item da RecyclerView e notificar para a lista ser atualizada
+                        notifyItemChanged(index)
+                        break
+                    }
+                }
+            }
+
+        }
+    }
+
     private fun limparListaDoses() {
         listaDoses.clear()
     }
@@ -85,6 +113,7 @@ class DetalhesMedicamentoAdapter(val listaDosagemMedicamento: MedicamentoComDose
 
     inner class ViewHolder(val binding: ItemDetalhesMedicamentosBinding): RecyclerView.ViewHolder(binding.root), ConexaoBindingAdapterDetalhesMedicamentos  {
         fun bind(doses: Doses){
+            Log.d("atualizandorv", "eu entrei aqui no bind onde o item será atualizado ${doses.horarioDose} ${doses.jaTomouDose}")
             setDosageTakenOrNotTaken(doses)
 
 

@@ -255,7 +255,12 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
                 viewLifecycleOwner.lifecycleScope.launch {
                     medicamentoDoseDao.tomarDoseMedicamento(true, doses.idDose)
                 }
-                conexaoBindingAdapterDetalhesMedicamentos.getItemDetalhesMedicamentosBinding().ivStatusDosage.setImageResource(R.drawable.med_taken)
+                Toast.makeText(requireContext(), "você tomou a dose das ${doses.horarioDose}", Toast.LENGTH_LONG).show()
+
+                adapterMethodsInterface.atualizarDose(Doses(doses.idDose, doses.nomeMedicamento, doses.horarioDose, doses.intervaloEntreDoses, doses.dataHora, doses.qntDosesPorHorario, true))
+
+
+                //conexaoBindingAdapterDetalhesMedicamentos.getItemDetalhesMedicamentosBinding().ivStatusDosage.setImageResource(R.drawable.med_taken)
 
                 dialog.dismiss()
             })
@@ -280,6 +285,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
             alert.show()
 
         }
+
     }
 
 
@@ -293,6 +299,8 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
     override fun onDoseImageViewClick(doses: Doses) {
 
+
+
         if(!doses.jaTomouDose){
             //mostrar o dialog confirmando a dose a ser tomada
             val alert: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(requireContext())
@@ -301,10 +309,16 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
             alert.setPositiveButton("Sim", DialogInterface.OnClickListener { dialog, which ->
 
                 GlobalScope.launch {
-                    medicamentoDoseDao.tomarDoseMedicamento(true, doses.idDose)
+                    //doseAtualizada recebe a dose atualizada
+                     medicamentoDoseDao.tomarDoseMedicamento(true, doses.idDose)
                 }
 
-                conexaoBindingAdapterDetalhesMedicamentos.getItemDetalhesMedicamentosBinding().ivStatusDosage.setImageResource(R.drawable.med_taken)
+                Toast.makeText(requireContext(), "você tomou a dose das ${doses.horarioDose}", Toast.LENGTH_LONG).show()
+
+                adapterMethodsInterface.atualizarDose(Doses(doses.idDose, doses.nomeMedicamento, doses.horarioDose, doses.intervaloEntreDoses, doses.dataHora, doses.qntDosesPorHorario, true))
+
+
+                //conexaoBindingAdapterDetalhesMedicamentos.getItemDetalhesMedicamentosBinding().ivStatusDosage.setImageResource(R.drawable.med_taken)
 
                 dialog.dismiss()
             })
@@ -329,6 +343,8 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
             alert.show()
 
         }
+
+
 
     }
 
