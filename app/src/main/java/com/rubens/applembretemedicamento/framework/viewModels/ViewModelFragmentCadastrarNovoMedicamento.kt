@@ -274,7 +274,7 @@ class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
 
         }
 
-        if(hora == maiorHoraAteAgora && qntDoses == 250){
+        if(hora == maiorHoraAteAgora && qntDoses == 125){
             Log.d("testedianovo", "if dia atual $diaAtual")
             maiorHoraAteAgora = hora
 
@@ -307,11 +307,12 @@ class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
             return
 
         }
-        if((hora.get(0).toString() + hora.get(1).toString()).toInt() == maiorHoraAteAgora && qntDoses == 250){
+        if((hora.get(0).toString() + hora.get(1).toString()).toInt() == maiorHoraAteAgora && qntDoses == 125){
             Log.d("testedianovo", "if dia atual $diaAtual")
             maiorHoraAteAgora = (hora.get(0).toString() + hora.get(1).toString()).toInt()
 
             return
+
 
 
         }
