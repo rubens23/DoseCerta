@@ -159,6 +159,7 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
 
     private fun getMedicationInfoBeforeSaving() {
         val qntDiasTrat: Int?
+        val diaInicioTratamento: String?
         nomeRemedio = getNomeRemedioFromEditText()
         qntDosesStr = getQntDosesFromEditText()
         val qntDuracaoTratamentoStr = getDuracaoTratamentoFromEditText()
@@ -174,12 +175,15 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
 
         qntDoses = 0
 
+        diaInicioTratamento = binding.inputDataInicioTratamento.text.toString()
+
         if (qntDosesStr != "") {
             qntDoses = transformQntDosesFromStringToInt(qntDosesStr)
         }
         horarioPrimeiraDose = getTimeFirstTakeFromEditText()
+        //eu tenho a hora da primeira dose e eu tambem tenho a qu
 
-        seeIfMedicamentoHasValidInfo(nomeRemedio, qntDoses, horarioPrimeiraDose, qntDiasTrat)
+        seeIfMedicamentoHasValidInfo(nomeRemedio, qntDoses, horarioPrimeiraDose, qntDiasTrat, diaInicioTratamento)
 
 
     }
@@ -188,12 +192,19 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
         nomeRemedio: String,
         qntDoses: Int,
         horarioPrimeiraDose: String,
-        qntDiasTrat: Int?
+        qntDiasTrat: Int?,
+        diaInicioTratamento: String
     ) {
 
-        if (qntDoses > 0 && nomeRemedio.isNotEmpty() && horarioPrimeiraDose.isNotEmpty() && horarioPrimeiraDose.length == 5 && horarioPrimeiraDose[2].toString() == ":" && binding.tilNumberOfPillsByTake.editText!!.text != null && binding.tilNumberOfPillsByTake.editText!!.text.toString() != "" && binding.tilNumberOfPillsByTake.isNotEmpty() && binding.inputDataInicioTratamento.isDone && qntDiasTrat != null
+        if (diaInicioTratamento.length == 10 && diaInicioTratamento.isNotEmpty() && qntDoses > 0 && nomeRemedio.isNotEmpty() && horarioPrimeiraDose.isNotEmpty() && horarioPrimeiraDose.length == 5 && horarioPrimeiraDose[2].toString() == ":" && binding.tilNumberOfPillsByTake.editText!!.text != null && binding.tilNumberOfPillsByTake.editText!!.text.toString() != "" && binding.tilNumberOfPillsByTake.isNotEmpty() && binding.inputDataInicioTratamento.isDone && qntDiasTrat != null
         ) {
-            saveNewMedication(nomeRemedio, qntDoses, horarioPrimeiraDose, qntDiasTrat)
+            if(!verificarSeDataHoraJaPassou("$diaInicioTratamento $horarioPrimeiraDose")){
+                saveNewMedication(nomeRemedio, qntDoses, horarioPrimeiraDose, qntDiasTrat)
+            }else{
+                Toast.makeText(requireContext(), "a data e hora que você escolheu para a primeira dose já passaram!", Toast.LENGTH_LONG).show()
+            }
+
+
 
         } else {
             showErrorCadastratingNewMedicationToast()

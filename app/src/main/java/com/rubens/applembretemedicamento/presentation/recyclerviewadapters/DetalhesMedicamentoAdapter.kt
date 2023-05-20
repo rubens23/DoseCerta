@@ -26,6 +26,8 @@ class DetalhesMedicamentoAdapter(val listaDosagemMedicamento: MedicamentoComDose
 
 
     init {
+        Log.d("atualizandorv", "entrei no init")
+
         populateListaDoses(listaDosagemMedicamento)
         configureList()
         initDetalhesMedicaemtosAdapterInterface(context)
@@ -89,6 +91,7 @@ class DetalhesMedicamentoAdapter(val listaDosagemMedicamento: MedicamentoComDose
 
     private fun populateListaDoses(listaDosagemMedicamento: MedicamentoComDoses) {
         listaDoses.addAll(listaDosagemMedicamento.listaDoses)
+
 
     }
 

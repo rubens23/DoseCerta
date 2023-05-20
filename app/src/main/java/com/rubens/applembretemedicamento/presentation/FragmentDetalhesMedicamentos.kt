@@ -385,6 +385,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
     private fun initExtraFromListaMedicamentosFragment() {
         extra = args.medicamento
+
     }
 
 
