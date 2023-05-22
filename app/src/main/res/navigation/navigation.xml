@@ -17,6 +17,9 @@
         <action
             android:id="@+id/action_medicamentosFragment_to_fragmentDetalhesMedicamentos"
             app:destination="@id/fragmentDetalhesMedicamentos" />
+        <action
+            android:id="@+id/action_medicamentosFragment_to_fragmentConfiguracoes"
+            app:destination="@id/fragmentConfiguracoes" />
     </fragment>
     <fragment
         android:id="@+id/fragmentCadastrarNovoMedicamento"
@@ -59,5 +62,10 @@
             android:id="@+id/action_historicoFragment_to_fragmentDetalhesMedicamentos"
             app:destination="@id/fragmentDetalhesMedicamentos" />
     </fragment>
+    <fragment
+        android:id="@+id/fragmentConfiguracoes"
+        android:name="com.rubens.applembretemedicamento.presentation.FragmentConfiguracoes"
+        android:label="fragment_configuracoes"
+        tools:layout="@layout/fragment_configuracoes" />
 
 </navigation>

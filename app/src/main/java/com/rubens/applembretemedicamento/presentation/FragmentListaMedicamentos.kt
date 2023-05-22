@@ -2,6 +2,7 @@ package com.rubens.applembretemedicamento.presentation
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.ColorStateList
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
@@ -10,6 +11,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
@@ -379,6 +381,9 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
 
             findNavController().navigate(R.id.action_medicamentosFragment_to_fragmentCadastrarNovoMedicamento)
         }
+        binding.btnSettings.setOnClickListener {
+            findNavController().navigate(R.id.action_medicamentosFragment_to_fragmentConfiguracoes)
+        }
     }
 
     override fun onStop() {
@@ -452,6 +457,14 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
             view?.findNavController()?.navigate(action)
         }
 
+
+    }
+
+    override fun changeFloatingActionButtonColor(color: Int) {
+        if(!this::binding.isInitialized){
+            binding = FragmentListaMedicamentosBinding.inflate(this.layoutInflater)
+        }
+        binding.fab.backgroundTintList = ContextCompat.getColorStateList(requireContext(), color)
 
     }
 

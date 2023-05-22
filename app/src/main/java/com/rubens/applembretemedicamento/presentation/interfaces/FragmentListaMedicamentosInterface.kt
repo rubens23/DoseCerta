@@ -14,6 +14,7 @@ interface FragmentListaMedicamentosInterface {
     fun getMediaPlayerInstance(): MediaPlayer?
     fun launchCoroutineScope(medicamento: MedicamentoComDoses)
     fun onMedicamentoClick(proxDose: String?, intervaloEntreDoses: Double, medicamento: MedicamentoComDoses, medicamentoManager: MedicamentoManager)
+    fun changeFloatingActionButtonColor(color: Int)
 
 
 }

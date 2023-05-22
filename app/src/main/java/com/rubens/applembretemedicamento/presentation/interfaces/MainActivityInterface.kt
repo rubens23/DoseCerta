@@ -22,7 +22,8 @@ interface MainActivityInterface {
     fun hideToolbar()
 
     fun hideBtnDeleteMedicamento()
-
+    fun changeThemeToBlueTheme()
+    fun changeThemeToRedTheme()
 
 
 }
