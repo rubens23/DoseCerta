@@ -119,9 +119,13 @@ class ServiceMediaPlayer: Service() {
         val notification = intent?.getParcelableExtra<Notification>("notification")
         if (notification != null) {
             // Iniciar o serviço em primeiro plano com a notificação existente
+            Log.d("testeplay", "notificação nao é nula")
+
 
             startForeground(NOTIFICATION_ID, notification)
         } else {
+            Log.d("testeplay", "notificação é nula")
+
             //todo que essa é realmente a melhor maneira para pegar a instancia do mp? desse jeito eu vou ter que mostrar outra notificacao
             // Se a notificação não estiver presente, crie uma nova notificação aqui
             //val newNotification = criarNotificacao()

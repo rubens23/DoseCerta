@@ -11,8 +11,8 @@ import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.Uri
-import android.provider.Settings
 import android.util.Log
+import android.util.TypedValue
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -24,7 +24,6 @@ import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.domain.AlarmEvent
 import com.rubens.applembretemedicamento.framework.domain.AlarmeMedicamentoTocando
-import com.rubens.applembretemedicamento.framework.domain.MediaPlayerTocando
 import com.rubens.applembretemedicamento.framework.services.ServiceMediaPlayer
 import com.rubens.applembretemedicamento.presentation.FragmentDetalhesMedicamentos
 import com.rubens.applembretemedicamento.presentation.MainActivity
@@ -75,12 +74,9 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
         initWakeLocker(p0)
         showToastTomeMedicamento(nomeMedicamento, p0)
         initOnAudioFocusChangeListener(p0)
-        //initMediaPlayerService(p0)
 
 
-
-        val data = "pode mostrar o botão parar som!"
-        EventBus.getDefault().post(AlarmEvent(data))
+        showBtnPararSomEventBus()
 
         notificarOFragmentListaDeQueOAlarmeDoMedicamentoEstaTocando(idMedicamento)
 
@@ -96,6 +92,11 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
         )
 
 
+    }
+
+    private fun showBtnPararSomEventBus() {
+        val data = "pode mostrar o botão parar som!"
+        EventBus.getDefault().post(AlarmEvent(data))
     }
 
     /*
@@ -146,6 +147,10 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
         pi: PendingIntent?,
         idMedicamento: Int?
     ) {
+        val typedValue = TypedValue()
+        p0?.theme?.resolveAttribute(android.R.attr.colorPrimary, typedValue, true)
+        val colorPrimary= typedValue.data
+
         val notification = p0?.let { context ->
             NotificationCompat.Builder(context, "something")
                 .setContentTitle(nomeMedicamento)
@@ -158,9 +163,7 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
                 .setColorized(true)
                 .build()
         }
-        val manager = p0?.let {
-            NotificationManagerCompat.from(it)
-        }
+
         if(p0 != null){
             val foregroundIntent = Intent(p0, ServiceMediaPlayer::class.java)
             foregroundIntent.putExtra("notification", notification)
@@ -168,21 +171,8 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
             foregroundIntent.action = "PLAY_ALARM"
 
             p0.startForegroundService(foregroundIntent)
-            //p0.startService(foregroundIntent)
         }
 
-
-        /*
-
-        notification?.let {
-            if (idMedicamento != null) {
-                manager?.notify(idMedicamento, notification)
-            }
-
-
-        }
-
-         */
 
 
     }
@@ -366,7 +356,8 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
         listaDoses: List<Doses>,
         context: FragmentDetalhesMedicamentos,
         ctxActivity: MainActivity,
-        horaProxDose: String
+        horaProxDose: String,
+        nmMedicamento: String
     ) {
 
         preencherListaDeDoses(listaDoses)
@@ -464,7 +455,7 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
 
             //faz configurações finais na intent e inicializa o alarme
-            putNomeMedicamentoEHoraProximaDoseNoExtraDoAlarmIntent(horaProximaDose)
+            putNomeMedicamentoEHoraProximaDoseNoExtraDoAlarmIntent(horaProximaDose, nmMedicamento)
             pendingIntent = makePendingIntent(ctxActivity, medicamentoId, alarmIntent, 0)
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
@@ -499,7 +490,7 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
             }
 
             //faz configurações finais na alarm Intent e seta o alarme
-            putNomeMedicamentoEHoraProximaDoseNoExtraDoAlarmIntent(horaProximaDose)
+            putNomeMedicamentoEHoraProximaDoseNoExtraDoAlarmIntent(horaProximaDose, nmMedicamento)
             pendingIntent = makePendingIntent(ctxActivity, medicamentoId, alarmIntent, 0)
             val millisegundosAteProximaDose =
                 horaProximaDoseMenosHoraAtual(horaProximaDoseInMilliseconds, horaAtualEmMillisegundos)
@@ -533,9 +524,12 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
     }
 
-    private fun putNomeMedicamentoEHoraProximaDoseNoExtraDoAlarmIntent(horaProximaDose: String) {
+    private fun putNomeMedicamentoEHoraProximaDoseNoExtraDoAlarmIntent(
+        horaProximaDose: String,
+        nmMedicamento: String
+    ) {
         alarmIntent.data = Uri.parse(horaProximaDose)
-        alarmIntent.putExtra("nomemedicamento", listaDoses.get(0).nomeMedicamento)
+        alarmIntent.putExtra("nomemedicamento", nmMedicamento)
 
     }
 

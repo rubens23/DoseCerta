@@ -139,7 +139,8 @@ class MedicamentoManager() : CalendarHelper, Parcelable {
                 (extra as MedicamentoComDoses).listaDoses,
                 context,
                 context.requireActivity() as MainActivity,
-                it
+                it,
+                (extra as MedicamentoComDoses).medicamentoTratamento.nomeMedicamento
             )
 
             Log.d("toastaparece", "to bem aqui antes de mostrar o toast de confirmação do alarme")
