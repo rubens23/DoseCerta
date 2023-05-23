@@ -1,13 +1,16 @@
 package com.rubens.applembretemedicamento.framework.broadcastreceivers
 
 import ButtonStateLiveData
+import android.content.Context
 import android.media.MediaPlayer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 
 interface AlarmReceiverInterface {
 
-    fun getMediaPlayerInstance(): MediaPlayer
+    fun getMediaPlayerInstance(): MediaPlayer?
+
+    fun stopAlarmSound(context: Context)
 
 
     fun getNomeMedicamentoFromAlarmReceiver(): String

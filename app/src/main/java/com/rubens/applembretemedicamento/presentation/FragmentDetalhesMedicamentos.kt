@@ -402,10 +402,13 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         }
 
         medicamentoManager.horaProximaDoseObserver.observe(viewLifecycleOwner){
-                if(alarmReceiverInterface.getMediaPlayerInstance().isPlaying){
+            if(alarmReceiverInterface.getMediaPlayerInstance() != null){
+                if(alarmReceiverInterface.getMediaPlayerInstance()!!.isPlaying){
                     //showBtnCancelarAlarme()
                     //hideBtnArmarAlarme()
                 }
+            }
+
         }
         initButtonChangeListener()
         /*
@@ -564,8 +567,13 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         binding.btnPararSom.setOnClickListener {
             //markToastAsNotShownInDataStore()
             if (getMediaPlayerInstance() != null){
+                Log.d("testeplay", "media player instance is not null ${getMediaPlayerInstance()}")
 
                 if (getMediaPlayerInstance()!!.isPlaying){
+                    Log.d("testeplay", "media player is playing ${getMediaPlayerInstance()}")
+
+                    alarmReceiverInterface.stopAlarmSound(requireContext())
+
                     stopMusicPlayer()
                     hideBtnPararSom()
                     createListaAuxiliarERemoverOMedicamentoDasListasDeAlarmeTocando()
@@ -726,7 +734,6 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     private fun stopMusicPlayer() {
         if(mediaPlayer != null){
 
-            getMediaPlayerInstance()!!.stop()
         }
     }
 

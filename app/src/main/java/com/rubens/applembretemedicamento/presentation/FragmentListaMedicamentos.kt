@@ -2,6 +2,7 @@ package com.rubens.applembretemedicamento.presentation
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -32,6 +33,7 @@ import com.rubens.applembretemedicamento.framework.domain.AlarmEvent
 import com.rubens.applembretemedicamento.framework.domain.AlarmeMedicamentoTocando
 import com.rubens.applembretemedicamento.framework.domain.MediaPlayerTocando
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
+import com.rubens.applembretemedicamento.framework.services.ServiceMediaPlayer
 import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentLista
 import com.rubens.applembretemedicamento.presentation.interfaces.AdapterListaMedicamentosInterface
@@ -127,8 +129,18 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
         onClickListeners()
 
         getRecyclerViewPositionIfItWasSaved(savedInstanceState)
+        initServiceToSeeIfMediaPlayerInstanceIsAvailable()
 
 
+
+    }
+
+    private fun initServiceToSeeIfMediaPlayerInstanceIsAvailable() {
+        //todo é esse pedaço de codigo que ta crashando o app por causa que o startForeground nao foi chamado dentro de 5 segundos
+        //val serviceIntent = Intent(requireContext(), ServiceMediaPlayer::class.java)
+        //serviceIntent.action = "GET_PLAYER_INSTANCE"
+        //ContextCompat.startForegroundService(requireContext(), serviceIntent)
+        //requireContext().startService(serviceIntent)
 
     }
 
@@ -260,9 +272,12 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
 
     private fun escutarMediaPlayer() {
         alarmReceiverInterface.getAlarmeTocandoLiveData().observe(viewLifecycleOwner){
-            if (alarmReceiverInterface.getMediaPlayerInstance().isPlaying){
-                setAdapter(listaMedicamentos)
+            if(alarmReceiverInterface.getMediaPlayerInstance() != null){
+                if (alarmReceiverInterface.getMediaPlayerInstance()!!.isPlaying){
+                    setAdapter(listaMedicamentos)
+                }
             }
+
         }
     }
 
@@ -301,9 +316,11 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
 
     }
 
-    @Subscribe
+    @Subscribe(sticky = true)
     fun onMediaPlayerTocando(event: MediaPlayerTocando) {
         mediaPlayer = event.mp
+        Log.d("acompanhandoinstancia", "instancia do media player aqui no fragmento lista: $mediaPlayer")
+
     }
 
     override fun getMediaPlayerInstance(): MediaPlayer? {
@@ -383,6 +400,12 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
         }
         binding.btnSettings.setOnClickListener {
             findNavController().navigate(R.id.action_medicamentosFragment_to_fragmentConfiguracoes)
+        }
+        binding.btnStopService.setOnClickListener {
+                val serviceIntent = Intent(requireContext(), ServiceMediaPlayer::class.java)
+                serviceIntent.action = "STOP_SERVICE"
+                ContextCompat.startForegroundService(requireContext(), serviceIntent)
+
         }
     }
 

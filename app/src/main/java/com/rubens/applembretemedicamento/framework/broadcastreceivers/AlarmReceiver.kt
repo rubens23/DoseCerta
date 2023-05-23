@@ -1,6 +1,5 @@
 package com.rubens.applembretemedicamento.framework.broadcastreceivers
 
-import ButtonStateLiveData
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_IMMUTABLE
@@ -20,14 +19,13 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.appmedicamentos.utils.WakeLocker
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.domain.AlarmEvent
 import com.rubens.applembretemedicamento.framework.domain.AlarmeMedicamentoTocando
 import com.rubens.applembretemedicamento.framework.domain.MediaPlayerTocando
-import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
+import com.rubens.applembretemedicamento.framework.services.ServiceMediaPlayer
 import com.rubens.applembretemedicamento.presentation.FragmentDetalhesMedicamentos
 import com.rubens.applembretemedicamento.presentation.MainActivity
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentDetalhesMedicamentosUi
@@ -48,41 +46,24 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
     private var listaDoses: ArrayList<Doses> = ArrayList()
     private lateinit var fragmentDetalhesMedicamentosUi: FragmentDetalhesMedicamentosUi
     private lateinit var mainActivityInterface: MainActivityInterface
-    private var mp: MediaPlayer = MediaPlayer()
     private var nomeMedicamento = ""
     private var idMed = ""
     private var listaIdMedicamentosTocandoNoMomento: ArrayList<Int> = ArrayList()
     private var alarmeTocando: MutableLiveData<Boolean> = MutableLiveData()
     private var idMedicamentoTocandoAtualmente: MutableLiveData<List<Int>> = MutableLiveData()
+    private var context: Context? = null
 
     private lateinit var buttonStateLiveData: MutableLiveData<Boolean>
 
-    init {
-        Log.d("testebtn", "iniciei o alarm receiver")
-        //initButtonStateLiveData()
 
-        /*
-        o alarmReceiver é criado no list fragment
-        o alarmreceiver é criado tambem ao apertar no botao do alarme
-
-        - o observer pega a instancia do livedata antes do livedata iniciar novamente
-
-         */
-
-    }
 
 
     override fun onReceive(p0: Context?, p1: Intent?) {
+        context = p0
 
         notificarOFragmentDetalhesDeQueJaPodeMostrarBotaoDePararSom()
 
-        /*
-        - tenho que pegar o medicamento o qual o alarme esta tocando
-        - e pegar o id desse medicamento
-         */
-
-
-
+        Log.d("acompanhandoinstancia", "to aqui no onReceive do broadcast receiver")
 
 
 
@@ -94,11 +75,8 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
         initWakeLocker(p0)
         showToastTomeMedicamento(nomeMedicamento, p0)
         initOnAudioFocusChangeListener(p0)
-        initMediaPlayer(p0)
-        startMediaPlayer()
-        enviarInstanciaAtualDoMediaPlayerParaListFragment(mp)
+        //initMediaPlayerService(p0)
 
-        Log.d("testebusdetalhes", "instancia do mp aqui no onReceive: $mp")
 
 
         val data = "pode mostrar o botão parar som!"
@@ -120,9 +98,19 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
     }
 
-    private fun enviarInstanciaAtualDoMediaPlayerParaListFragment(mp: MediaPlayer) {
-        EventBus.getDefault().post(MediaPlayerTocando(mp))
+    /*
+
+    private fun initMediaPlayerService(context: Context?) {
+        if(context != null){
+            val serviceIntent = Intent(context, ServiceMediaPlayer::class.java)
+            ContextCompat.startForegroundService(context, serviceIntent)
+
+        }
     }
+
+     */
+
+
 
     private fun notificarOFragmentListaDeQueOAlarmeDoMedicamentoEstaTocando(idMedicamento: Int?) {
         val id = idMedicamento
@@ -173,6 +161,18 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
         val manager = p0?.let {
             NotificationManagerCompat.from(it)
         }
+        if(p0 != null){
+            val foregroundIntent = Intent(p0, ServiceMediaPlayer::class.java)
+            foregroundIntent.putExtra("notification", notification)
+            foregroundIntent.putExtra("medicamentoId", idMedicamento)
+            foregroundIntent.action = "PLAY_ALARM"
+
+            p0.startForegroundService(foregroundIntent)
+            //p0.startService(foregroundIntent)
+        }
+
+
+        /*
 
         notification?.let {
             if (idMedicamento != null) {
@@ -181,6 +181,9 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
 
         }
+
+         */
+
 
     }
 
@@ -213,18 +216,9 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
     }
 
-    private fun startMediaPlayer() {
-        mp.start()
-        alarmeTocando.postValue(true)
-        Log.d("testeshakingclock", "media player começou a tocar agora")
 
 
 
-    }
-
-    private fun initMediaPlayer(p0: Context?) {
-        mp = MediaPlayer.create(p0, Settings.System.DEFAULT_RINGTONE_URI)
-    }
 
     private fun showToastTomeMedicamento(nomeMedicamento: String?, p0: Context?) {
         Toast.makeText(p0, "Tome o medicamento $nomeMedicamento", Toast.LENGTH_LONG).show()
@@ -290,14 +284,33 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
         Log.d("testeshowcancel", "show button armar alarme foi chamado pelo metodo cancelAlarm do AlarmReceiver")
 
         WakeLocker.release()
+        if(context != null){
+            val serviceIntent = Intent(context, ServiceMediaPlayer::class.java)
+            serviceIntent.action = "STOP_SERVICE"
+            ContextCompat.startForegroundService(context!!, serviceIntent)
+            alarmeTocando.postValue(false)
+        }
+        /*
         if (mp.isPlaying) {
             mp.stop()
-            alarmeTocando.postValue(false)
             Log.d("testealarme", "alarme tava tocqando e parou depois de passar por aqui")
 
 
 
+
+
         }
+
+         */
+    }
+
+    override fun stopAlarmSound(context: Context){
+        Log.d("testeplay", "eu to dentro do metodo que vai parar o serviço")
+
+        val serviceIntent = Intent(context, ServiceMediaPlayer::class.java)
+        serviceIntent.action = "STOP_SERVICE"
+        ContextCompat.startForegroundService(context!!, serviceIntent)
+        alarmeTocando.postValue(false)
     }
 
     fun cancelAllAlarms(applicationContext: Context) {
@@ -632,10 +645,11 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
     }
 
-    override fun getMediaPlayerInstance(): MediaPlayer {
+    override fun getMediaPlayerInstance(): MediaPlayer? {
         Log.d("testeshakingclock", "peguei a instancia do media player")
+        //todo a instancia do mp agora esta no service, arruma essa referencia depois
 
-        return mp
+        return null
     }
 
     override fun getNomeMedicamentoFromAlarmReceiver(): String {
@@ -663,7 +677,7 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
     }
 
     override fun stopMediaPlayer() {
-        mp.stop()
+        //mp.stop()
     }
 
     override fun getButtonChangeLiveData(): MutableLiveData<Boolean> {

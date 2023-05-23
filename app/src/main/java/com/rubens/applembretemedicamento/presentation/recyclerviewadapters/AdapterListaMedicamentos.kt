@@ -176,33 +176,29 @@ class AdapterListaMedicamentos(
 
             }else{
                 Log.d("testeshakingclock", "alarme desativado")
+                hideReloginhoDeAlarmeAtivado()
 
             }
 
         }
 
+        private fun hideReloginhoDeAlarmeAtivado() {
+            binding.alarmeAtivado.visibility = View.GONE
+        }
+
         private fun checkIfMediaPlayerIsPlaying(medicamento: MedicamentoComDoses) {
             if (medicamento.medicamentoTratamento.alarmeTocando){
+                Log.d("acompanhandoinstancia", "instancia do media player aqui no adapter: ${fragmentListaMedicamentosInterface.getMediaPlayerInstance()}")
+
                 if(fragmentListaMedicamentosInterface.getMediaPlayerInstance() != null){
+                    Log.d("acompanhandoinstancia", "aqui dentro do if: instancia do media player aqui no adapter: ${fragmentListaMedicamentosInterface.getMediaPlayerInstance()}")
+
                     if (fragmentListaMedicamentosInterface.getMediaPlayerInstance()!!.isPlaying) {
-                        Log.d("testeshakingclock", "media player esta tocando")
 
 
                         initShakingClockAnimation()
                         Log.d("testeshakingclock", "iniciei a shaking animation")
 
-
-                        /*
-                        listaIdMedicamentosTocandoNoMomento.forEach { id ->
-                            if (medicamento.medicamentoTratamento.idMedicamento == id && id > -1) {
-                                initShakingClockAnimation()
-
-                            }
-
-                        }
-
-                         */
-                        //todo a instancia do mediaplayer recebe outra instancia de mp mas ela nao esta tocando(provavelmente)
 
                     }else{
                         Log.d("testeshakingclock", "media player não está tocando")

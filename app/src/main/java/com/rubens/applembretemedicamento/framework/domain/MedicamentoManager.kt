@@ -263,17 +263,20 @@ class MedicamentoManager() : CalendarHelper, Parcelable {
 
     private fun checarSeAlarmeEstaAtivado() {
         if (medicamento.alarmeAtivado) {
-            if (alarmReceiverInterface.getMediaPlayerInstance().isPlaying) {
-                alarmReceiverInterface.getListaIdMedicamentosTocandoNoMomentoFromAlarmReceiver()
-                    .forEach {
-                        if (it == medicamento.idMedicamento) {
-                            fragmentDetalhesMedicamentosUi.showBtnPararSom()
+            if(alarmReceiverInterface.getMediaPlayerInstance() != null){
+                if (alarmReceiverInterface.getMediaPlayerInstance()!!.isPlaying) {
+                    alarmReceiverInterface.getListaIdMedicamentosTocandoNoMomentoFromAlarmReceiver()
+                        .forEach {
+                            if (it == medicamento.idMedicamento) {
+                                fragmentDetalhesMedicamentosUi.showBtnPararSom()
+                            }
                         }
-                    }
-            } else {
-                Log.d("testeisplaying", "o mp nao esta tocando")
-                initializeAlarmManager()
+                } else {
+                    Log.d("testeisplaying", "o mp nao esta tocando")
+                    initializeAlarmManager()
+                }
             }
+
 
         }
 
