@@ -10,6 +10,7 @@ import android.provider.Settings
 import android.util.Log
 import com.rubens.applembretemedicamento.framework.data.AppDatabase
 import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
+import com.rubens.applembretemedicamento.framework.domain.AlarmEvent
 import com.rubens.applembretemedicamento.framework.domain.MediaPlayerTocando
 import org.greenrobot.eventbus.EventBus
 
@@ -56,6 +57,7 @@ class ServiceMediaPlayer: Service() {
             initNotification(intent)
             instatiateMediaPlayer()
             playMediaPlayer()
+            showBtnPararSomEventBus()
             enviarInstanciaAtualDoMediaPlayerParaListFragment(mp)
             initDb(applicationContext)
             initDao()
@@ -114,6 +116,7 @@ class ServiceMediaPlayer: Service() {
     }
 
 
+
     private fun initNotification(intent: Intent?) {
 
         val notification = intent?.getParcelableExtra<Notification>("notification")
@@ -155,5 +158,11 @@ class ServiceMediaPlayer: Service() {
 
     private fun enviarInstanciaAtualDoMediaPlayerParaListFragment(mp: MediaPlayer) {
         EventBus.getDefault().postSticky(MediaPlayerTocando(mp))
+    }
+
+
+    private fun showBtnPararSomEventBus() {
+        val data = "pode mostrar o botão parar som!"
+        EventBus.getDefault().postSticky(AlarmEvent(data))
     }
 }

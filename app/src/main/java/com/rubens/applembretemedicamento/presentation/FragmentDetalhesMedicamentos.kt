@@ -224,15 +224,16 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         }
     }
 
-    @Subscribe
+    @Subscribe(sticky = true)
     fun onAlarmEvent(event: AlarmEvent){
         val data = event.data
         Log.d("testebtn", "data recebido no event bus: $data")
 
-        showBtnPararSom()
+        if((extra as MedicamentoComDoses).medicamentoTratamento.alarmeTocando){
+            showBtnPararSom()
+        }
 
-        //todo pode notificar algum observer que atualize e mostre o botao
-        //alarmReceiver iniciado eu posso chamar a interface que me da acesso aos metodos de la
+
     }
 
     override fun initDao() {
@@ -562,21 +563,24 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
             cancelarOAlarmeNoBroadcastReceiver()
             hideBtnCancelarAlarme()
             showBtnArmarAlarme()
-            //markToastAsNotShownInDataStore()
         }
         binding.btnPararSom.setOnClickListener {
-            //markToastAsNotShownInDataStore()
             if (getMediaPlayerInstance() != null){
-                Log.d("testeplay", "media player instance is not null ${getMediaPlayerInstance()}")
+                Log.d("testeplay2", "media player instance is not null ${getMediaPlayerInstance()}")
 
                 if (getMediaPlayerInstance()!!.isPlaying){
-                    Log.d("testeplay", "media player is playing ${getMediaPlayerInstance()}")
+                    Log.d("testeplay2", "media player is playing ${getMediaPlayerInstance()}")
 
 
                     stopMusicPlayer()
                     hideBtnPararSom()
                     avisarQueMedicamentoNaoEstaTocando()
+                }else{
+                    Log.d("testeplay2", "media player is not playing")
                 }
+            }else{
+                Log.d("testeplay2", "media player instance is null")
+
             }
             armarProximoAlarme()
         }
@@ -606,7 +610,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         return mediaPlayer
     }
 
-    @Subscribe
+    @Subscribe(sticky = true)
     fun onMediaPlayerTocando(event: MediaPlayerTocando) {
         mediaPlayer = event.mp
         Log.d("testebusdetalhes", "eu recebi o mp ${event.mp} e instanciei: ${mediaPlayer}")

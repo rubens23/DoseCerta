@@ -76,7 +76,7 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
         initOnAudioFocusChangeListener(p0)
 
 
-        showBtnPararSomEventBus()
+
 
         notificarOFragmentListaDeQueOAlarmeDoMedicamentoEstaTocando(idMedicamento)
 
@@ -94,10 +94,7 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
     }
 
-    private fun showBtnPararSomEventBus() {
-        val data = "pode mostrar o botão parar som!"
-        EventBus.getDefault().post(AlarmEvent(data))
-    }
+
 
     /*
 
