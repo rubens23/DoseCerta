@@ -572,12 +572,10 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
                 if (getMediaPlayerInstance()!!.isPlaying){
                     Log.d("testeplay", "media player is playing ${getMediaPlayerInstance()}")
 
-                    alarmReceiverInterface.stopAlarmSound(requireContext())
 
                     stopMusicPlayer()
                     hideBtnPararSom()
-                    createListaAuxiliarERemoverOMedicamentoDasListasDeAlarmeTocando()
-                    removeMedicamentoDaListaDeAlarmesTocando()
+                    avisarQueMedicamentoNaoEstaTocando()
                 }
             }
             armarProximoAlarme()
@@ -595,6 +593,13 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         }
 
 
+    }
+
+    private fun avisarQueMedicamentoNaoEstaTocando() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            medicamentoDoseDao.alarmeMedicamentoTocando((extra as MedicamentoComDoses).medicamentoTratamento.idMedicamento, false)
+
+        }
     }
 
     private fun getMediaPlayerInstance(): MediaPlayer? {
@@ -699,42 +704,16 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         medicamentoManager.startArmarProximoAlarme()
     }
 
-    private fun createListaAuxiliarERemoverOMedicamentoDasListasDeAlarmeTocando() {
-        //todo achar outra solução pois adapter lista de medicamentos ja esta morto
-        /*
-        val listaAuxiliar = ArrayList<Int>()
-        listaAuxiliar.addAll(adapterListaMedicamentosInterface.getListaIdMedicamentosFromAdapterListaMedicamentos())
-        listaAuxiliar.forEach {
-            if(it == medicamentoManager.getMedicamento().idMedicamento){
-                removeMedicamentoDaListaDeAlarmesTocando()
 
-                if(alarmReceiverInterface.getListaIdMedicamentosTocandoNoMomentoFromAlarmReceiver().contains(medicamentoManager.getMedicamento().idMedicamento)){
-                    avisaQueEsseMedicamentoNaoEstaComOAlarmeTocandoNoMomento()
 
-                }
-            }
-        }
-
-         */
-    }
-
-    private fun avisaQueEsseMedicamentoNaoEstaComOAlarmeTocandoNoMomento() {
-        alarmReceiverInterface.removeFromListaIdMedicamentoTocandoNoMomento(medicamentoManager.getMedicamento().idMedicamento)
-    }
-
-    private fun removeMedicamentoDaListaDeAlarmesTocando() {
-        //todo achar outra solução pois adapter lista de medicmaneots ja esta morto
-        //adapterListaMedicamentosInterface.removeFromListaIdMedicamentosFromListaAdapter(medicamentoManager.getMedicamento().idMedicamento)
-    }
 
     private fun hideBtnPararSom() {
         binding.btnPararSom.visibility = View.GONE
     }
 
     private fun stopMusicPlayer() {
-        if(mediaPlayer != null){
+        alarmReceiverInterface.stopAlarmSound(requireContext())
 
-        }
     }
 
     private fun markToastAsNotShownInDataStore() {

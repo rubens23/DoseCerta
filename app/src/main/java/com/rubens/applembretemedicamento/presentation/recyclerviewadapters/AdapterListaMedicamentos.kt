@@ -188,10 +188,11 @@ class AdapterListaMedicamentos(
 
         private fun checkIfMediaPlayerIsPlaying(medicamento: MedicamentoComDoses) {
             if (medicamento.medicamentoTratamento.alarmeTocando){
-                Log.d("acompanhandoinstancia", "instancia do media player aqui no adapter: ${fragmentListaMedicamentosInterface.getMediaPlayerInstance()}")
+                Log.d("alarmetocando", "alarme tocando? ${medicamento.medicamentoTratamento.alarmeTocando}")
 
                 if(fragmentListaMedicamentosInterface.getMediaPlayerInstance() != null){
-                    Log.d("acompanhandoinstancia", "aqui dentro do if: instancia do media player aqui no adapter: ${fragmentListaMedicamentosInterface.getMediaPlayerInstance()}")
+                    Log.d("alarmetocando", "media player instance is not null")
+
 
                     if (fragmentListaMedicamentosInterface.getMediaPlayerInstance()!!.isPlaying) {
 
@@ -204,7 +205,13 @@ class AdapterListaMedicamentos(
                         Log.d("testeshakingclock", "media player não está tocando")
 
                     }
+                }else{
+                    Log.d("alarmetocando", "media player instance is null")
+
                 }
+
+            }else{
+                Log.d("alarmetocando", "alarme tocando? ${medicamento.medicamentoTratamento.alarmeTocando}")
 
             }
 

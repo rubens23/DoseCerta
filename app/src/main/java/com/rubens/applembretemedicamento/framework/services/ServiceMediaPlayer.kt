@@ -148,7 +148,7 @@ class ServiceMediaPlayer: Service() {
 
     private fun stopMediaPlayer() {
         mp.stop()
-        mp.release()
+        //mp.release()
         Log.d("testeplay", "vim aqui para parar o mp e o serviço")
 
     }
