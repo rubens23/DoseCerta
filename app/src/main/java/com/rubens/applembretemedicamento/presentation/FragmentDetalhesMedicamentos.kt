@@ -65,6 +65,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     private lateinit var adapter : DetalhesMedicamentoAdapter
     lateinit var viewModel: ViewModelFragmentCadastrarNovoMedicamento
     private var medicamentoAdicionadoObserver: MutableLiveData<MedicamentoTratamento> = MutableLiveData()
+    private var mudancaMedicamentoComDoses: MutableLiveData<MedicamentoComDoses> = MutableLiveData()
     private var excluirDaListaDeMedicamentosNoAlarme: MutableLiveData<Int> = MutableLiveData()
     private var viewHolderInstanceLiveData: MutableLiveData<DetalhesMedicamentoAdapter.ViewHolder> = MutableLiveData()
 
@@ -436,6 +437,15 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
             initConexaoComAdapterBinding(viewHolderInstance)
         }
 
+        mudancaMedicamentoComDoses.observe(viewLifecycleOwner){
+            it.listaDoses.forEach {
+                Log.d("listupdate", "testando lista atualizada: ${it.nomeMedicamento} ${it.horarioDose} ja tomou dose: ${it.jaTomouDose}")
+            }
+            extra = it
+            adapterMethodsInterface.updateList(it)
+            adapterMethodsInterface.updateRecyclerViewOnDateChange(diaAtualSelecionado)
+        }
+
 
 
     }
@@ -622,7 +632,12 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         if(podeAvancar){
             somarUmDiaADataAtual()
             atualizarTextViewDaDataAtual()
-            adapterMethodsInterface.updateRecyclerViewOnDateChange(diaAtualSelecionado)
+            lifecycleScope.launch {
+                mudancaMedicamentoComDoses.postValue(medicamentoDoseDao.getMedicamentoDosesByName((extra as MedicamentoComDoses).medicamentoTratamento.nomeMedicamento))
+
+
+            }
+            //adapterMethodsInterface.updateRecyclerViewOnDateChange(diaAtualSelecionado)
         }
         checarSeDataSelecionadaIgualADataDeTerminoDeTratamento()
     }
@@ -632,7 +647,13 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         if(podeVoltar){
             subtrairUmDiaDaDataAtual()
             atualizarTextViewDaDataAtual()
-            adapterMethodsInterface.updateRecyclerViewOnDateChange(diaAtualSelecionado)
+            lifecycleScope.launch {
+                mudancaMedicamentoComDoses.postValue(medicamentoDoseDao.getMedicamentoDosesByName((extra as MedicamentoComDoses).medicamentoTratamento.nomeMedicamento))
+
+
+            }
+
+
         }
         checarSeDataSelecionadaIgualADataDeInicioTratamento()
     }

@@ -17,7 +17,7 @@ import com.rubens.applembretemedicamento.presentation.interfaces.DetalhesMedicam
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 
 
-class DetalhesMedicamentoAdapter(val listaDosagemMedicamento: MedicamentoComDoses, val context: FragmentDetalhesMedicamentos, private val dataAtual: String): RecyclerView.Adapter<DetalhesMedicamentoAdapter.ViewHolder>(), CalendarHelper,
+class DetalhesMedicamentoAdapter(var listaDosagemMedicamento: MedicamentoComDoses, val context: FragmentDetalhesMedicamentos, private val dataAtual: String): RecyclerView.Adapter<DetalhesMedicamentoAdapter.ViewHolder>(), CalendarHelper,
     AccessAdapterMethodsInterface {
     private var listaDoses: ArrayList<Doses> = ArrayList()
     private lateinit var detalhesMedicamentosAdapterInterface: DetalhesMedicamentosAdapterInterface
@@ -40,6 +40,10 @@ class DetalhesMedicamentoAdapter(val listaDosagemMedicamento: MedicamentoComDose
 
     override fun getViewHolderBinding(): ItemDetalhesMedicamentosBinding? {
         return viewHolder?.getItemDetalhesMedicamentosBinding()
+    }
+
+    override fun updateList(medComDoses: MedicamentoComDoses){
+        listaDosagemMedicamento = medComDoses
     }
 
     override fun getViewHolderInstance(): DetalhesMedicamentoAdapter.ViewHolder? {
