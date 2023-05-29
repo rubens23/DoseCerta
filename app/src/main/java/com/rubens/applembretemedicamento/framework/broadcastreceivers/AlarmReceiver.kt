@@ -12,18 +12,16 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.Uri
 import android.util.Log
-import android.util.TypedValue
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.appmedicamentos.utils.WakeLocker
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
-import com.rubens.applembretemedicamento.framework.domain.AlarmEvent
-import com.rubens.applembretemedicamento.framework.domain.AlarmeMedicamentoTocando
+import com.rubens.applembretemedicamento.framework.domain.eventbus.AlarmEvent
+import com.rubens.applembretemedicamento.framework.domain.eventbus.AlarmeMedicamentoTocando
 import com.rubens.applembretemedicamento.framework.services.ServiceMediaPlayer
 import com.rubens.applembretemedicamento.presentation.FragmentDetalhesMedicamentos
 import com.rubens.applembretemedicamento.presentation.MainActivity
@@ -144,9 +142,9 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
         pi: PendingIntent?,
         idMedicamento: Int?
     ) {
-        val typedValue = TypedValue()
-        p0?.theme?.resolveAttribute(android.R.attr.colorPrimary, typedValue, true)
-        val colorPrimary= typedValue.data
+//        val typedValue = TypedValue()
+//        p0?.theme?.resolveAttribute(android.R.attr.colorPrimary, typedValue, true)
+//        val colorPrimary= typedValue.data
 
         val notification = p0?.let { context ->
             NotificationCompat.Builder(context, "something")
@@ -178,6 +176,8 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
         p0: Context?,
         idMedicamento: Int?
     ): PendingIntent? {
+        Log.d("checkingthings", "id passado na criacao da pending intent ${idMedicamento}")
+
         val tapResultIntent = Intent(p0, MainActivity::class.java)
         tapResultIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
         return idMedicamento?.let {

@@ -26,7 +26,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.gms.ads.MobileAds
-import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.FragmentDetalhesMedicamentosBinding
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiverInterface
 import com.rubens.applembretemedicamento.framework.data.AppDatabase
@@ -35,9 +34,10 @@ import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
-import com.rubens.applembretemedicamento.framework.domain.AlarmEvent
-import com.rubens.applembretemedicamento.framework.domain.MediaPlayerTocando
+import com.rubens.applembretemedicamento.framework.domain.eventbus.AlarmEvent
+import com.rubens.applembretemedicamento.framework.domain.eventbus.MediaPlayerTocando
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
+import com.rubens.applembretemedicamento.framework.domain.eventbus.PararAlarmeMedicamento
 import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentCadastrarNovoMedicamento
 import com.rubens.applembretemedicamento.presentation.interfaces.AccessAdapterMethodsInterface
@@ -624,6 +624,12 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     fun onMediaPlayerTocando(event: MediaPlayerTocando) {
         mediaPlayer = event.mp
         Log.d("testebusdetalhes", "eu recebi o mp ${event.mp} e instanciei: ${mediaPlayer}")
+    }
+
+    @Subscribe(sticky = true)
+    fun onPararAlarmeMedicamento(event: PararAlarmeMedicamento){
+        hideBtnPararSom()
+        medicamentoDoseDao.alarmeMedicamentoTocando(event.idMedicamento, false)
     }
 
 

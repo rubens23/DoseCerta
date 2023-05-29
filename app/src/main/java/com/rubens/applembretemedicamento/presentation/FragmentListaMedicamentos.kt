@@ -3,15 +3,14 @@ package com.rubens.applembretemedicamento.presentation
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -29,9 +28,8 @@ import com.rubens.applembretemedicamento.framework.data.AppDatabase
 import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.HistoricoMedicamentos
-import com.rubens.applembretemedicamento.framework.domain.AlarmEvent
-import com.rubens.applembretemedicamento.framework.domain.AlarmeMedicamentoTocando
-import com.rubens.applembretemedicamento.framework.domain.MediaPlayerTocando
+import com.rubens.applembretemedicamento.framework.domain.eventbus.AlarmeMedicamentoTocando
+import com.rubens.applembretemedicamento.framework.domain.eventbus.MediaPlayerTocando
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
 import com.rubens.applembretemedicamento.framework.services.ServiceMediaPlayer
 import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
@@ -117,6 +115,7 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
 
 
 
+
         registerAlarmeMedicamentoTocandoEventBus()
 
         initViewModel()
@@ -131,8 +130,21 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
         getRecyclerViewPositionIfItWasSaved(savedInstanceState)
         initServiceToSeeIfMediaPlayerInstanceIsAvailable()
 
+        initSpinningCogAnimation()
 
 
+
+
+    }
+
+    private fun initSpinningCogAnimation() {
+        val shake = AnimationUtils.loadAnimation(binding.root.context, R.anim.cog_shake)
+        binding.btnSettings.startAnimation(shake)
+
+    }
+
+    private fun initConfiguracoesIconAnimation() {
+        binding.btnSettings.animate().rotation(360f).start()
     }
 
     private fun initServiceToSeeIfMediaPlayerInstanceIsAvailable() {

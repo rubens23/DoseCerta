@@ -1,4 +1,4 @@
-package com.rubens.applembretemedicamento.framework.domain
+package com.rubens.applembretemedicamento.framework.domain.eventbus
 
 import android.media.MediaPlayer
 
