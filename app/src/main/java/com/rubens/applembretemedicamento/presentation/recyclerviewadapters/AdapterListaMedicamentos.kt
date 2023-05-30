@@ -1,5 +1,6 @@
 package com.rubens.applembretemedicamento.presentation.recyclerviewadapters
 
+import android.annotation.SuppressLint
 import android.media.MediaPlayer
 import android.provider.Settings
 import android.util.Log
@@ -21,6 +22,8 @@ import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingl
 import com.rubens.applembretemedicamento.presentation.FragmentListaMedicamentos
 import com.rubens.applembretemedicamento.presentation.interfaces.AdapterListaMedicamentosInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentListaMedicamentosInterface
+import java.text.SimpleDateFormat
+import java.util.Calendar
 import kotlin.collections.ArrayList
 
 class AdapterListaMedicamentos(
@@ -87,7 +90,7 @@ class AdapterListaMedicamentos(
                 intervaloEntreDoses = medicamento.listaDoses.get(i).intervaloEntreDoses
                 val dose = medicamento.listaDoses.get(i)
                 if (!dose.jaTomouDose && !definiuProxDose) {
-                    proxDose = dose.horarioDose
+                    proxDose = doseMaisProximaNaoTomada(dose, medicamento.listaDoses).horarioDose
                     definiuProxDose = true
                 }
                 checarSeAlarmeDoMedicamentoEstaAtivado(medicamento)
@@ -113,6 +116,52 @@ class AdapterListaMedicamentos(
 
         }
 
+        private fun doseMaisProximaNaoTomada(dose: Doses, listaDoses: List<Doses>): Doses{
+
+            var doseMaisProximaNaoTomada = dose
+            for(i in 0..listaDoses.size - 1){
+                if(listaDoses[i] == dose){
+                    for(z in i until listaDoses.size){
+                        if(isPrimeiraDoseMaisProximoQueSegunda(doseMaisProximaNaoTomada, listaDoses[z])){
+                            //doseMaisProximaNaoTomada é mais proxima que listaDoses[z]
+                            Log.d("updatemethod", "if: dose que sera passada la para o metodo: ${doseMaisProximaNaoTomada.horarioDose}")
+                        }else{
+                            //listaDoses[z] é mais proxima que doseMaisProximaNaoTomada
+                            if(!listaDoses[z].jaTomouDose){
+                                doseMaisProximaNaoTomada = listaDoses[z]
+                                Log.d("updatemethod", "else -> if: dose que sera passada la para o metodo: ${listaDoses[z].horarioDose}")
+
+                            }
+                        }
+                    }
+                }
+            }
+            Log.d("updatemethod", "dose que foi retornada: ${doseMaisProximaNaoTomada.horarioDose}")
+
+            return doseMaisProximaNaoTomada
+        }
+
+        @SuppressLint("SimpleDateFormat")
+        private fun isPrimeiraDoseMaisProximoQueSegunda(primeiraDose: Doses, segundaDose: Doses): Boolean{
+            Log.d("updatemethod2", "isPrimeiraDoseMaisProximaQueSegunda? primeiraDose: ${primeiraDose.horarioDose} segundaDose: ${segundaDose.horarioDose}")
+
+            val formatoDataHora = SimpleDateFormat("dd/MM/yyyy HH:mm")
+            val horarioAtual = Calendar.getInstance().time
+
+            val primeiraDataHora = formatoDataHora.parse(primeiraDose.horarioDose)
+            val segundaDataHora = formatoDataHora.parse(segundaDose.horarioDose)
+
+            ///30/05/2023 10:00  10ms         30/05/2023  10:45  23ms
+            val diffPrimeiraDose = Math.abs(primeiraDataHora.time - horarioAtual.time)
+            val diffSegundaDose = Math.abs(segundaDataHora.time - horarioAtual.time)
+
+            Log.d("updatemethod2", "isPrimeiraDoseMaisProximaQueSegunda: primeira: ${diffPrimeiraDose} segunda:${diffSegundaDose}? ${diffPrimeiraDose > diffSegundaDose}")
+            return diffPrimeiraDose < diffSegundaDose
+
+
+
+
+        }
         private fun setMedNameOnItem(medicamento: MedicamentoComDoses) {
             binding.medName.text = medicamento.medicamentoTratamento.nomeMedicamento
 

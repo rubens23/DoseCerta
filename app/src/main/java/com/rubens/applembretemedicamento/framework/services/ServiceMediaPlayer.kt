@@ -73,17 +73,20 @@ class ServiceMediaPlayer: Service() {
 
 
             if (mediaPlayerJaEstaTocando){
+                Log.d("entendendoshowstop", "to aqui dentro do media player ja esta tocando")
                 setNotificationId(medicationId)
                 initNotification(intent)
-                showBtnPararSomEventBus()
+                showBtnPararSomEventBus(medicationId)
                 enviarInstanciaAtualDoMediaPlayerParaListFragment(mp)
 
             }else{
+                Log.d("entendendoshowstop", "to aqui dentro do else no service")
+
                 setNotificationId(medicationId)
                 initNotification(intent)
                 instatiateMediaPlayer()
                 playMediaPlayer()
-                showBtnPararSomEventBus()
+                showBtnPararSomEventBus(medicationId)
                 enviarInstanciaAtualDoMediaPlayerParaListFragment(mp)
 
             }
@@ -193,8 +196,10 @@ class ServiceMediaPlayer: Service() {
     }
 
 
-    private fun showBtnPararSomEventBus() {
-        val data = "pode mostrar o botão parar som!"
+    private fun showBtnPararSomEventBus(medicationId: Int) {
+        Log.d("entendendoshowstop", "to aqui no metodo que enviara o eventbus")
+
+        val data = medicationId
         EventBus.getDefault().postSticky(AlarmEvent(data))
     }
 }

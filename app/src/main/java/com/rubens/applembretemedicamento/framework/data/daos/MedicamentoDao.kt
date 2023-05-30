@@ -41,6 +41,10 @@ interface MedicamentoDao {
     suspend fun getMedicamentoDosesByName(nomeMedicamento: String): MedicamentoComDoses
 
     @Transaction
+    @Query("SELECT * FROM MedicamentoTratamento WHERE idMedicamento = :id")
+    suspend fun getMedicamentoDosesById(id: Int): MedicamentoComDoses
+
+    @Transaction
     @Query("SELECT * FROM MedicamentoTratamento")
     fun getAllMedicamentoWithDoses(): List<MedicamentoComDoses>
 

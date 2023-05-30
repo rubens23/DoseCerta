@@ -58,7 +58,7 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
     override fun onReceive(p0: Context?, p1: Intent?) {
         context = p0
 
-        notificarOFragmentDetalhesDeQueJaPodeMostrarBotaoDePararSom()
+
 
         Log.d("acompanhandoinstancia", "to aqui no onReceive do broadcast receiver")
 
@@ -66,6 +66,7 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
         //extras from intent
         var idMedicamento = p1?.getIntExtra("medicamentoid", -1)
+        notificarOFragmentDetalhesDeQueJaPodeMostrarBotaoDePararSom(idMedicamento)
         val horaDose = p1?.data
         val nomeMedicamento = p1?.getStringExtra("nomemedicamento")
 
@@ -114,9 +115,12 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
     }
 
-    private fun notificarOFragmentDetalhesDeQueJaPodeMostrarBotaoDePararSom() {
-        val data = "pode mostrar o botão parar som!"
-        EventBus.getDefault().post(AlarmEvent(data))
+    private fun notificarOFragmentDetalhesDeQueJaPodeMostrarBotaoDePararSom(idMedicamento: Int?) {
+        val data = idMedicamento
+        data?.let {
+            EventBus.getDefault().postSticky(AlarmEvent(it))
+
+        }
     }
 
     override fun initButtonStateLiveData() {
@@ -267,8 +271,10 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
 
 
     fun cancelAlarm() {
-        alarmManager.cancel(pendingIntent)
-        Log.d("testeshowcancel", "show button armar alarme foi chamado pelo metodo cancelAlarm do AlarmReceiver")
+        if(this::alarmManager.isInitialized){
+            alarmManager.cancel(pendingIntent)
+
+        }
 
         WakeLocker.release()
         if(context != null){
@@ -277,18 +283,7 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
             ContextCompat.startForegroundService(context!!, serviceIntent)
             alarmeTocando.postValue(false)
         }
-        /*
-        if (mp.isPlaying) {
-            mp.stop()
-            Log.d("testealarme", "alarme tava tocqando e parou depois de passar por aqui")
 
-
-
-
-
-        }
-
-         */
     }
 
     override fun stopAlarmSound(context: Context){

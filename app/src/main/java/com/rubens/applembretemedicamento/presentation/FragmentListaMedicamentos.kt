@@ -110,8 +110,7 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Log.d("emptylist", "to no onviewcreated")
-        Log.d("hidingtitle", "eu to aqui no onViewCreated")
+
 
 
 
@@ -128,33 +127,20 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
         onClickListeners()
 
         getRecyclerViewPositionIfItWasSaved(savedInstanceState)
-        initServiceToSeeIfMediaPlayerInstanceIsAvailable()
 
         initSpinningCogAnimation()
 
 
 
 
-    }
-
-    private fun initSpinningCogAnimation() {
-        val shake = AnimationUtils.loadAnimation(binding.root.context, R.anim.cog_shake)
-        binding.btnSettings.startAnimation(shake)
 
     }
 
-    private fun initConfiguracoesIconAnimation() {
-        binding.btnSettings.animate().rotation(360f).start()
+    private fun initSpinningCogAnimation(){
+        val spin = AnimationUtils.loadAnimation(requireContext(), R.anim.cog_shake)
+        binding.btnSettings.startAnimation(spin)
     }
 
-    private fun initServiceToSeeIfMediaPlayerInstanceIsAvailable() {
-        //todo é esse pedaço de codigo que ta crashando o app por causa que o startForeground nao foi chamado dentro de 5 segundos
-        //val serviceIntent = Intent(requireContext(), ServiceMediaPlayer::class.java)
-        //serviceIntent.action = "GET_PLAYER_INSTANCE"
-        //ContextCompat.startForegroundService(requireContext(), serviceIntent)
-        //requireContext().startService(serviceIntent)
-
-    }
 
     private fun initAdapterInterface() {
         adapterListaMedicamentosInterface = adapter
@@ -240,7 +226,7 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
 
 
         listaMedicamentoComDoses.forEach {
-            Log.d("listaprincipal", "${it.medicamentoTratamento.nomeMedicamento} tempo restante de tratamento: ${it.medicamentoTratamento.diasRestantesDeTratamento} dia, ultima dose horario: ${it.listaDoses[it.listaDoses.size-1].horarioDose} dose ja tomada? ${it.listaDoses[it.listaDoses.size-1].jaTomouDose}")
+            //Log.d("listaprincipal", "${it.medicamentoTratamento.nomeMedicamento} tempo restante de tratamento: ${it.medicamentoTratamento.diasRestantesDeTratamento} dia, ultima dose horario: ${it.listaDoses[it.listaDoses.size-1].horarioDose} dose ja tomada? ${it.listaDoses[it.listaDoses.size-1].jaTomouDose}")
             if(it.medicamentoTratamento.diasRestantesDeTratamento == 1){
                 if(!it.listaDoses[it.listaDoses.size-1].jaTomouDose){
                     passarMedicamentoParaListaMedicamentos(it)
@@ -316,7 +302,6 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
 
 
 
-        binding.cardViewLoading?.visibility = View.GONE
         binding.loadingProgressBar?.visibility = View.GONE
     }
 

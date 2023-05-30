@@ -1,6 +1,7 @@
 package com.rubens.applembretemedicamento.presentation
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -31,6 +32,7 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
     private var qntDoses: Int = 0
     private var medicamentoAdicionadoObserver: MutableLiveData<MedicamentoTratamento> = MutableLiveData()
     private lateinit var mainActivityInterface: MainActivityInterface
+    private var apertouBotaoCadastrar = false
 
 
 
@@ -60,12 +62,16 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
         super.onViewCreated(view, savedInstanceState)
 
 
-        onClickListeners()
 
         initAds()
 
         initViewModel()
+
+        onClickListeners()
+
     }
+
+
 
     private fun setupToolbar() {
         mainActivityInterface.showToolbar()
@@ -85,6 +91,46 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
     }
 
     private fun initObservers() {
+        Log.d("perseguindofluxo", "entrei aqui no init observers")
+        viewModel.medicamentos.observe(viewLifecycleOwner){
+            listaMedicamentos->
+            Log.d("perseguindofluxo", "entrei aqui no observer")
+
+            if(listaMedicamentos != null){
+                Log.d("perseguindofluxo", "lista nao é nula")
+
+                //verifica se medicamento ja existe
+                listaMedicamentos.forEach {
+                    medicamento->
+                    if(medicamento.medicamentoTratamento.nomeMedicamento == getNomeRemedioFromEditText()){
+                        //medicamento com mesmo nome ja existe
+                        Log.d("perseguindofluxo", "ja tem um medicmaento com esse nome")
+                        Toast.makeText(requireContext(), "Já existe um medicamento cadastrado com esse nome!", Toast.LENGTH_LONG).show()
+
+                        return@observe
+                    }
+                }
+                if(apertouBotaoCadastrar){
+                    Log.d("perseguindofluxo", "apertou o botao é true e ntrei aqui no if")
+
+                    getMedicationInfoBeforeSaving()
+                    apertouBotaoCadastrar = false
+
+                }
+
+            }else{
+                Log.d("perseguindofluxo", "a lista é nula")
+
+                if(apertouBotaoCadastrar){
+                    Log.d("perseguindofluxo", "apertou o botao é true e ntrei aqui no if")
+
+                    getMedicationInfoBeforeSaving()
+                    apertouBotaoCadastrar = false
+                }
+                //nenhum medicamento existe entao nao tem como o medicamento existir
+                //continua para cadastrar esse medicamento
+            }
+        }
         viewModel.insertResponse.observe(viewLifecycleOwner) {
             longInsert->
             //long > -1 == success insert
@@ -150,7 +196,10 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
 
 
         binding.btnConfirmNewMedication.setOnClickListener {
-            getMedicationInfoBeforeSaving()
+            apertouBotaoCadastrar = true
+            viewModel.loadMedications()
+
+
 
 
         }
@@ -181,12 +230,14 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
             qntDoses = transformQntDosesFromStringToInt(qntDosesStr)
         }
         horarioPrimeiraDose = getTimeFirstTakeFromEditText()
-        //eu tenho a hora da primeira dose e eu tambem tenho a qu
+
 
         seeIfMedicamentoHasValidInfo(nomeRemedio, qntDoses, horarioPrimeiraDose, qntDiasTrat, diaInicioTratamento)
 
 
     }
+
+
 
     private fun seeIfMedicamentoHasValidInfo(
         nomeRemedio: String,
@@ -199,6 +250,8 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
         if (diaInicioTratamento.length == 10 && diaInicioTratamento.isNotEmpty() && qntDoses > 0 && nomeRemedio.isNotEmpty() && horarioPrimeiraDose.isNotEmpty() && horarioPrimeiraDose.length == 5 && horarioPrimeiraDose[2].toString() == ":" && binding.tilNumberOfPillsByTake.editText!!.text != null && binding.tilNumberOfPillsByTake.editText!!.text.toString() != "" && binding.tilNumberOfPillsByTake.isNotEmpty() && binding.inputDataInicioTratamento.isDone && qntDiasTrat != null
         ) {
             if(!verificarSeDataHoraJaPassou("$diaInicioTratamento $horarioPrimeiraDose")){
+
+
                 saveNewMedication(nomeRemedio, qntDoses, horarioPrimeiraDose, qntDiasTrat)
             }else{
                 Toast.makeText(requireContext(), "a data e hora que você escolheu para a primeira dose já passaram!", Toast.LENGTH_LONG).show()

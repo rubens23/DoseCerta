@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.appmedicamentos.data.repository.AddMedicineRepositoryImpl
+import com.example.appmedicamentos.data.repository.MedicationRepositoryImpl
+import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
 import com.rubens.applembretemedicamento.utils.CalendarHelper
@@ -14,12 +16,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
-    private val repositoryAdicionarMedicamento: AddMedicineRepositoryImpl
+    private val repositoryAdicionarMedicamento: AddMedicineRepositoryImpl,
+    private val medicationRepository: MedicationRepositoryImpl
 ): ViewModel(), FuncoesDeTempo, CalendarHelper {
 
     private lateinit var medicamento: MedicamentoTratamento
     private var listaHorarioDoses = ArrayList<Doses>()
     var insertResponse: MutableLiveData<Long> = MutableLiveData()
+    var medicamentos: MutableLiveData<List<MedicamentoComDoses>?> = MutableLiveData()
+
 
     var insertDosesResponse: MutableLiveData<Long> = MutableLiveData()
 
@@ -94,6 +99,12 @@ class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
 
         getAllDosages(nomeMedicamento, hora, qntDoses, minutos)
 
+    }
+
+    fun loadMedications(){
+        val list = medicationRepository.getMedicamentos()
+
+        medicamentos.postValue(list)
     }
 
 

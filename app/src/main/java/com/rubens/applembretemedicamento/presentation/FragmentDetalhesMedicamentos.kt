@@ -37,7 +37,6 @@ import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTrat
 import com.rubens.applembretemedicamento.framework.domain.eventbus.AlarmEvent
 import com.rubens.applembretemedicamento.framework.domain.eventbus.MediaPlayerTocando
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
-import com.rubens.applembretemedicamento.framework.domain.eventbus.PararAlarmeMedicamento
 import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentCadastrarNovoMedicamento
 import com.rubens.applembretemedicamento.presentation.interfaces.AccessAdapterMethodsInterface
@@ -66,6 +65,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     lateinit var viewModel: ViewModelFragmentCadastrarNovoMedicamento
     private var medicamentoAdicionadoObserver: MutableLiveData<MedicamentoTratamento> = MutableLiveData()
     private var mudancaMedicamentoComDoses: MutableLiveData<MedicamentoComDoses> = MutableLiveData()
+    private var mudancaMedicamentoComDosesAlarmeTocando: MutableLiveData<MedicamentoComDoses> = MutableLiveData()
     private var excluirDaListaDeMedicamentosNoAlarme: MutableLiveData<Int> = MutableLiveData()
     private var viewHolderInstanceLiveData: MutableLiveData<DetalhesMedicamentoAdapter.ViewHolder> = MutableLiveData()
 
@@ -227,13 +227,22 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
     @Subscribe(sticky = true)
     fun onAlarmEvent(event: AlarmEvent){
-        val data = event.data
-        Log.d("testebtn", "data recebido no event bus: $data")
+        val medicamentoId = event.data
+        Log.d("entendendoshowstop", "to aqui no listener do eventBus")
 
-        if((extra as MedicamentoComDoses).medicamentoTratamento.alarmeTocando){
-            showBtnPararSom()
+        loadUpdatedMedicamento(medicamentoId)
+
+
+
+
+
+    }
+
+    private fun loadUpdatedMedicamento(medicamentoId: Int) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            mudancaMedicamentoComDosesAlarmeTocando.postValue(medicamentoDoseDao.getMedicamentoDosesById(medicamentoId))
+
         }
-
 
     }
 
@@ -397,12 +406,6 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
         }
 
-        medicamentoManager.updateDataStore.observe(viewLifecycleOwner){
-            //markToastAsShownInDataStore()
-
-
-        }
-
         medicamentoManager.horaProximaDoseObserver.observe(viewLifecycleOwner){
             if(alarmReceiverInterface.getMediaPlayerInstance() != null){
                 if(alarmReceiverInterface.getMediaPlayerInstance()!!.isPlaying){
@@ -413,22 +416,10 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
         }
         initButtonChangeListener()
-        /*
-        - botao livedata só é inicializado no onReceive
-        - nao da para eu instanciar o observer do livedata pq ele nao esta inicializado
-        - só posso instanciar o livedata no onreceive
-        - o onreceive inicializa o livedata mas o fragment nao sabe disso
 
-
-         */
-        //alarmReceiverInterface.initButtonStateLiveData()
-        Log.d("testebtn", "eu to aqui bem acima do observer ${alarmReceiverInterface.getButtonChangeLiveData()}")
         alarmReceiverInterface.initButtonStateLiveData()
 
         alarmReceiverInterface.getButtonChangeLiveData().observe(viewLifecycleOwner){
-            Log.d("testebtn", "eu to aqui no observer")
-            //showBtnCancelarAlarme()
-            //hideBtnArmarAlarme()
             showBtnPararSom()
         }
 
@@ -444,6 +435,21 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
             extra = it
             adapterMethodsInterface.updateList(it)
             adapterMethodsInterface.updateRecyclerViewOnDateChange(diaAtualSelecionado)
+        }
+
+        mudancaMedicamentoComDosesAlarmeTocando.observe(viewLifecycleOwner){
+            if(it != null){
+                extra = it
+                if((extra as MedicamentoComDoses).medicamentoTratamento.alarmeTocando){
+                    showBtnPararSom()
+                    Log.d("entendendoshowstop", "to aqui no if que mostra o botao parar som")
+
+                }else{
+                    Log.d("entendendoshowstop", "to aqui no else que nao mostrou o botao parar som")
+
+                }
+            }
+
         }
 
 
@@ -626,11 +632,6 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         Log.d("testebusdetalhes", "eu recebi o mp ${event.mp} e instanciei: ${mediaPlayer}")
     }
 
-    @Subscribe(sticky = true)
-    fun onPararAlarmeMedicamento(event: PararAlarmeMedicamento){
-        hideBtnPararSom()
-        medicamentoDoseDao.alarmeMedicamentoTocando(event.idMedicamento, false)
-    }
 
 
     private fun pegarDosesDeAmanha() {
@@ -654,7 +655,8 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
             subtrairUmDiaDaDataAtual()
             atualizarTextViewDaDataAtual()
             lifecycleScope.launch {
-                mudancaMedicamentoComDoses.postValue(medicamentoDoseDao.getMedicamentoDosesByName((extra as MedicamentoComDoses).medicamentoTratamento.nomeMedicamento))
+                //mudancaMedicamentoComDoses.postValue(medicamentoDoseDao.getMedicamentoDosesByName((extra as MedicamentoComDoses).medicamentoTratamento.nomeMedicamento))
+                mudancaMedicamentoComDoses.postValue(medicamentoDoseDao.getMedicamentoDosesById((extra as MedicamentoComDoses).medicamentoTratamento.idMedicamento))
 
 
             }
