@@ -729,9 +729,12 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         viewModel.ligarAlarmeDoMedicamento(medicamentoManager.getMedicamento().nomeMedicamento, false)
     }
 
+
     private fun mostrarToastDeAlarmeDesativado() {
         Toast.makeText(requireContext(), "Alarme desativado!", Toast.LENGTH_LONG).show()
     }
+
+
 
     private fun ligarAlarme() {
         medicamentoManager.startAlarmManager(this)
@@ -745,6 +748,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     private fun armarProximoAlarme() {
         medicamentoManager.startArmarProximoAlarme()
     }
+
 
 
 
