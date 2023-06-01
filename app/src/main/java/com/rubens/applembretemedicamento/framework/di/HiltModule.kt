@@ -5,6 +5,10 @@ import com.example.appmedicamentos.data.repository.AddMedicineRepositoryImpl
 import com.example.appmedicamentos.data.repository.MedicationRepositoryImpl
 import com.rubens.applembretemedicamento.framework.data.AppDatabase
 import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
+import com.rubens.applembretemedicamento.framework.data.roomdatasourcemanager.DataSourceManager
+import com.rubens.applembretemedicamento.presentation.FragmentListaMedicamentos
+import com.rubens.applembretemedicamento.presentation.MainActivity
+import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -39,5 +43,21 @@ object HiltModule {
     fun providesAddMedicamentosRepository(dao: MedicamentoDao): AddMedicineRepositoryImpl{
         return AddMedicineRepositoryImpl(dao)
     }
+
+
+
+    @Provides
+    @Singleton
+    fun providesMainActivityInterface(): MainActivityInterface{
+        return MainActivity()
+    }
+
+    @Provides
+    @Singleton
+    fun providesDataSourceManagerInstance(): DataSourceManager{
+        return DataSourceManager()
+    }
+
+
 
 }

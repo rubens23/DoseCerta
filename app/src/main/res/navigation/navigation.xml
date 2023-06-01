@@ -17,6 +17,9 @@
         <action
             android:id="@+id/action_medicamentosFragment_to_fragmentDetalhesMedicamentos"
             app:destination="@id/fragmentDetalhesMedicamentos" />
+        <action
+            android:id="@+id/action_medicamentosFragment_to_fragmentConfiguracoes"
+            app:destination="@id/fragmentConfiguracoes" />
     </fragment>
     <fragment
         android:id="@+id/fragmentCadastrarNovoMedicamento"
@@ -37,14 +40,32 @@
         <argument
             android:name="intervaloentredoses"
             app:argType="string" />
+        <argument
+            android:name="medicamentoManager"
+            app:argType="com.rubens.applembretemedicamento.framework.domain.MedicamentoManager"/>
         <action
             android:id="@+id/action_fragmentDetalhesMedicamentos_to_medicamentosFragment"
             app:destination="@id/medicamentosFragment" />
+        <action
+            android:id="@+id/action_fragmentDetalhesMedicamentos_to_historicoFragment"
+            app:destination="@id/historicoFragment" />
     </fragment>
     <fragment
         android:id="@+id/historicoFragment"
         android:name="com.rubens.applembretemedicamento.presentation.FragmentHistoricoMedicamentos"
         android:label="fragment_historico_medicamentos"
-        tools:layout="@layout/fragment_historico_medicamentos" />
+        tools:layout="@layout/fragment_historico_medicamentos" >
+        <action
+            android:id="@+id/action_historicoFragment_to_medicamentosFragment"
+            app:destination="@id/medicamentosFragment" />
+        <action
+            android:id="@+id/action_historicoFragment_to_fragmentDetalhesMedicamentos"
+            app:destination="@id/fragmentDetalhesMedicamentos" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentConfiguracoes"
+        android:name="com.rubens.applembretemedicamento.presentation.FragmentConfiguracoes"
+        android:label="fragment_configuracoes"
+        tools:layout="@layout/fragment_configuracoes" />
 
 </navigation>

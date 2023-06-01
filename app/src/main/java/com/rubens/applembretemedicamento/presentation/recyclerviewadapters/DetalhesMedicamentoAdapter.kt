@@ -1,240 +1,205 @@
 package com.rubens.applembretemedicamento.presentation.recyclerviewadapters
 
-import android.annotation.SuppressLint
-import android.content.DialogInterface
+import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.ItemDetalhesMedicamentosBinding
-import com.rubens.applembretemedicamento.framework.data.AppDatabase
-import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
-import com.rubens.applembretemedicamento.presentation.MainActivity
+import com.rubens.applembretemedicamento.presentation.FragmentDetalhesMedicamentos
+import com.rubens.applembretemedicamento.presentation.interfaces.AccessAdapterMethodsInterface
+import com.rubens.applembretemedicamento.presentation.interfaces.ConexaoBindingAdapterDetalhesMedicamentos
+import com.rubens.applembretemedicamento.presentation.interfaces.DetalhesMedicamentosAdapterInterface
 import com.rubens.applembretemedicamento.utils.CalendarHelper
-import com.rubens.applembretemedicamento.utils.comunicacaoFragmentAdapter
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 
-class DetalhesMedicamentoAdapter(private val listaDosagemMedicamento: MedicamentoComDoses, val fecharFragment: comunicacaoFragmentAdapter): RecyclerView.Adapter<DetalhesMedicamentoAdapter.ViewHolder>(), CalendarHelper {
-    private var db: AppDatabase? = null
-    private lateinit var medicamentoDoseDao: MedicamentoDao
+class DetalhesMedicamentoAdapter(var listaDosagemMedicamento: MedicamentoComDoses, val context: FragmentDetalhesMedicamentos, private val dataAtual: String): RecyclerView.Adapter<DetalhesMedicamentoAdapter.ViewHolder>(), CalendarHelper,
+    AccessAdapterMethodsInterface {
     private var listaDoses: ArrayList<Doses> = ArrayList()
-
+    private lateinit var detalhesMedicamentosAdapterInterface: DetalhesMedicamentosAdapterInterface
+    private var viewHolder: DetalhesMedicamentoAdapter.ViewHolder? = null
+    private var dataAtualSelecionada = dataAtual
 
 
     init {
-        listaDoses.addAll(listaDosagemMedicamento.listaDoses)
+        Log.d("atualizandorv", "entrei no init")
+
+        populateListaDoses(listaDosagemMedicamento)
         configureList()
+        initDetalhesMedicaemtosAdapterInterface(context)
+    }
+
+
+    private fun initDetalhesMedicaemtosAdapterInterface(context: FragmentDetalhesMedicamentos) {
+        detalhesMedicamentosAdapterInterface = context
+    }
+
+    override fun getViewHolderBinding(): ItemDetalhesMedicamentosBinding? {
+        return viewHolder?.getItemDetalhesMedicamentosBinding()
+    }
+
+    override fun updateList(medComDoses: MedicamentoComDoses){
+        listaDosagemMedicamento = medComDoses
+    }
+
+    override fun getViewHolderInstance(): DetalhesMedicamentoAdapter.ViewHolder? {
+        return viewHolder
+    }
+
+    override fun updateRecyclerViewOnDateChange(diaAtualSelecionado: String) {
+        Log.d("testelistadedoses", "eu to aqui no metodo de update $diaAtualSelecionado")
+
+        dataAtualSelecionada = diaAtualSelecionado
+        limparListaDoses()
+        populateListaDoses(listaDosagemMedicamento)
+        configureList()
+        notifyDataSetChanged()
+    }
+
+    override fun atualizarDose(doses: Doses) {
+        if (listaDoses.isNotEmpty()) {
+            if (listaDoses.size == 1) {
+                //lista só tem uma dose
+                if (listaDoses[0].idDose == doses.idDose) {
+                    //index 0 precisa receber a dose atualizada
+                    //preciso atualizar o item da recycler view e notificar para a lista ser atualizada
+                    listaDoses[0] = doses
+                    notifyItemChanged(0)
+                }
+            } else {
+                //lista tem mais de uma dose
+                for (i in listaDoses.indices) {
+                    if (listaDoses[i].idDose == doses.idDose) {
+                        // Preciso pegar o index do item
+                        val index = i
+                        // Preciso colocar a dose recebida no parâmetro no index da lista
+                        listaDoses[index] = doses
+                        // Preciso atualizar o item da RecyclerView e notificar para a lista ser atualizada
+                        notifyItemChanged(index)
+                        break
+                    }
+                }
+            }
+
+        }
+    }
+
+    private fun limparListaDoses() {
+        listaDoses.clear()
+    }
+
+
+    private fun populateListaDoses(listaDosagemMedicamento: MedicamentoComDoses) {
+        listaDoses.addAll(listaDosagemMedicamento.listaDoses)
 
 
     }
 
     private fun configureList() {
+
         var listaAuxiliar = ArrayList<Doses>()
         listaAuxiliar.addAll(listaDoses)
         listaDoses.clear()
         for (i in 0..listaAuxiliar.size - 1){
-            if(pegarDataAtual() == listaAuxiliar[i].horarioDose.subSequence(0,10)){
+            if(dataAtualSelecionada == listaAuxiliar[i].horarioDose.subSequence(0,10)){
                 listaDoses.add(listaAuxiliar[i])
             }
+        }
+
+        listaDoses.forEach {
+            Log.d("testelistadedoses", "eu to no configure list: ${it.nomeMedicamento} ${it.horarioDose}")
+
         }
 
     }
 
 
-    inner class ViewHolder(val binding: ItemDetalhesMedicamentosBinding): RecyclerView.ViewHolder(binding.root) {
-        @SuppressLint("ServiceCast", "SetTextI18n")
+    inner class ViewHolder(val binding: ItemDetalhesMedicamentosBinding): RecyclerView.ViewHolder(binding.root), ConexaoBindingAdapterDetalhesMedicamentos  {
         fun bind(doses: Doses){
-            db = AppDatabase.getAppDatabase(binding.root.context)
-            medicamentoDoseDao = db!!.medicamentoDao
-
-
-
-
-
-            if(doses.jaTomouDose){
-                Log.d("controlebolinhas","tomou a dose das ${doses.horarioDose}")
-                binding.ivStatusDosage.setImageResource(R.drawable.med_taken)
-
-
-            }else{
-                binding.ivStatusDosage.setImageResource(R.drawable.med_not_taken)
-
-            }
-
-            /*
-            MainActivity.binding.btnDeleteMedicamento.setOnClickListener {
-                Log.d("testecliquedelete", "eu cliquei no botão de excluir medicamento")
-                val alert: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(binding.root.context)
-                alert.setTitle("${doses.nomeMedicamento}")
-                alert.setMessage("Tem certeza que deseja deletar o medicamento ${doses.nomeMedicamento}?")
-                Log.d("testehora", "${doses.horarioDose}")
-                alert.setPositiveButton("Sim", DialogInterface.OnClickListener { dialog, which ->
-
-                    GlobalScope.launch {
-                        medicamentoDoseDao.deleteMedicamentoFromMedicamentoTratamento(doses.nomeMedicamento)
-                        medicamentoDoseDao.deleteDosesDoMedicamentoFinalizado(doses.nomeMedicamento)
-                        fecharFragment.markToastAsNotShown()
-                        fecharFragment.deleteDataStoreByKey()
-
-
-                    }
-
-                    dialog.dismiss()
-                    fecharFragment.cancelarBroadcastReceiver()
-                    fecharFragment.mostrarToastExcluido(doses.nomeMedicamento)
-                    fecharFragment.fecharFragment()
-
-
-                })
-
-                alert.setNegativeButton("Não",
-                    DialogInterface.OnClickListener { dialog, which ->
-                        dialog.dismiss()
-                        fecharFragment.initIntertitialAd()
-
-
-
-                    })
-
-                alert.show()
-
-
-
-            }
-
-             */
-
+            Log.d("atualizandorv", "eu entrei aqui no bind onde o item será atualizado ${doses.horarioDose} ${doses.jaTomouDose}")
+            setDosageTakenOrNotTaken(doses)
 
 
             binding.itemMedicamento.setOnClickListener {
-                if(!doses.jaTomouDose){
-                    //mostrar o dialog confirmando a dose a ser tomada
-                    val alert: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(binding.root.context)
-                    alert.setTitle("Tomar ${doses.nomeMedicamento}")
-                    alert.setMessage("Você quer tomar a dose de ${doses.horarioDose} agora?")
-                    Log.d("testehora", "${doses.horarioDose}")
-                    alert.setPositiveButton("Sim", DialogInterface.OnClickListener { dialog, which ->
-
-                        GlobalScope.launch {
-                            medicamentoDoseDao.tomarDoseMedicamento(true, doses.idDose)
-                        }
-                        binding.ivStatusDosage.setImageResource(R.drawable.med_taken)
-
-                        dialog.dismiss()
-                    })
-
-                    alert.setNegativeButton("Não",
-                        DialogInterface.OnClickListener { dialog, which ->
-                            dialog.dismiss() })
-
-                    alert.show()
-                }else{
-                    //mostrar o dialog confirmando a dose a ser tomada
-                    val alert: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(binding.root.context)
-                    alert.setTitle("Dose Tomada!")
-                    alert.setMessage("Você já tomou a dose das ${doses.horarioDose}!")
-                    alert.setPositiveButton("OK", DialogInterface.OnClickListener { dialog, which ->
-
-
-                        dialog.dismiss()
-                    })
-
-
-                    alert.show()
-
-                }
-
+                detalhesMedicamentosAdapterInterface.onDoseClick(doses)
             }
             binding.ivStatusDosage.setOnClickListener {
-                Log.d("testecliquedose", "${doses.horarioDose} ${doses.jaTomouDose}")
-                if(!doses.jaTomouDose){
-                    //mostrar o dialog confirmando a dose a ser tomada
-                    val alert: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(binding.root.context)
-                    alert.setTitle("Tomar ${doses.nomeMedicamento}")
-                    alert.setMessage("Você quer tomar a dose de ${doses.horarioDose} agora?")
-                    alert.setPositiveButton("Sim", DialogInterface.OnClickListener { dialog, which ->
-
-                        GlobalScope.launch {
-                            medicamentoDoseDao.tomarDoseMedicamento(true, doses.idDose)
-                        }
-                        binding.ivStatusDosage.setImageResource(R.drawable.med_taken)
-
-                        dialog.dismiss()
-                    })
-
-                    alert.setNegativeButton("Não",
-                        DialogInterface.OnClickListener { dialog, which ->
-                            dialog.dismiss() })
-
-                    alert.show()
-                }else{
-                    //mostrar o dialog confirmando a dose a ser tomada
-                    val alert: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(binding.root.context)
-                    alert.setTitle("Dose Tomada!")
-                    alert.setMessage("Você já tomou a dose das ${doses.horarioDose}!")
-                    alert.setPositiveButton("OK", DialogInterface.OnClickListener { dialog, which ->
-
-
-                        dialog.dismiss()
-                    })
-
-
-                    alert.show()
-
-                }
-
-
+              detalhesMedicamentosAdapterInterface.onDoseImageViewClick(doses)
             }
 
+            setNomeMedicamentoOnItemTextView(doses)
+
+            formatarHorarioDoseSeHorarioDoseSize15(doses)
+            formatarHorarioDoseSeHorarioDoseSize16(doses)
 
 
 
 
-            binding.tvDetailMedicineName.text = doses.nomeMedicamento
-            /*
-            if(doses.horarioDose[0].toString() == "2" && doses.horarioDose[1].toString() == "4"){
-                binding.timeDosage.text = "00:"+doses.horarioDose[3]+doses.horarioDose[4]
-
-            }else{
-                binding.timeDosage.text = doses.horarioDose
-            }
-
-             */
-            if(doses.horarioDose.length == 15){
-                Log.d("testeformatadapter", "to no if length é 17")
 
 
-                //binding.timeDosage.text = doses.horarioDose.subSequence(11,15)
-                binding.timeDosage.text = doses.horarioDose
-            }
 
+
+
+        }
+
+        private fun formatarHorarioDoseSeHorarioDoseSize16(doses: Doses) {
             if(doses.horarioDose.length == 16){
-                Log.d("testeformatadapter", "to no if length é 17")
 
-                //binding.timeDosage.text = doses.horarioDose.subSequence(11,16)
                 binding.timeDosage.text = doses.horarioDose
+                Log.d("testelistadedoses", "${doses.nomeMedicamento} ${doses.horarioDose}")
+
             }
 
+        }
+
+        private fun formatarHorarioDoseSeHorarioDoseSize15(doses: Doses) {
+            if(doses.horarioDose.length == 15){
+                binding.timeDosage.text = doses.horarioDose
+                Log.d("testelistadedoses", "${doses.nomeMedicamento} ${doses.horarioDose}")
+
+            }
+
+        }
+
+        private fun setNomeMedicamentoOnItemTextView(doses: Doses) {
+            binding.tvDetailMedicineName.text = doses.nomeMedicamento
+
+        }
 
 
+        private fun setDosageTakenOrNotTaken(doses: Doses) {
+            if(doses.jaTomouDose){
+                binding.ivStatusDosage.setImageResource(R.drawable.med_taken)
+            }else{
+                binding.ivStatusDosage.setImageResource(R.drawable.med_not_taken)
+            }
 
+        }
 
+        override fun getItemDetalhesMedicamentosBinding(): ItemDetalhesMedicamentosBinding {
+            return binding
+        }
 
+        override fun getViewHolderInstance(): DetalhesMedicamentoAdapter.ViewHolder {
+            return ViewHolder(binding)
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemDetalhesMedicamentosBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHolder(binding)
+        viewHolder = ViewHolder(binding)
+        detalhesMedicamentosAdapterInterface.setViewHolderLiveDataValue(viewHolder!!)
+        return viewHolder as ViewHolder
 
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        Log.d("testelistadedoses", "to aqui no onBindViewHolder")
+
         holder.bind(listaDoses[position])
 
     }
@@ -249,5 +214,6 @@ class DetalhesMedicamentoAdapter(private val listaDosagemMedicamento: Medicament
 
 
     override fun getItemCount(): Int = listaDoses.size
+
 
 }

@@ -36,12 +36,31 @@ interface CalendarHelper {
 
     }
 
+    fun verificarSeDataHoraJaPassou(dataHoraTerminoTratamento: String): Boolean {
+        val dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+
+        val dateTime1Str = pegarDataHoraAtual()
+        val dateTime2Str = dataHoraTerminoTratamento
+
+        val dateTime1 = LocalDateTime.parse(dateTime1Str, dateTimeFormat)
+        val dateTime2 = LocalDateTime.parse(dateTime2Str, dateTimeFormat)
+
+        return dateTime1 > dateTime2
+    }
+
     fun pegarDataAtual(): String{
         val formatarData = SimpleDateFormat("dd/MM/yyyy")
         val data = Date()
         val dataFormatada = formatarData.format(data)
 
         return dataFormatada
+    }
+
+    fun pegarDataHoraAtual(): String {
+        val dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+        val currentDateTime = LocalDateTime.now()
+
+        return currentDateTime.format(dateTimeFormat)
     }
 
     fun somarUmDiaNumaData(data: String): String{
@@ -53,6 +72,26 @@ interface CalendarHelper {
         val dt = formatter.parse(data)
         calendar.time = dt
         calendar.add(Calendar.DATE, 1)
+        data = formatter.format(calendar.time)
+
+        /*
+        ele nao ta salvando todas as doses...
+         */
+
+
+
+        return data
+    }
+
+    fun subtrairUmDiaNumaData(data: String): String{
+        var data = data
+        val calendar = Calendar.getInstance()
+        val formatter = SimpleDateFormat("dd/MM/yyyy")
+
+
+        val dt = formatter.parse(data)
+        calendar.time = dt
+        calendar.add(Calendar.DATE, -1)
         data = formatter.format(calendar.time)
 
         /*

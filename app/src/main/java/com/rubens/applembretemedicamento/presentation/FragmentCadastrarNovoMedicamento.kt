@@ -1,7 +1,5 @@
 package com.rubens.applembretemedicamento.presentation
 
-import android.graphics.Color
-import android.graphics.PorterDuff
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -9,38 +7,33 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import android.widget.Toolbar
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.isNotEmpty
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.interstitial.InterstitialAd
-import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.FragmentCadastrarNovoMedicamentoBinding
-import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentCadastrarNovoMedicamento
+import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
-import com.rubens.applembretemedicamento.utils.comunicacaoFragmentAdapter
 
 class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHelper{
 
-    private lateinit var binding: FragmentCadastrarNovoMedicamentoBinding
+    lateinit var binding: FragmentCadastrarNovoMedicamentoBinding
     private lateinit var medicamento: MedicamentoTratamento
     private var tratamentoDuraMeses = false
-    private var listaHorarioDoses = ArrayList<Doses>()
     lateinit var viewModel: ViewModelFragmentCadastrarNovoMedicamento
     private lateinit var horarioPrimeiraDose: String
     private lateinit var nomeRemedio: String
     private lateinit var qntDosesStr: String
     private var qntDoses: Int = 0
     private var medicamentoAdicionadoObserver: MutableLiveData<MedicamentoTratamento> = MutableLiveData()
+    private lateinit var mainActivityInterface: MainActivityInterface
+    private var apertouBotaoCadastrar = false
+
 
 
 
@@ -49,10 +42,11 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         binding = FragmentCadastrarNovoMedicamentoBinding.inflate(inflater, container, false)
 
+        initMainActivityInterface()
         setupToolbar()
 
 
@@ -60,21 +54,29 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
         return binding.root
     }
 
+    private fun initMainActivityInterface() {
+        mainActivityInterface = requireContext() as MainActivityInterface
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
 
-        onClickListeners()
 
         initAds()
 
         initViewModel()
+
+        onClickListeners()
+
     }
 
+
+
     private fun setupToolbar() {
-        MainActivity.binding.toolbar.visibility = View.VISIBLE
-        MainActivity.binding.toolbar.title = ""
-        MainActivity.binding.btnDeleteMedicamento.visibility = View.GONE
+        mainActivityInterface.showToolbar()
+        mainActivityInterface.hideToolbarTitle()
+        mainActivityInterface.hideBtnDeleteMedicamento()
 
     }
 
@@ -85,36 +87,90 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
 
     private fun initViewModel() {
         viewModel = ViewModelProvider(requireActivity())[ViewModelFragmentCadastrarNovoMedicamento::class.java]
-        viewModel.insertResponse.observe(viewLifecycleOwner) {
-            Log.d("observerinsertnovo", "eu adicionei um medicamento novo")
-            if (it > -1) {
-                if(this::medicamento.isInitialized){
-                    medicamentoAdicionadoObserver.postValue(medicamento)
+        initObservers()
+    }
 
-                    viewModel.dealWithDosageTime(medicamento, nomeRemedio, qntDoses, horarioPrimeiraDose)
-                    Toast.makeText(requireContext(), "${nomeRemedio} cadastrado com sucesso!", Toast.LENGTH_LONG)
-                        .show()
+    private fun initObservers() {
+        Log.d("perseguindofluxo", "entrei aqui no init observers")
+        viewModel.medicamentos.observe(viewLifecycleOwner){
+            listaMedicamentos->
+            Log.d("perseguindofluxo", "entrei aqui no observer")
 
-                    findNavController().popBackStack()
+            if(listaMedicamentos != null){
+                Log.d("perseguindofluxo", "lista nao é nula")
+
+                //verifica se medicamento ja existe
+                listaMedicamentos.forEach {
+                    medicamento->
+                    if(medicamento.medicamentoTratamento.nomeMedicamento == getNomeRemedioFromEditText()){
+                        //medicamento com mesmo nome ja existe
+                        Log.d("perseguindofluxo", "ja tem um medicmaento com esse nome")
+                        Toast.makeText(requireContext(), "Já existe um medicamento cadastrado com esse nome!", Toast.LENGTH_LONG).show()
+
+                        return@observe
+                    }
                 }
-                //pode colocar as doses na tabela de doses
+                if(apertouBotaoCadastrar){
+                    Log.d("perseguindofluxo", "apertou o botao é true e ntrei aqui no if")
 
-            } else {
-                Toast.makeText(requireContext(), "Erro ao cadastrar medicamento", Toast.LENGTH_LONG)
-                    .show()
+                    getMedicationInfoBeforeSaving()
+                    apertouBotaoCadastrar = false
+
+                }
+
+            }else{
+                Log.d("perseguindofluxo", "a lista é nula")
+
+                if(apertouBotaoCadastrar){
+                    Log.d("perseguindofluxo", "apertou o botao é true e ntrei aqui no if")
+
+                    getMedicationInfoBeforeSaving()
+                    apertouBotaoCadastrar = false
+                }
+                //nenhum medicamento existe entao nao tem como o medicamento existir
+                //continua para cadastrar esse medicamento
             }
         }
-        viewModel.insertDosesResponse.observe(viewLifecycleOwner) {
-            Log.d("observerdosesinserter", "resultado do insert ddas doses: ${it}")
+        viewModel.insertResponse.observe(viewLifecycleOwner) {
+            longInsert->
+            //long > -1 == success insert
+            //long < 0 == failed insert
+            if (longInsert > -1) {
+                if(this::medicamento.isInitialized){
+                    informarQueMedicamentoFoiAdicionado()
+                    startMakingDosageTimes()
+                    showToastMedicamentoInseridoComSucesso()
+                    fecharFragmentAtual()
+                }
+            } else {
+                showFailedInsertToast()
+
+            }
         }
 
-        medicamentoAdicionadoObserver.observe(viewLifecycleOwner) {
-            Log.d("testeobmedicamento", "medicamento adicionado com sucesso")
-            Log.d("testeobmedicamento", "${it.nomeMedicamento} ${it.num_doses_num_unico_horario}")
-            //assim que eu obtiver uma instancia não nula de medicamento, eu posso usar essa instancia para passar o numero de doses por hora para as linhas da tabela Doses
-        }
 
-        //pegar o medicamento que acabou de ser passado para o banco
+    }
+
+    private fun showFailedInsertToast() {
+        Toast.makeText(requireContext(), "Erro ao cadastrar medicamento", Toast.LENGTH_LONG)
+            .show()
+    }
+
+    private fun fecharFragmentAtual() {
+        findNavController().popBackStack()
+    }
+
+    private fun showToastMedicamentoInseridoComSucesso() {
+        Toast.makeText(requireContext(), "$nomeRemedio cadastrado com sucesso!", Toast.LENGTH_LONG)
+            .show()
+    }
+
+    private fun startMakingDosageTimes() {
+        viewModel.dealWithDosageTime(medicamento, nomeRemedio, qntDoses, horarioPrimeiraDose)
+    }
+
+    private fun informarQueMedicamentoFoiAdicionado() {
+        medicamentoAdicionadoObserver.postValue(medicamento)
     }
 
     private fun initAds() {
@@ -128,106 +184,176 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
 
     private fun onClickListeners() {
         binding.btnDuracaoDias.setOnClickListener {
-            binding.containerButtons.visibility = View.INVISIBLE
-            binding.tilMedicineTimeTreatment.hint = "Quantos dias?"
-            binding.tilMedicineTimeTreatment.visibility = View.VISIBLE
+            mudarVisibilidadeDasViewsRelacionadasADuracaoTratamento()
+
         }
         binding.btnDuracaoMeses.setOnClickListener {
-            Toast.makeText(requireContext(), "meses", Toast.LENGTH_LONG).show()
-            binding.containerButtons.visibility = View.INVISIBLE
-            binding.tilMedicineTimeTreatment.hint = "Quantos meses?"
-            binding.tilMedicineTimeTreatment.visibility = View.VISIBLE
-            tratamentoDuraMeses = true
-
+            hideContainerButtons()
+            setTilMedicineTimeTreatmentHint()
+            showTilMedicineTimeTreatment()
+            ativarVariavelTratamentoDuraMeses()
         }
 
 
         binding.btnConfirmNewMedication.setOnClickListener {
-            val qntDiasTrat: Int?
-            nomeRemedio = binding.tilMedicineName.editText?.text.toString()
-            qntDosesStr = binding.tilMedicineQntPerDay.editText?.text.toString()
-            val qntTratamentoStr = binding.tilMedicineQntPerDay.editText?.text.toString()
-            val qntDuracaoTratamentoStr = binding.tilMedicineTimeTreatment.editText?.text.toString()
-            if (qntDuracaoTratamentoStr.isNotEmpty()) {
-                if (tratamentoDuraMeses) {
-                    qntDiasTrat = qntDuracaoTratamentoStr.toInt() * 30
-                } else {
-                    qntDiasTrat = qntDuracaoTratamentoStr.toInt()
-                }
-            } else {
-                qntDiasTrat = null
-            }
-
-
-            qntDoses = 0
-            var sucesso = 0
-
-            if (qntDosesStr != "") {
-                qntDoses = qntDosesStr.toInt()
-            }
-            horarioPrimeiraDose = binding.tilTimeFirstTake.editText?.text.toString()
+            apertouBotaoCadastrar = true
+            viewModel.loadMedications()
 
 
 
-
-
-            if (nomeRemedio != null
-                &&
-                qntDoses != null &&
-                qntDoses > 0 &&
-                horarioPrimeiraDose != null &&
-                nomeRemedio.isNotEmpty() &&
-                horarioPrimeiraDose.isNotEmpty()
-                && horarioPrimeiraDose.length == 5
-                && horarioPrimeiraDose[2].toString() == ":"
-                && binding.tilNumberOfPillsByTake.editText!!.text != null
-                && binding.tilNumberOfPillsByTake.editText!!.text.toString() != ""
-                && binding.tilNumberOfPillsByTake.isNotEmpty()
-                && binding.inputDataInicioTratamento.isDone
-                && qntDiasTrat != null
-            ) {
-                //aplicar mascara aqui pra n permitir valores maiores que 24 horas
-                Log.d("testeinsert", "eu to aqui no metodo que vai inserir o medicamento")
-                medicamento = MedicamentoTratamento(
-                    nomeMedicamento = nomeRemedio,
-                    totalDiasTratamento = qntDiasTrat,
-                    horaPrimeiraDose = horarioPrimeiraDose,
-                    qntDoses = qntDoses,
-                    num_doses_num_unico_horario = binding.tilNumberOfPillsByTake.editText!!.text.toString()
-                        .toInt(),
-                    tratamentoFinalizado = false,
-                    diasRestantesDeTratamento = qntDiasTrat,
-                    dataInicioTratamento = binding.inputDataInicioTratamento.masked,
-                    dataTerminoTratamento = pegarDataDeTermino(
-                        binding.inputDataInicioTratamento.masked,
-                        qntDiasTrat
-                    ),
-                    stringDataStore = "toast_already_shown"+"_$nomeRemedio"
-                )
-                viewModel.insertMedicamento(
-                    medicamento
-                )
-
-
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    "Erro ao cadastrar medicamento. Verifique o preenchimento dos dados.",
-                    Toast.LENGTH_LONG
-                ).show()
-
-            }
 
         }
 
     }
 
+    private fun getMedicationInfoBeforeSaving() {
+        val qntDiasTrat: Int?
+        val diaInicioTratamento: String?
+        nomeRemedio = getNomeRemedioFromEditText()
+        qntDosesStr = getQntDosesFromEditText()
+        val qntDuracaoTratamentoStr = getDuracaoTratamentoFromEditText()
+        qntDiasTrat = if (qntDuracaoTratamentoStr.isNotEmpty()) {
+            if (tratamentoDuraMeses) {
+                transformarMesesEmDias(qntDuracaoTratamentoStr)
+            } else {
+                transformDuracaoEmDiasStringToInt(qntDuracaoTratamentoStr)
+            }
+        } else {
+            null
+        }
 
-    override fun onDestroy() {
-        super.onDestroy()
+        qntDoses = 0
 
-        Log.d("testeendfra", "o ondestroy desse fragment foi chamado")
+        diaInicioTratamento = binding.inputDataInicioTratamento.text.toString()
+
+        if (qntDosesStr != "") {
+            qntDoses = transformQntDosesFromStringToInt(qntDosesStr)
+        }
+        horarioPrimeiraDose = getTimeFirstTakeFromEditText()
+
+
+        seeIfMedicamentoHasValidInfo(nomeRemedio, qntDoses, horarioPrimeiraDose, qntDiasTrat, diaInicioTratamento)
+
+
     }
+
+
+
+    private fun seeIfMedicamentoHasValidInfo(
+        nomeRemedio: String,
+        qntDoses: Int,
+        horarioPrimeiraDose: String,
+        qntDiasTrat: Int?,
+        diaInicioTratamento: String
+    ) {
+
+        if (diaInicioTratamento.length == 10 && diaInicioTratamento.isNotEmpty() && qntDoses > 0 && nomeRemedio.isNotEmpty() && horarioPrimeiraDose.isNotEmpty() && horarioPrimeiraDose.length == 5 && horarioPrimeiraDose[2].toString() == ":" && binding.tilNumberOfPillsByTake.editText!!.text != null && binding.tilNumberOfPillsByTake.editText!!.text.toString() != "" && binding.tilNumberOfPillsByTake.isNotEmpty() && binding.inputDataInicioTratamento.isDone && qntDiasTrat != null
+        ) {
+            if(!verificarSeDataHoraJaPassou("$diaInicioTratamento $horarioPrimeiraDose")){
+
+
+                saveNewMedication(nomeRemedio, qntDoses, horarioPrimeiraDose, qntDiasTrat)
+            }else{
+                Toast.makeText(requireContext(), "a data e hora que você escolheu para a primeira dose já passaram!", Toast.LENGTH_LONG).show()
+            }
+
+
+
+        } else {
+            showErrorCadastratingNewMedicationToast()
+
+        }
+
+    }
+
+    private fun showErrorCadastratingNewMedicationToast() {
+        Toast.makeText(
+            requireContext(),
+            "Erro ao cadastrar medicamento. Verifique o preenchimento dos dados.",
+            Toast.LENGTH_LONG
+        ).show()
+
+    }
+
+    private fun saveNewMedication(nomeRemedio: String, qntDoses: Int, horarioPrimeiraDose: String, qntDiasTrat: Int) {
+        medicamento = MedicamentoTratamento(
+            nomeMedicamento = nomeRemedio,
+            totalDiasTratamento = qntDiasTrat,
+            horaPrimeiraDose = horarioPrimeiraDose,
+            qntDoses = qntDoses,
+            num_doses_num_unico_horario = binding.tilNumberOfPillsByTake.editText!!.text.toString()
+                .toInt(),
+            tratamentoFinalizado = false,
+            diasRestantesDeTratamento = qntDiasTrat,
+            dataInicioTratamento = binding.inputDataInicioTratamento.masked,
+            dataTerminoTratamento = pegarDataDeTermino(
+                binding.inputDataInicioTratamento.masked,
+                qntDiasTrat
+            ),
+            stringDataStore = "toast_already_shown"+"_$nomeRemedio"
+        )
+        viewModel.insertMedicamento(
+            medicamento
+        )
+
+    }
+
+    private fun getTimeFirstTakeFromEditText(): String {
+        return binding.tilTimeFirstTake.editText?.text.toString()
+
+    }
+
+    private fun transformQntDosesFromStringToInt(qntDosesStr: String): Int {
+        return qntDosesStr.toInt()
+
+    }
+
+    private fun transformDuracaoEmDiasStringToInt(qntDuracaoTratamentoStr: String): Int {
+        return qntDuracaoTratamentoStr.toInt()
+    }
+
+    private fun transformarMesesEmDias(qntDuracaoTratamentoStr: String): Int {
+        return qntDuracaoTratamentoStr.toInt() * 30
+
+    }
+
+    private fun getDuracaoTratamentoFromEditText(): String {
+        return binding.tilMedicineTimeTreatment.editText?.text.toString()
+    }
+
+    private fun getQntDosesFromEditText(): String {
+        return binding.tilMedicineQntPerDay.editText?.text.toString()
+
+    }
+
+    private fun getNomeRemedioFromEditText(): String {
+        return binding.tilMedicineName.editText?.text.toString()
+    }
+
+    private fun ativarVariavelTratamentoDuraMeses() {
+        tratamentoDuraMeses = true
+    }
+
+    private fun showTilMedicineTimeTreatment() {
+        binding.tilMedicineTimeTreatment.visibility = View.VISIBLE
+    }
+
+    private fun setTilMedicineTimeTreatmentHint() {
+        binding.tilMedicineTimeTreatment.hint = "Quantos meses?"
+    }
+
+    private fun hideContainerButtons() {
+        binding.containerButtons.visibility = View.INVISIBLE
+
+    }
+
+    fun mudarVisibilidadeDasViewsRelacionadasADuracaoTratamento() {
+        binding.containerButtons.visibility = View.INVISIBLE
+        binding.tilMedicineTimeTreatment.hint = "Quantos dias?"
+        binding.tilMedicineTimeTreatment.visibility = View.VISIBLE
+    }
+
+
 
 
 

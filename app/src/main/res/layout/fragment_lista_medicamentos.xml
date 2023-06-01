@@ -6,18 +6,29 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".presentation.FragmentListaMedicamentos">
 
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btn_settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/baseline_settings_24"
+        app:tint="?android:textColorPrimary"
+        android:background="?android:attr/actionBarItemBackground"
+        android:layout_marginEnd="16dp"/>
+
     <TextView
         android:id="@+id/medicamentos_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="20dp"
         android:fontFamily="sans-serif-light"
         android:text="Medicamentos"
         android:textColor="?android:textColorPrimary"
-        android:textSize="22sp"
+        android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@id/btn_settings" />
 
 
     <TextView
@@ -43,8 +54,37 @@
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/data_atual"
+        app:layout_constraintTop_toBottomOf="@id/fab"
         app:layout_constraintBottom_toTopOf="@id/adView"/>
+
+
+
+            <ProgressBar
+                android:id="@+id/loadingProgressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="40dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+
+
+
+
+    <Button
+        android:id="@+id/btn_stop_service"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="parar service"
+        android:backgroundTint="?attr/colorPrimary"
+        app:layout_constraintTop_toTopOf="@id/fab"
+        app:layout_constraintBottom_toBottomOf="@id/fab"
+        app:layout_constraintEnd_toStartOf="@id/fab"
+        android:layout_marginEnd="30dp"/>
+
+
 
 
 
@@ -58,9 +98,10 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:src="@drawable/ic_baseline_add_24"
+        android:layout_marginTop="16dp"
         app:tint="@color/white"
         android:background="@drawable/ripple_oval"
-        app:layout_constraintTop_toTopOf="@id/medicamentos_label"
+        app:layout_constraintTop_toBottomOf="@id/data_atual"
         app:layout_constraintEnd_toEndOf="parent"
         android:contentDescription="@string/res_btn_add" />
 

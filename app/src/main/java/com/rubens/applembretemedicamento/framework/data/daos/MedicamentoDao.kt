@@ -22,6 +22,9 @@ interface MedicamentoDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertNaTabelaHistoricoMedicamentos(novoMedicamentoFinalizado: HistoricoMedicamentos): Long
 
+    @Query("UPDATE MedicamentoTratamento SET alarmeTocando =:tocando WHERE idMedicamento =:id")
+    fun alarmeMedicamentoTocando(id: Int, tocando: Boolean)
+
 
 
 
@@ -32,6 +35,14 @@ interface MedicamentoDao {
     @Transaction
     @Query("SELECT * FROM MedicamentoTratamento WHERE nomeMedicamento = :nomeMedicamento")
     suspend fun getMedicamentoWithDoses(nomeMedicamento: String): List<MedicamentoComDoses>
+
+    @Transaction
+    @Query("SELECT * FROM MedicamentoTratamento WHERE nomeMedicamento = :nomeMedicamento")
+    suspend fun getMedicamentoDosesByName(nomeMedicamento: String): MedicamentoComDoses
+
+    @Transaction
+    @Query("SELECT * FROM MedicamentoTratamento WHERE idMedicamento = :id")
+    suspend fun getMedicamentoDosesById(id: Int): MedicamentoComDoses
 
     @Transaction
     @Query("SELECT * FROM MedicamentoTratamento")
