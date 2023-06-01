@@ -5,12 +5,14 @@ import androidx.lifecycle.ViewModel
 import com.example.appmedicamentos.data.repository.MedicationRepositoryImpl
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
+import com.rubens.applembretemedicamento.framework.data.roomdatasourcemanager.DataSourceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class ViewModelFragmentLista @Inject constructor(
-    private val medicationRepository: MedicationRepositoryImpl
+    private val medicationRepository: MedicationRepositoryImpl,
+    private val dataSourceManager: DataSourceManager
 ): ViewModel(){
 
     var medicamentos: MutableLiveData<List<MedicamentoComDoses>?> = MutableLiveData()
@@ -26,7 +28,7 @@ class ViewModelFragmentLista @Inject constructor(
 
 
     fun loadMedications(){
-        val list = medicationRepository.getMedicamentos()
+        val list = dataSourceManager.getDataSource(medicationRepository)
 
         medicamentos.postValue(list)
     }

@@ -28,13 +28,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), MainActivityInterface {
+class MainActivity : AppCompatActivity(), MainActivityInterface{
 
 
     private val pendingIntentsList = ArrayList<PendingIntent>()
-
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: MainActivityViewModel
@@ -44,6 +44,8 @@ class MainActivity : AppCompatActivity(), MainActivityInterface {
     private var tema = ""
 
     private lateinit var fragmentListaMedicamentosInterface: FragmentListaMedicamentosInterface
+
+
 
 
     private lateinit var themeDataStore: ThemeDataStoreInterface
@@ -56,6 +58,7 @@ class MainActivity : AppCompatActivity(), MainActivityInterface {
 
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        //onBindingReadyListener.onBindingReady(true)
         launchScopeToLoadTheme()
 
 
@@ -68,6 +71,8 @@ class MainActivity : AppCompatActivity(), MainActivityInterface {
         onClickListeners()
 
     }
+
+
 
 
 

@@ -86,6 +86,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     private var diaAtualSelecionado = ""
 
     private var mediaPlayer: MediaPlayer? = null
+    private var initExtraMedicamentoId = -1
 
 
 
@@ -227,10 +228,9 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
     @Subscribe(sticky = true)
     fun onAlarmEvent(event: AlarmEvent){
-        val medicamentoId = event.data
         Log.d("entendendoshowstop", "to aqui no listener do eventBus")
 
-        loadUpdatedMedicamento(medicamentoId)
+        loadUpdatedMedicamento(initExtraMedicamentoId)
 
 
 
@@ -396,6 +396,8 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
     private fun initExtraFromListaMedicamentosFragment() {
         extra = args.medicamento
+        initExtraMedicamentoId = (args.medicamento).medicamentoTratamento.idMedicamento
+        Log.d("correctingidbug", "init medicamento adicionado a o extra agora: ${(extra as MedicamentoComDoses).medicamentoTratamento.nomeMedicamento}, id: ${(extra as MedicamentoComDoses).medicamentoTratamento.idMedicamento}")
 
     }
 
@@ -433,6 +435,8 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
                 Log.d("listupdate", "testando lista atualizada: ${it.nomeMedicamento} ${it.horarioDose} ja tomou dose: ${it.jaTomouDose}")
             }
             extra = it
+            Log.d("correctingidbug", "mudancaMedicamentoComDoses: medicamento adicionado a o extra agora: ${(extra as MedicamentoComDoses).medicamentoTratamento.nomeMedicamento}, id: ${(extra as MedicamentoComDoses).medicamentoTratamento.idMedicamento}")
+
             adapterMethodsInterface.updateList(it)
             adapterMethodsInterface.updateRecyclerViewOnDateChange(diaAtualSelecionado)
         }
@@ -440,6 +444,8 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         mudancaMedicamentoComDosesAlarmeTocando.observe(viewLifecycleOwner){
             if(it != null){
                 extra = it
+                Log.d("correctingidbug", "mudancaMedicamentoComDosesAlarmeTocando: medicamento adicionado a o extra agora: ${(extra as MedicamentoComDoses).medicamentoTratamento.nomeMedicamento}, id: ${(extra as MedicamentoComDoses).medicamentoTratamento.idMedicamento}")
+
                 if((extra as MedicamentoComDoses).medicamentoTratamento.alarmeTocando){
                     showBtnPararSom()
                     Log.d("entendendoshowstop", "to aqui no if que mostra o botao parar som")
@@ -617,7 +623,10 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
     private fun avisarQueMedicamentoNaoEstaTocando() {
         viewLifecycleOwner.lifecycleScope.launch {
-            medicamentoDoseDao.alarmeMedicamentoTocando((extra as MedicamentoComDoses).medicamentoTratamento.idMedicamento, false)
+            //todo talvez o bug esteja aqui, talvez ele esteja mandando o id errado para o metodo de acesso ao banco, verificar isso
+            Log.d("correctingidbug", "aqui antes de atualizar o db: medicamento adicionado a o extra agora: ${(extra as MedicamentoComDoses).medicamentoTratamento.nomeMedicamento}, id: ${(extra as MedicamentoComDoses).medicamentoTratamento.idMedicamento}")
+
+            medicamentoDoseDao.alarmeMedicamentoTocando(initExtraMedicamentoId, false)
 
         }
     }

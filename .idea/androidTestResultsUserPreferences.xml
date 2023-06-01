@@ -3,7 +3,91 @@
   <component name="AndroidTestResultsUserPreferences">
     <option name="androidTestResultsTableState">
       <map>
+        <entry key="-1241477305">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
+                  <entry key="Tests" value="360" />
+                  <entry key="adb-RQ8M40JEGQT-EQPwdb._adb-tls-connect._tcp" value="120" />
+                  <entry key="samsung&#10; SM-A205G" value="120" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
+        <entry key="-953593148">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
+                  <entry key="Tests" value="360" />
+                  <entry key="adb-RQ8M40JEGQT-EQPwdb._adb-tls-connect._tcp" value="120" />
+                  <entry key="samsung&#10; SM-A205G" value="120" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
         <entry key="-606934249">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
+                  <entry key="Tests" value="360" />
+                  <entry key="adb-RQ8M40JEGQT-EQPwdb._adb-tls-connect._tcp" value="120" />
+                  <entry key="samsung&#10; SM-A205G" value="120" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
+        <entry key="-390977798">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
+                  <entry key="Tests" value="360" />
+                  <entry key="adb-RQ8M40JEGQT-EQPwdb._adb-tls-connect._tcp" value="120" />
+                  <entry key="samsung&#10; SM-A205G" value="120" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
+        <entry key="1150059826">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
+                  <entry key="Tests" value="360" />
+                  <entry key="samsung&#10; SM-A205G" value="120" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
+        <entry key="1433501242">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
+                  <entry key="Tests" value="360" />
+                  <entry key="adb-RQ8M40JEGQT-EQPwdb._adb-tls-connect._tcp" value="120" />
+                  <entry key="samsung" value="120" />
+                  <entry key="samsung&#10; SM-A205G" value="120" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
+        <entry key="1779493819">
           <value>
             <AndroidTestResultsTableState>
               <option name="preferredColumnWidths">

@@ -92,6 +92,7 @@ class AdapterListaMedicamentos(
                 if (!dose.jaTomouDose && !definiuProxDose) {
                     proxDose = doseMaisProximaNaoTomada(dose, medicamento.listaDoses).horarioDose
                     definiuProxDose = true
+                    Log.d("bugcorretion", "proxDoseDifinida == ${proxDose}")
                 }
                 checarSeAlarmeDoMedicamentoEstaAtivado(medicamento)
 
@@ -107,6 +108,8 @@ class AdapterListaMedicamentos(
                 }
 
             }
+
+
 
             formataStringProximaDoseIfStringSize15(proxDose)
             formataStringProximaDoseIfStringSize16(proxDose)

@@ -40,25 +40,30 @@ import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInt
 import com.rubens.applembretemedicamento.presentation.recyclerviewadapters.AdapterListaMedicamentos
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, FragmentListaMedicamentosInterface {
 
     private lateinit var binding: FragmentListaMedicamentosBinding
     private var listaMedicamentos: ArrayList<MedicamentoComDoses> = ArrayList()
     private lateinit var adapter: AdapterListaMedicamentos
     lateinit var viewModel: ViewModelFragmentLista
-    private lateinit var mainActivityInterface: MainActivityInterface
+    @Inject
+    lateinit var mainActivityInterface: MainActivityInterface
     private lateinit var alarmReceiverInterface: AlarmReceiverInterface
     private lateinit var alarmReceiver: AlarmReceiver
     private var db: AppDatabase? = null
     private var isEventBusRegistered = false
     private lateinit var adapterListaMedicamentosInterface: AdapterListaMedicamentosInterface
+
 
     private var mediaPlayer: MediaPlayer? = null
 
@@ -77,7 +82,9 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
         // Inflate the layout for this fragment
         initAlarmReceiver()
         initAlarmReceiverInterface()
-        setupToolbar()
+        //todo arrumar isso para fazer o titulo da toolbar sumir e a toolbar sumir
+        //setupToolbar()
+
         initDb()
 
         binding = FragmentListaMedicamentosBinding.inflate(inflater)
@@ -86,7 +93,7 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        initMainActivityInterface()
+        //initMainActivityInterface()
     }
 
 
@@ -175,8 +182,11 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
     }
 
     private fun setupToolbar() {
-        mainActivityInterface.hideToolbar()
-        mainActivityInterface.hideToolbarTitle()
+
+            mainActivityInterface.hideToolbar()
+            mainActivityInterface.hideToolbarTitle()
+
+
         Log.d("hidingtitle", "eu to aqui escondendo o title")
 
     }
@@ -493,6 +503,8 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
         return SimpleDateFormat("dd/MM/yyyy")
 
     }
+
+
 
 
 }
