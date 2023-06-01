@@ -270,19 +270,18 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
     }
 
 
-    fun cancelAlarm() {
+    fun cancelAlarm(context: Context) {
         if(this::alarmManager.isInitialized){
             alarmManager.cancel(pendingIntent)
 
         }
 
         WakeLocker.release()
-        if(context != null){
-            val serviceIntent = Intent(context, ServiceMediaPlayer::class.java)
-            serviceIntent.action = "STOP_SERVICE"
-            ContextCompat.startForegroundService(context!!, serviceIntent)
-            alarmeTocando.postValue(false)
-        }
+        val serviceIntent = Intent(context, ServiceMediaPlayer::class.java)
+        serviceIntent.action = "STOP_SERVICE"
+        ContextCompat.startForegroundService(context, serviceIntent)
+        alarmeTocando.postValue(false)
+        Log.d("fluxo31", "entrou aqui no if do cancel, context nao é nulo")
 
     }
 
@@ -309,10 +308,10 @@ class AlarmReceiver : BroadcastReceiver(), CalendarHelper, FuncoesDeTempo, Alarm
                 }
             } else {
                 if (this::alarmManager.isInitialized) {
-                    cancelAlarm()
+                    cancelAlarm(applicationContext)
                 } else {
                     initAlarmManager(applicationContext)
-                    cancelAlarm()
+                    cancelAlarm(applicationContext)
                 }
 
             }

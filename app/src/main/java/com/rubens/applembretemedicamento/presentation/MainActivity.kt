@@ -275,9 +275,9 @@ class MainActivity : AppCompatActivity(), MainActivityInterface{
     fun codigoASerExecutadoAoFecharOApp(){
 
 
-        viewModel.desativarOAlarmeDeTodosMedicamentos()
+        //viewModel.desativarOAlarmeDeTodosMedicamentos()
 
-        alarmReceiver.cancelAllAlarms(this.applicationContext)
+        //alarmReceiver.cancelAllAlarms(this.applicationContext)
 
 
     }

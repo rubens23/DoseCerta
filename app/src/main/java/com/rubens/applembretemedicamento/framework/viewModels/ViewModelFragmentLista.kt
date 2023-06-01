@@ -28,7 +28,10 @@ class ViewModelFragmentLista @Inject constructor(
 
 
     fun loadMedications(){
-        val list = dataSourceManager.getDataSource(medicationRepository)
+        //descomente a linha abaixo para testar a recycler view com dados fake na build variant debug
+        //val list = dataSourceManager.getDataSource(medicationRepository)
+
+        val list = medicationRepository.getMedicamentos()
 
         medicamentos.postValue(list)
     }

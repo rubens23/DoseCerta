@@ -136,7 +136,7 @@ class ServiceMediaPlayer: Service() {
         if(!mp.isPlaying){
 
 
-            Log.d("checkingthings", "media player começou a tocar")
+            Log.d("fluxo31", "media player começou a tocar, instancia mp ${mp}")
 
 
             mp.start()
@@ -182,11 +182,14 @@ class ServiceMediaPlayer: Service() {
 
         stopMediaPlayer()
 
+
         super.onDestroy()
     }
 
     private fun stopMediaPlayer() {
         mp.stop()
+        Log.d("fluxo31", "chamei o stop para o mediaPlayer, instancia mp ${mp}")
+
         //mp.release()
 
     }

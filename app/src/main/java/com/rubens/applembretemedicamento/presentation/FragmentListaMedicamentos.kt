@@ -56,7 +56,6 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
     private var listaMedicamentos: ArrayList<MedicamentoComDoses> = ArrayList()
     private lateinit var adapter: AdapterListaMedicamentos
     lateinit var viewModel: ViewModelFragmentLista
-    @Inject
     lateinit var mainActivityInterface: MainActivityInterface
     private lateinit var alarmReceiverInterface: AlarmReceiverInterface
     private lateinit var alarmReceiver: AlarmReceiver
@@ -83,7 +82,6 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
         initAlarmReceiver()
         initAlarmReceiverInterface()
         //todo arrumar isso para fazer o titulo da toolbar sumir e a toolbar sumir
-        //setupToolbar()
 
         initDb()
 
@@ -111,7 +109,9 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
     }
 
     private fun initMainActivityInterface() {
-        mainActivityInterface = requireContext() as MainActivityInterface
+        mainActivityInterface = requireActivity() as MainActivityInterface
+        setupToolbar()
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -580,6 +580,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
             Log.d("testeshowcancel", "eu to aqui no clique do botão armar alarme")
         }
         binding.btnCancelarAlarme.setOnClickListener {
+            pararSomSeMediaPlayerEstiverTocando()
             mostrarToastDeAlarmeDesativado()
             salvarNoBancoAInformacaoDeQueOAlarmeDoMedicamentoEstaDesligado()
             cancelarOAlarmeNoBroadcastReceiver()
@@ -587,23 +588,8 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
             showBtnArmarAlarme()
         }
         binding.btnPararSom.setOnClickListener {
-            if (getMediaPlayerInstance() != null){
-                Log.d("testeplay2", "media player instance is not null ${getMediaPlayerInstance()}")
+            pararSomSeMediaPlayerEstiverTocando()
 
-                if (getMediaPlayerInstance()!!.isPlaying){
-                    Log.d("testeplay2", "media player is playing ${getMediaPlayerInstance()}")
-
-
-                    stopMusicPlayer()
-                    hideBtnPararSom()
-                    avisarQueMedicamentoNaoEstaTocando()
-                }else{
-                    Log.d("testeplay2", "media player is not playing")
-                }
-            }else{
-                Log.d("testeplay2", "media player instance is null")
-
-            }
             armarProximoAlarme()
         }
 
@@ -619,6 +605,26 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         }
 
 
+    }
+
+    private fun pararSomSeMediaPlayerEstiverTocando() {
+        if (getMediaPlayerInstance() != null){
+            Log.d("testeplay2", "media player instance is not null ${getMediaPlayerInstance()}")
+
+            if (getMediaPlayerInstance()!!.isPlaying){
+                Log.d("testeplay2", "media player is playing ${getMediaPlayerInstance()}")
+
+
+                stopMusicPlayer()
+                hideBtnPararSom()
+                avisarQueMedicamentoNaoEstaTocando()
+            }else{
+                Log.d("testeplay2", "media player is not playing")
+            }
+        }else{
+            Log.d("testeplay2", "media player instance is null")
+
+        }
     }
 
     private fun avisarQueMedicamentoNaoEstaTocando() {
@@ -722,7 +728,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     }
 
     private fun cancelarOAlarmeNoBroadcastReceiver() {
-        medicamentoManager.getReceiver().cancelAlarm()
+        medicamentoManager.getReceiver().cancelAlarm(requireContext())
     }
 
     private fun salvarNoBancoAInformacaoDeQueOAlarmeDoMedicamentoEstaDesligado() {
@@ -731,7 +737,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
 
     private fun mostrarToastDeAlarmeDesativado() {
-        Toast.makeText(requireContext(), "Alarme desativado!", Toast.LENGTH_LONG).show()
+        Toast.makeText(requireContext(), "Alarme desativado para o ${(extra as MedicamentoComDoses).medicamentoTratamento.nomeMedicamento}!", Toast.LENGTH_LONG).show()
     }
 
 
