@@ -20,6 +20,7 @@ import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.ActivityMainBinding
 import com.rubens.applembretemedicamento.framework.data.datastore.DataStoreTheme
 import com.rubens.applembretemedicamento.framework.data.datastore.interfaces.ThemeDataStoreInterface
+import com.rubens.applembretemedicamento.framework.domain.doses.DosesManager
 import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
 import com.rubens.applembretemedicamento.framework.viewModels.MainActivityViewModel
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentListaMedicamentosInterface
@@ -289,6 +290,7 @@ class MainActivity : AppCompatActivity(), MainActivityInterface{
     override fun onResume() {
         super.onResume()
         hideToolbar()
+
 
 
     }

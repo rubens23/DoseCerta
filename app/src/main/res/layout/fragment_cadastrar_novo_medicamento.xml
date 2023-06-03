@@ -134,9 +134,9 @@
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:hint="tempo de tratamento"
-            android:visibility="invisible"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="0dp"
+            android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/label_duracao_tratamento">
@@ -165,37 +165,36 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:textSize="28sp"
-                android:inputType="time"/>
+                android:inputType="time"
+                android:id="@+id/et_til_time_first_take"
+                />
 
         </com.google.android.material.textfield.TextInputLayout>
 
-
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_number_of_pills_by_take"
-            android:layout_width="0dp"
+        <Button
+            android:id="@+id/btn_open_time_picker"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:hint="doses por tomada"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:text="horário primeira dose"
+            android:backgroundTint="?attr/colorPrimary"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="26sp"
+            android:fontFamily="sans-serif-medium"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/til_time_first_take">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/til_time_first_take"
+            android:layout_marginHorizontal="16dp"/>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:textSize="28sp"
-                android:inputType="time"/>
 
-        </com.google.android.material.textfield.TextInputLayout>
+
+
 
         <com.santalu.maskara.widget.MaskEditText
             android:id="@+id/input_data_inicio_tratamento"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/til_number_of_pills_by_take"
+            app:layout_constraintTop_toBottomOf="@id/btn_open_time_picker"
             android:inputType="number"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:mask="__/__/____"

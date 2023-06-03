@@ -6,6 +6,8 @@ import com.example.appmedicamentos.data.repository.MedicationRepositoryImpl
 import com.rubens.applembretemedicamento.framework.data.AppDatabase
 import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
 import com.rubens.applembretemedicamento.framework.data.roomdatasourcemanager.DataSourceManager
+import com.rubens.applembretemedicamento.framework.domain.doses.DosesManager
+import com.rubens.applembretemedicamento.framework.domain.doses.DosesManagerInterface
 import com.rubens.applembretemedicamento.presentation.FragmentListaMedicamentos
 import com.rubens.applembretemedicamento.presentation.MainActivity
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
@@ -56,6 +58,11 @@ object HiltModule {
     @Singleton
     fun providesDataSourceManagerInstance(): DataSourceManager{
         return DataSourceManager()
+    }
+
+    @Provides
+    fun providesDosesManagerImplementation(): DosesManagerInterface{
+        return DosesManager()
     }
 
 

@@ -1,5 +1,6 @@
 package com.rubens.applembretemedicamento.presentation
 
+import android.app.TimePickerDialog
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -7,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.view.isNotEmpty
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -19,6 +19,8 @@ import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentC
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
+import java.util.Calendar
+
 
 class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHelper{
 
@@ -33,6 +35,7 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
     private var medicamentoAdicionadoObserver: MutableLiveData<MedicamentoTratamento> = MutableLiveData()
     private lateinit var mainActivityInterface: MainActivityInterface
     private var apertouBotaoCadastrar = false
+    private var timeFirstTake = ""
 
 
 
@@ -166,7 +169,7 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
     }
 
     private fun startMakingDosageTimes() {
-        viewModel.dealWithDosageTime(medicamento, nomeRemedio, qntDoses, horarioPrimeiraDose)
+        viewModel.gerenciarHorariosDosagem(medicamento, nomeRemedio, qntDoses, horarioPrimeiraDose)
     }
 
     private fun informarQueMedicamentoFoiAdicionado() {
@@ -203,14 +206,43 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
 
 
         }
+        binding.btnOpenTimePicker.setOnClickListener {
+            createTimePickerDialog()
+        }
 
     }
+
+    private fun createTimePickerDialog() {
+        val cal: Calendar = Calendar.getInstance()
+        val hour: Int = cal.get(Calendar.HOUR_OF_DAY)
+        val minute: Int = cal.get(Calendar.MINUTE)
+
+        val timePickerDialog = TimePickerDialog(requireContext(),
+            TimePickerDialog.OnTimeSetListener { view, hourOfDay, minuteOfDay ->
+                //Manipule o horário selecionado pelo usuário aqui
+                val selectedTime = String.format("%02d:%02d", hourOfDay, minuteOfDay)
+                binding.tilTimeFirstTake.editText!!.setText(selectedTime)
+
+                //editText.setText(selectedTime)
+                timeFirstTake = selectedTime
+            },
+            hour, minute, true)
+
+
+
+        timePickerDialog.show()
+
+        //editText.setOnClickListener { view -> timePickerDialog.show() }
+    }
+
+
 
     private fun getMedicationInfoBeforeSaving() {
         val qntDiasTrat: Int?
         val diaInicioTratamento: String?
         nomeRemedio = getNomeRemedioFromEditText()
         qntDosesStr = getQntDosesFromEditText()
+        timeFirstTake = binding.tilTimeFirstTake.editText?.text.toString()
         val qntDuracaoTratamentoStr = getDuracaoTratamentoFromEditText()
         qntDiasTrat = if (qntDuracaoTratamentoStr.isNotEmpty()) {
             if (tratamentoDuraMeses) {
@@ -229,7 +261,7 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
         if (qntDosesStr != "") {
             qntDoses = transformQntDosesFromStringToInt(qntDosesStr)
         }
-        horarioPrimeiraDose = getTimeFirstTakeFromEditText()
+        horarioPrimeiraDose = getTimeFirstTake()
 
 
         seeIfMedicamentoHasValidInfo(nomeRemedio, qntDoses, horarioPrimeiraDose, qntDiasTrat, diaInicioTratamento)
@@ -247,8 +279,8 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
         diaInicioTratamento: String
     ) {
 
-        if (diaInicioTratamento.length == 10 && diaInicioTratamento.isNotEmpty() && qntDoses > 0 && nomeRemedio.isNotEmpty() && horarioPrimeiraDose.isNotEmpty() && horarioPrimeiraDose.length == 5 && horarioPrimeiraDose[2].toString() == ":" && binding.tilNumberOfPillsByTake.editText!!.text != null && binding.tilNumberOfPillsByTake.editText!!.text.toString() != "" && binding.tilNumberOfPillsByTake.isNotEmpty() && binding.inputDataInicioTratamento.isDone && qntDiasTrat != null
-        ) {
+        if (diaInicioTratamento.length == 10 && diaInicioTratamento.isNotEmpty() && qntDoses > 0 && nomeRemedio.isNotEmpty() && horarioPrimeiraDose.isNotEmpty() && horarioPrimeiraDose.length == 5 && horarioPrimeiraDose[2].toString() == ":" && binding.inputDataInicioTratamento.isDone && qntDiasTrat != null
+            && horarioPrimeiraDose.isNotEmpty() && horarioPrimeiraDose.length == 5 && horarioPrimeiraDose[2].toString() == ":") {
             if(!verificarSeDataHoraJaPassou("$diaInicioTratamento $horarioPrimeiraDose")){
 
 
@@ -281,8 +313,6 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
             totalDiasTratamento = qntDiasTrat,
             horaPrimeiraDose = horarioPrimeiraDose,
             qntDoses = qntDoses,
-            num_doses_num_unico_horario = binding.tilNumberOfPillsByTake.editText!!.text.toString()
-                .toInt(),
             tratamentoFinalizado = false,
             diasRestantesDeTratamento = qntDiasTrat,
             dataInicioTratamento = binding.inputDataInicioTratamento.masked,
@@ -298,8 +328,8 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
 
     }
 
-    private fun getTimeFirstTakeFromEditText(): String {
-        return binding.tilTimeFirstTake.editText?.text.toString()
+    private fun getTimeFirstTake(): String {
+        return timeFirstTake
 
     }
 

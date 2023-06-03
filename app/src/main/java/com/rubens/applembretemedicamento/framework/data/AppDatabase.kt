@@ -14,11 +14,10 @@ import com.rubens.applembretemedicamento.framework.data.roommigrations.Migration
     entities = [MedicamentoTratamento::class,
         Doses::class,
         HistoricoMedicamentos::class],
-    version = 2
+    version = 1
 )
 abstract class AppDatabase : RoomDatabase() {
 
-    //todo: resolver esse erro do n reconhecimento da entity
 
 
     abstract val medicamentoDao: MedicamentoDao

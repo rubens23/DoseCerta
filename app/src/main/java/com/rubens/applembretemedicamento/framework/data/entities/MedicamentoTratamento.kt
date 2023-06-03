@@ -1,5 +1,6 @@
 package com.rubens.applembretemedicamento.framework.data.entities
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.io.Serializable
@@ -12,7 +13,7 @@ data class MedicamentoTratamento(
     @PrimaryKey(autoGenerate = true)
     val idMedicamento: Int = 0,
     var alarmeAtivado: Boolean = false,
-    val num_doses_num_unico_horario: Int,
+    val num_doses_num_unico_horario: Int = 1,
     val totalDiasTratamento: Int,
     val diasRestantesDeTratamento: Int,
     val tratamentoFinalizado: Boolean,
