@@ -5,6 +5,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
+import android.media.RingtoneManager
 import android.os.IBinder
 import android.provider.Settings
 import android.util.Log
@@ -16,10 +17,10 @@ import org.greenrobot.eventbus.EventBus
 
 
 class ServiceMediaPlayer: Service() {
-    private var mp: MediaPlayer = MediaPlayer()
+    private lateinit var mp: MediaPlayer
     private var db: AppDatabase? = null
     private lateinit var medicamentoDoseDao: MedicamentoDao
-    private var mpJaCriado = false
+    private var mediaPlayerJaCriado = false
 
 
 
@@ -37,9 +38,9 @@ class ServiceMediaPlayer: Service() {
 
     private fun instatiateMediaPlayer() {
 
-        mp = MediaPlayer.create(this, Settings.System.DEFAULT_RINGTONE_URI)
-        Log.d("checkingthings", "instancia media player ${mp}")
-        mpJaCriado = true
+
+            mp = MediaPlayer.create(this, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM))
+            mediaPlayerJaCriado = true
 
     }
 
@@ -105,7 +106,7 @@ class ServiceMediaPlayer: Service() {
     }
 
     private fun checkIfMediaPlayerIsInitiatedAndPlaying(): Boolean {
-        return if(mpJaCriado){
+        return if(mediaPlayerJaCriado){
             mp.isPlaying
 
 
@@ -194,8 +195,8 @@ class ServiceMediaPlayer: Service() {
 
     }
 
-    private fun enviarInstanciaAtualDoMediaPlayerParaListFragment(mp: MediaPlayer) {
-        EventBus.getDefault().postSticky(MediaPlayerTocando(mp))
+    private fun enviarInstanciaAtualDoMediaPlayerParaListFragment(mediaPlayer: MediaPlayer) {
+        EventBus.getDefault().postSticky(MediaPlayerTocando(mediaPlayer))
     }
 
 

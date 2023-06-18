@@ -20,26 +20,30 @@ import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.ActivityMainBinding
 import com.rubens.applembretemedicamento.framework.data.datastore.DataStoreTheme
 import com.rubens.applembretemedicamento.framework.data.datastore.interfaces.ThemeDataStoreInterface
-import com.rubens.applembretemedicamento.framework.domain.doses.DosesManager
 import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
+import com.rubens.applembretemedicamento.framework.viewModels.ActivityHostAndFragmentConfikguracoesSharedViewModel
+import com.rubens.applembretemedicamento.framework.viewModels.ActivityHostAndFragmentListaMedicamentosSharedViewModel
 import com.rubens.applembretemedicamento.framework.viewModels.MainActivityViewModel
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentListaMedicamentosInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), MainActivityInterface{
+class MainActivity: AppCompatActivity(), MainActivityInterface{
 
 
+    private lateinit var navHostFragment: NavHostFragment
+    private lateinit var navController: NavController
     private val pendingIntentsList = ArrayList<PendingIntent>()
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: MainActivityViewModel
-    private var themeLiveData: MutableLiveData<Int> = MutableLiveData()
+    private lateinit var sharedViewModel: ActivityHostAndFragmentListaMedicamentosSharedViewModel
+    private lateinit var configuracoesSharedViewModel: ActivityHostAndFragmentConfikguracoesSharedViewModel
     private var temaAzulReferenceId: Int = R.style.CustomThemeAzul
     private var temaVermelhoReferenceId: Int = R.style.Theme_AppLembreteMedicamento
     private var tema = ""
@@ -59,11 +63,12 @@ class MainActivity : AppCompatActivity(), MainActivityInterface{
 
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        //onBindingReadyListener.onBindingReady(true)
         launchScopeToLoadTheme()
 
 
         setContentView(binding.root)
+
+        Log.d("callobserver", "metodo que vai esconder a toolbar foi chamado")
 
         hideToolbarTitle()
         hideToolbar()
@@ -71,8 +76,20 @@ class MainActivity : AppCompatActivity(), MainActivityInterface{
         initViewModel()
         onClickListeners()
 
+
+
+
     }
 
+
+    private fun injetarInstanciaDaInterfaceDaMainActivity(fragmentLista: FragmentListaMedicamentos) {
+
+        fragmentLista.setMainActivityInterface(this)
+
+
+
+
+    }
 
 
 
@@ -83,6 +100,7 @@ class MainActivity : AppCompatActivity(), MainActivityInterface{
             val intDataStore = intPreferencesKey("theme_key")
             val theme = themeDataStore.getThemeChosenByUser(intDataStore)
             withContext(Dispatchers.Main){
+                initConfiguracoesSharedViewModel()
                 setTheme(theme)
                 configBottomNavigationTheme(theme)
 
@@ -93,10 +111,24 @@ class MainActivity : AppCompatActivity(), MainActivityInterface{
         }
     }
 
+    private fun initConfiguracoesSharedViewModel() {
+        configuracoesSharedViewModel = ViewModelProvider(this)[ActivityHostAndFragmentConfikguracoesSharedViewModel::class.java]
+        initConfiguracoesObserver()
+
+    }
+
+    private fun initConfiguracoesObserver() {
+        configuracoesSharedViewModel.getMudouTema.observe(this){
+                mudou->
+            mostrarToolbar(mudou)
+        }
+    }
+
     private fun configBottomNavigationTheme(theme: Int) {
         if(theme == temaAzulReferenceId){
             //tema azul
             tema = theme.toString()
+            configuracoesSharedViewModel.atualizarTema("Azul")
             if(this::fragmentListaMedicamentosInterface.isInitialized){
                 changeFloatingActionButtonColor(R.color.blue)
 
@@ -107,6 +139,7 @@ class MainActivity : AppCompatActivity(), MainActivityInterface{
         if(theme == temaVermelhoReferenceId){
             //tema vermelho
             tema = theme.toString()
+            configuracoesSharedViewModel.atualizarTema("Vermelho")
             if(this::fragmentListaMedicamentosInterface.isInitialized){
                 changeFloatingActionButtonColor(R.color.rosa_salmao)
             }
@@ -162,8 +195,8 @@ class MainActivity : AppCompatActivity(), MainActivityInterface{
 
 
     private fun configNavigation() {
-        val navHostFragment = (supportFragmentManager.findFragmentById(binding.fragmentContainerView.id)) as NavHostFragment
-        val navController = navHostFragment.navController
+        navHostFragment = (supportFragmentManager.findFragmentById(binding.fragmentContainerView.id)) as NavHostFragment
+        navController = navHostFragment.navController
 
         binding.bottomNavigationView.setupWithNavController(navController)
 
@@ -187,7 +220,10 @@ class MainActivity : AppCompatActivity(), MainActivityInterface{
 
                     changeBottomNavigationTheme()
                     if(isMedicamentosFragment){
-                        navController.navigate(R.id.medicamentosFragment)
+                        if(navController.currentDestination?.id != R.id.medicamentosFragment){
+                            navController.navigate(R.id.medicamentosFragment)
+
+                        }
                     }else{
                         navController.popBackStack()
                     }
@@ -195,7 +231,10 @@ class MainActivity : AppCompatActivity(), MainActivityInterface{
                 R.id.historicoFragment -> {
                     hideToolbarTitle()
                     changeBottomNavigationTheme()
-                    navController.navigate(R.id.historicoFragment)
+                    if(navController.currentDestination?.id != R.id.historicoFragment){
+                        navController.navigate(R.id.historicoFragment)
+
+                    }
                 }
             }
 
@@ -284,18 +323,41 @@ class MainActivity : AppCompatActivity(), MainActivityInterface{
     }
 
     private fun initViewModel() {
+        sharedViewModel = ViewModelProvider(this)[ActivityHostAndFragmentListaMedicamentosSharedViewModel::class.java]
         viewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
+        initCollectors()
+    }
+
+
+
+    private fun mostrarToolbar(mudou: Boolean) {
+        Log.d("callobserver", "observer que vai chamar o metodo que vai mostrar a toolbar foi chamado $mudou")
+        if(mudou){
+            showToolbar()
+            hideToolbarTitle()
+            hideBtnDeleteMedicamento()
+        }
+    }
+
+    private fun initCollectors() {
+        lifecycleScope.launchWhenStarted {
+            sharedViewModel.getFragmentListaInstance.collectLatest {
+            fragmentLista->
+                injetarInstanciaDaInterfaceDaMainActivity(fragmentLista)
+            }
+        }
+
     }
 
     override fun onResume() {
         super.onResume()
-        hideToolbar()
 
 
 
     }
 
     override fun hideToolbar() {
+        Log.d("callobserver", "encondi a toolbar")
         binding.toolbar.visibility = View.GONE
     }
 
@@ -379,6 +441,7 @@ class MainActivity : AppCompatActivity(), MainActivityInterface{
     }
 
     override fun showToolbar() {
+
         binding.toolbar.visibility = View.VISIBLE
 
     }

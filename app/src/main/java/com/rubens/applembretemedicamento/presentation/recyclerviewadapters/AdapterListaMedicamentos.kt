@@ -243,18 +243,18 @@ class AdapterListaMedicamentos(
                 Log.d("alarmetocando", "alarme tocando? ${medicamento.medicamentoTratamento.alarmeTocando}")
 
                 if(fragmentListaMedicamentosInterface.getMediaPlayerInstance() != null){
-                    Log.d("alarmetocando", "media player instance is not null")
+                    Log.d("alarmetocando", "media player instance is not null ${fragmentListaMedicamentosInterface.getMediaPlayerInstance()}")
 
 
                     if (fragmentListaMedicamentosInterface.getMediaPlayerInstance()!!.isPlaying) {
 
 
                         initShakingClockAnimation()
-                        Log.d("testeshakingclock", "iniciei a shaking animation")
+                        Log.d("alarmetocando", "iniciei a shaking animation")
 
 
                     }else{
-                        Log.d("testeshakingclock", "media player não está tocando")
+                        Log.d("alarmetocando", "media player não está tocando $${fragmentListaMedicamentosInterface.getMediaPlayerInstance()}")
 
                     }
                 }else{

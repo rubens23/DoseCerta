@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.DialogInterface
 import android.media.MediaPlayer
+import android.media.Ringtone
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -643,8 +644,8 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
     @Subscribe(sticky = true)
     fun onMediaPlayerTocando(event: MediaPlayerTocando) {
-        mediaPlayer = event.mp
-        Log.d("testebusdetalhes", "eu recebi o mp ${event.mp} e instanciei: ${mediaPlayer}")
+        mediaPlayer = event.mediaPlayer
+        Log.d("testebusdetalhes", "eu recebi o mp ${event.mediaPlayer} e instanciei: ${mediaPlayer}")
     }
 
 

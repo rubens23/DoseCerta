@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
+import android.media.Ringtone
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -33,6 +34,7 @@ import com.rubens.applembretemedicamento.framework.domain.eventbus.MediaPlayerTo
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
 import com.rubens.applembretemedicamento.framework.services.ServiceMediaPlayer
 import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
+import com.rubens.applembretemedicamento.framework.viewModels.ActivityHostAndFragmentListaMedicamentosSharedViewModel
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentLista
 import com.rubens.applembretemedicamento.presentation.interfaces.AdapterListaMedicamentosInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentListaMedicamentosInterface
@@ -41,22 +43,20 @@ import com.rubens.applembretemedicamento.presentation.recyclerviewadapters.Adapt
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import javax.inject.Inject
 
 @AndroidEntryPoint
-class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, FragmentListaMedicamentosInterface {
+class FragmentListaMedicamentos: Fragment(), FuncoesDeTempo, CalendarHelper, FragmentListaMedicamentosInterface {
 
     private lateinit var binding: FragmentListaMedicamentosBinding
     private var listaMedicamentos: ArrayList<MedicamentoComDoses> = ArrayList()
     private lateinit var adapter: AdapterListaMedicamentos
     lateinit var viewModel: ViewModelFragmentLista
-    lateinit var mainActivityInterface: MainActivityInterface
+    private lateinit var sharedViewModel: ActivityHostAndFragmentListaMedicamentosSharedViewModel
     private lateinit var alarmReceiverInterface: AlarmReceiverInterface
     private lateinit var alarmReceiver: AlarmReceiver
     private var db: AppDatabase? = null
@@ -66,6 +66,18 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
 
     private var mediaPlayer: MediaPlayer? = null
 
+    private var mainActivityInterface: MainActivityInterface? = null
+
+    fun setMainActivityInterface(mainActivityInterface: MainActivityInterface){
+        this.mainActivityInterface = mainActivityInterface
+        Log.d("changelistener", "to aqui antes de chamar o setup toolbar")
+
+        setupToolbar()
+
+    }
+
+
+
 
 
 
@@ -74,14 +86,12 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.d("hidingtitle", "eu to aqui no oncreateview")
 
-        Log.d("emptylist", "to no oncreateview")
 
         // Inflate the layout for this fragment
         initAlarmReceiver()
         initAlarmReceiverInterface()
-        //todo arrumar isso para fazer o titulo da toolbar sumir e a toolbar sumir
+
 
         initDb()
 
@@ -91,7 +101,6 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        //initMainActivityInterface()
     }
 
 
@@ -106,12 +115,6 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
 
     private fun initAlarmReceiverInterface() {
         alarmReceiverInterface = alarmReceiver
-    }
-
-    private fun initMainActivityInterface() {
-        mainActivityInterface = requireActivity() as MainActivityInterface
-        setupToolbar()
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -183,8 +186,11 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
 
     private fun setupToolbar() {
 
-            mainActivityInterface.hideToolbar()
-            mainActivityInterface.hideToolbarTitle()
+        if(mainActivityInterface != null){
+            mainActivityInterface!!.hideToolbar()
+            mainActivityInterface!!.hideToolbarTitle()
+
+        }
 
 
         Log.d("hidingtitle", "eu to aqui escondendo o title")
@@ -192,11 +198,16 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
     }
 
     private fun initViewModel(){
+        sharedViewModel = ViewModelProvider(requireActivity())[ActivityHostAndFragmentListaMedicamentosSharedViewModel::class.java]
         viewModel = ViewModelProvider(requireActivity())[ViewModelFragmentLista::class.java]
         initObservers()
+        initFragmentInstance()
 
     }
 
+    private fun initFragmentInstance() {
+        sharedViewModel.getFragmentListaInstance(this)
+    }
 
 
     private fun initObservers() {
@@ -325,8 +336,8 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
 
     @Subscribe(sticky = true)
     fun onMediaPlayerTocando(event: MediaPlayerTocando) {
-        mediaPlayer = event.mp
-        Log.d("acompanhandoinstancia", "instancia do media player aqui no fragmento lista: $mediaPlayer")
+        mediaPlayer = event.mediaPlayer
+        Log.d("alarmetocando", "instancia do media player aqui no fragmento lista: $mediaPlayer")
 
     }
 
@@ -393,8 +404,9 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
     }
     override fun onResume() {
         super.onResume()
-        Log.d("emptylist", "to aqui no onresume")
-        Log.d("hidingtitle", "eu to aqui no onResume")
+
+
+
 
 
         viewModel.loadMedications()
@@ -416,10 +428,7 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
         }
     }
 
-    override fun onStop() {
-        super.onStop()
 
-    }
 
     override fun initDb() {
         db = AppDatabase.getAppDatabase(requireContext())
@@ -459,7 +468,6 @@ class FragmentListaMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, Fr
                 medicamentoDao.deleteMedicamentoFromMedicamentoTratamento(medicamento.medicamentoTratamento.nomeMedicamento)
                 medicamentoDao.deleteDosesDoMedicamentoFinalizado(medicamento.medicamentoTratamento.nomeMedicamento)
 
-                Log.d("testeinserthistorico", "eu to dentro do else do coroutine scope")
 
             }
 

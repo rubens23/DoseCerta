@@ -13,4 +13,6 @@ class MainActivityViewModel @Inject constructor(
     fun desativarOAlarmeDeTodosMedicamentos() {
         medicationRepository.desativarTodosOsAlarmes()
     }
+
+
 }
