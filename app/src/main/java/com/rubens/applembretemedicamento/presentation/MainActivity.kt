@@ -18,6 +18,10 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.ActivityMainBinding
+import com.rubens.applembretemedicamento.framework.ApplicationContextProvider
+import com.rubens.applembretemedicamento.framework.ApplicationContextProvider.setApplicationContext
+import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiver
+import com.rubens.applembretemedicamento.framework.broadcastreceivers.OnRestartDeviceReceiver
 import com.rubens.applembretemedicamento.framework.data.datastore.DataStoreTheme
 import com.rubens.applembretemedicamento.framework.data.datastore.interfaces.ThemeDataStoreInterface
 import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
@@ -31,9 +35,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity: AppCompatActivity(), MainActivityInterface{
+
 
 
     private lateinit var navHostFragment: NavHostFragment
@@ -55,7 +61,6 @@ class MainActivity: AppCompatActivity(), MainActivityInterface{
 
     private lateinit var themeDataStore: ThemeDataStoreInterface
 
-    private val alarmReceiver = AlarmReceiverSingleton.getInstance()
     private var theme: Int = R.style.Theme_AppLembreteMedicamento
 
 
@@ -75,10 +80,16 @@ class MainActivity: AppCompatActivity(), MainActivityInterface{
         configNavigation()
         initViewModel()
         onClickListeners()
+        setApplicationContextt()
 
 
 
 
+    }
+
+
+    private fun setApplicationContextt() {
+        ApplicationContextProvider.setApplicationContext(this)
     }
 
 
@@ -195,7 +206,7 @@ class MainActivity: AppCompatActivity(), MainActivityInterface{
 
 
     private fun configNavigation() {
-        navHostFragment = (supportFragmentManager.findFragmentById(binding.fragmentContainerView.id)) as NavHostFragment
+        navHostFragment = (supportFragmentManager.findFragmentById(binding.fragmentContainerView.id)) as MainNavHostFragment
         navController = navHostFragment.navController
 
         binding.bottomNavigationView.setupWithNavController(navController)
@@ -312,15 +323,7 @@ class MainActivity: AppCompatActivity(), MainActivityInterface{
         return null
     }
 
-    fun codigoASerExecutadoAoFecharOApp(){
 
-
-        //viewModel.desativarOAlarmeDeTodosMedicamentos()
-
-        //alarmReceiver.cancelAllAlarms(this.applicationContext)
-
-
-    }
 
     private fun initViewModel() {
         sharedViewModel = ViewModelProvider(this)[ActivityHostAndFragmentListaMedicamentosSharedViewModel::class.java]
@@ -428,17 +431,6 @@ class MainActivity: AppCompatActivity(), MainActivityInterface{
 
 
 
-    override fun onStop() {
-        super.onStop()
-
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-
-        codigoASerExecutadoAoFecharOApp()
-
-    }
 
     override fun showToolbar() {
 

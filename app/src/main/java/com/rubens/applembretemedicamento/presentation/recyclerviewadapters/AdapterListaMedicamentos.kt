@@ -13,12 +13,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.MedicamentoBinding
-import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiverInterface
+import com.rubens.applembretemedicamento.utils.AlarmUtilsInterface
 import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
-import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
 import com.rubens.applembretemedicamento.presentation.FragmentListaMedicamentos
 import com.rubens.applembretemedicamento.presentation.interfaces.AdapterListaMedicamentosInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentListaMedicamentosInterface
@@ -28,9 +27,11 @@ import kotlin.collections.ArrayList
 
 class AdapterListaMedicamentos(
     private val list: ArrayList<MedicamentoComDoses>,
-    val context: FragmentListaMedicamentos
+    val context: FragmentListaMedicamentos,
+    val medicamentoManager: MedicamentoManager,
+    val alarmReceiver: AlarmUtilsInterface
 ) : RecyclerView.Adapter<AdapterListaMedicamentos.ViewHolder>(), AdapterListaMedicamentosInterface {
-    private lateinit var alarmReceiverInterface: AlarmReceiverInterface
+    private lateinit var alarmUtilsInterface: AlarmUtilsInterface
     //private var alarmReceiver: AlarmReceiver = AlarmReceiverSingleton.getInstance()
     private var listaIdMedicamentosTocandoNoMomento: ArrayList<Int> = ArrayList()
     private lateinit var fragmentListaMedicamentosInterface: FragmentListaMedicamentosInterface
@@ -40,7 +41,6 @@ class AdapterListaMedicamentos(
     private lateinit var medicamentoDoseDao: MedicamentoDao
     var listaComDosesToast: MutableLiveData<List<Doses>> = MutableLiveData()
 
-    private val medicamentoManager: MedicamentoManager = MedicamentoManager()
 
     init {
         initFragmentListaInterface(context)
@@ -56,13 +56,13 @@ class AdapterListaMedicamentos(
 
     private fun idMedicamentoTocandoObserver() {
 
-        alarmReceiverInterface.getAlarmeTocandoLiveData().observe(context as LifecycleOwner) {
+        alarmUtilsInterface.getAlarmeTocandoLiveData().observe(context as LifecycleOwner) {
 
         }
     }
 
     private fun initAlarmReceiverInterface() {
-        alarmReceiverInterface = AlarmReceiverSingleton.getInstance()
+        alarmUtilsInterface = alarmReceiver
     }
 
 

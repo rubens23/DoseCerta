@@ -19,10 +19,15 @@ import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentC
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.Calendar
+import javax.inject.Inject
 
-
-class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHelper{
+@AndroidEntryPoint
+class FragmentCadastrarNovoMedicamento @Inject constructor(
+    private val funcoesDeTempo: FuncoesDeTempo,
+    private val calendarHelper: CalendarHelper
+) : Fragment(){
 
     lateinit var binding: FragmentCadastrarNovoMedicamentoBinding
     private lateinit var medicamento: MedicamentoTratamento
@@ -58,7 +63,7 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
     }
 
     private fun initMainActivityInterface() {
-        mainActivityInterface = requireContext() as MainActivityInterface
+        mainActivityInterface = requireActivity() as MainActivityInterface
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -281,7 +286,7 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
 
         if (diaInicioTratamento.length == 10 && diaInicioTratamento.isNotEmpty() && qntDoses > 0 && nomeRemedio.isNotEmpty() && horarioPrimeiraDose.isNotEmpty() && horarioPrimeiraDose.length == 5 && horarioPrimeiraDose[2].toString() == ":" && binding.inputDataInicioTratamento.isDone && qntDiasTrat != null
             && horarioPrimeiraDose.isNotEmpty() && horarioPrimeiraDose.length == 5 && horarioPrimeiraDose[2].toString() == ":") {
-            if(!verificarSeDataHoraJaPassou("$diaInicioTratamento $horarioPrimeiraDose")){
+            if(!calendarHelper.verificarSeDataHoraJaPassou("$diaInicioTratamento $horarioPrimeiraDose")){
 
 
                 saveNewMedication(nomeRemedio, qntDoses, horarioPrimeiraDose, qntDiasTrat)
@@ -316,7 +321,7 @@ class FragmentCadastrarNovoMedicamento : Fragment(), FuncoesDeTempo, CalendarHel
             tratamentoFinalizado = false,
             diasRestantesDeTratamento = qntDiasTrat,
             dataInicioTratamento = binding.inputDataInicioTratamento.masked,
-            dataTerminoTratamento = pegarDataDeTermino(
+            dataTerminoTratamento = funcoesDeTempo.pegarDataDeTermino(
                 binding.inputDataInicioTratamento.masked,
                 qntDiasTrat
             ),

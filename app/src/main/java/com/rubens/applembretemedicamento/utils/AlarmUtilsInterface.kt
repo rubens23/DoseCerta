@@ -1,12 +1,11 @@
-package com.rubens.applembretemedicamento.framework.broadcastreceivers
+package com.rubens.applembretemedicamento.utils
 
-import ButtonStateLiveData
 import android.content.Context
 import android.media.MediaPlayer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 
-interface AlarmReceiverInterface {
+interface AlarmUtilsInterface {
 
     fun getMediaPlayerInstance(): MediaPlayer?
 

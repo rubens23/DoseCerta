@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
-import android.media.Ringtone
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -23,8 +22,6 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.FragmentListaMedicamentosBinding
-import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiver
-import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiverInterface
 import com.rubens.applembretemedicamento.framework.data.AppDatabase
 import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
@@ -33,7 +30,6 @@ import com.rubens.applembretemedicamento.framework.domain.eventbus.AlarmeMedicam
 import com.rubens.applembretemedicamento.framework.domain.eventbus.MediaPlayerTocando
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
 import com.rubens.applembretemedicamento.framework.services.ServiceMediaPlayer
-import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
 import com.rubens.applembretemedicamento.framework.viewModels.ActivityHostAndFragmentListaMedicamentosSharedViewModel
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentLista
 import com.rubens.applembretemedicamento.presentation.interfaces.AdapterListaMedicamentosInterface
@@ -48,17 +44,21 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import javax.inject.Inject
+import com.rubens.applembretemedicamento.utils.AlarmUtilsInterface
 
 @AndroidEntryPoint
-class FragmentListaMedicamentos: Fragment(), FuncoesDeTempo, CalendarHelper, FragmentListaMedicamentosInterface {
+class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterface: AlarmUtilsInterface,
+                                                    private val medicamentoManager: MedicamentoManager,
+                                                    private val funcoesDeTempo: FuncoesDeTempo,
+                                                    private val calendarHelper: CalendarHelper
+                                                    ): Fragment(), FragmentListaMedicamentosInterface {
 
     private lateinit var binding: FragmentListaMedicamentosBinding
     private var listaMedicamentos: ArrayList<MedicamentoComDoses> = ArrayList()
     private lateinit var adapter: AdapterListaMedicamentos
     lateinit var viewModel: ViewModelFragmentLista
     private lateinit var sharedViewModel: ActivityHostAndFragmentListaMedicamentosSharedViewModel
-    private lateinit var alarmReceiverInterface: AlarmReceiverInterface
-    private lateinit var alarmReceiver: AlarmReceiver
     private var db: AppDatabase? = null
     private var isEventBusRegistered = false
     private lateinit var adapterListaMedicamentosInterface: AdapterListaMedicamentosInterface
@@ -88,9 +88,6 @@ class FragmentListaMedicamentos: Fragment(), FuncoesDeTempo, CalendarHelper, Fra
     ): View {
 
 
-        // Inflate the layout for this fragment
-        initAlarmReceiver()
-        initAlarmReceiverInterface()
 
 
         initDb()
@@ -105,17 +102,13 @@ class FragmentListaMedicamentos: Fragment(), FuncoesDeTempo, CalendarHelper, Fra
 
 
 
-    private fun initAlarmReceiver() {
-        alarmReceiver = AlarmReceiverSingleton.getInstance()
-    }
 
 
 
 
 
-    private fun initAlarmReceiverInterface() {
-        alarmReceiverInterface = alarmReceiver
-    }
+
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -173,7 +166,7 @@ class FragmentListaMedicamentos: Fragment(), FuncoesDeTempo, CalendarHelper, Fra
     }
 
     private fun colocarDataAtualNaTextViewDaData() {
-        binding.dataAtual.text = pegarDataAtual()
+        binding.dataAtual.text = calendarHelper.pegarDataAtual()
 
     }
 
@@ -290,9 +283,9 @@ class FragmentListaMedicamentos: Fragment(), FuncoesDeTempo, CalendarHelper, Fra
     }
 
     private fun escutarMediaPlayer() {
-        alarmReceiverInterface.getAlarmeTocandoLiveData().observe(viewLifecycleOwner){
-            if(alarmReceiverInterface.getMediaPlayerInstance() != null){
-                if (alarmReceiverInterface.getMediaPlayerInstance()!!.isPlaying){
+        alarmUtilsInterface.getAlarmeTocandoLiveData().observe(viewLifecycleOwner){
+            if(alarmUtilsInterface.getMediaPlayerInstance() != null){
+                if (alarmUtilsInterface.getMediaPlayerInstance()!!.isPlaying){
                     setAdapter(listaMedicamentos)
                 }
             }
@@ -303,7 +296,7 @@ class FragmentListaMedicamentos: Fragment(), FuncoesDeTempo, CalendarHelper, Fra
     fun setAdapter(medicamentos: List<MedicamentoComDoses>?){
         Log.d("testeshakingclock", "to dentro do setadapter")
 
-            adapter = AdapterListaMedicamentos(medicamentos as ArrayList<MedicamentoComDoses>, this)
+            adapter = AdapterListaMedicamentos(medicamentos as ArrayList<MedicamentoComDoses>, this, medicamentoManager, alarmUtilsInterface)
             binding.recyclerView.adapter = adapter
 
         initAdapterInterface()

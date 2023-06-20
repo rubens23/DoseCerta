@@ -1,23 +1,23 @@
 package com.rubens.applembretemedicamento.utils
 
-import android.util.Log
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-class CalendarHelperImpl: CalendarHelper {
+class CalendarHelperImpl2: CalendarHelper2{
 
+    @Throws(ParseException::class)
     override fun convertStringToDate(dateHour: String?): Date? {
         val format = SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
-        try {
-            return format.parse(dateHour)
-        } catch (pe: ParseException) {
-            Log.e("erroparsestringdata", pe.message!!)
+        format.isLenient = false // não permitir datas inválidas
+        if (dateHour != null) {
+            if (!dateHour.matches("\\d{2}/\\d{2}/\\d{4} \\d{2}:\\d{2}:\\d{2}".toRegex())) {
+                throw ParseException("Data inválida", 0)
+            }
         }
-        return null
+        return format.parse(dateHour)
     }
 
     override fun verificarSeDataJaPassou(dataTerminoTratamento: String): Boolean{
@@ -36,31 +36,12 @@ class CalendarHelperImpl: CalendarHelper {
 
     }
 
-    override fun verificarSeDataHoraJaPassou(dataHoraTerminoTratamento: String): Boolean {
-        val dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
-
-        val dateTime1Str = pegarDataHoraAtual()
-        val dateTime2Str = dataHoraTerminoTratamento
-
-        val dateTime1 = LocalDateTime.parse(dateTime1Str, dateTimeFormat)
-        val dateTime2 = LocalDateTime.parse(dateTime2Str, dateTimeFormat)
-
-        return dateTime1 > dateTime2
-    }
-
     override fun pegarDataAtual(): String{
         val formatarData = SimpleDateFormat("dd/MM/yyyy")
         val data = Date()
         val dataFormatada = formatarData.format(data)
 
         return dataFormatada
-    }
-
-    override fun pegarDataHoraAtual(): String {
-        val dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
-        val currentDateTime = LocalDateTime.now()
-
-        return currentDateTime.format(dateTimeFormat)
     }
 
     override fun somarUmDiaNumaData(data: String): String{
@@ -83,26 +64,6 @@ class CalendarHelperImpl: CalendarHelper {
         return data
     }
 
-    override fun subtrairUmDiaNumaData(data: String): String{
-        var data = data
-        val calendar = Calendar.getInstance()
-        val formatter = SimpleDateFormat("dd/MM/yyyy")
-
-
-        val dt = formatter.parse(data)
-        calendar.time = dt
-        calendar.add(Calendar.DATE, -1)
-        data = formatter.format(calendar.time)
-
-        /*
-        ele nao ta salvando todas as doses...
-         */
-
-
-
-        return data
-    }
-
 
 
     override fun calculateHoursDifference(d2: Date): Long {
@@ -111,15 +72,44 @@ class CalendarHelperImpl: CalendarHelper {
         val diff = d2.time - d1.time
         val diffHours = diff / (60 * 60 * 1000)
         val diffMinutes = diff / (60 * 1000) % 60
-        Log.d(
-            "testediferencahoras",
-            "tempo que falta ate 15:00 $diffHours:$diffMinutes"
-        )
-
-        //converter horas e minutos para segundos somar e retornar
         val horasEmSegundos = diffHours * 60 * 60
         val minutosEmHoras = diffMinutes * 60
         return horasEmSegundos + minutosEmHoras
+    }
+
+    override fun formatarDataHoraSemSegundos(dataString: String): String {
+        val formatoAtual = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
+        val formatoDesejado = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+
+        try {
+            val data = formatoAtual.parse(dataString)
+            return formatoDesejado.format(data)
+        } catch (e: Exception) {
+            // A string não está no formato desejado, retorna a mesma string
+            return dataString
+        }
+    }
+
+    override fun formatarDataHoraComSegundos(dataString: String): String {
+        val formatoAtual = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+        val formatoDesejado = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
+
+        try {
+            //formato atual ja esta no formato eu nao preciso fazer nada
+            val data = formatoAtual.parse(dataString)
+            return formatoDesejado.format(data)
+        } catch (e: Exception) {
+            // A string não está no formato desejado, retorna a mesma string
+            return dataString
+        }
+    }
+
+    override fun pegarDataHoraAtual(): String{
+        val formatarData = SimpleDateFormat("dd/MM/yyyy HH:mm")
+        val data = Date()
+        val dataFormatada = formatarData.format(data)
+
+        return dataFormatada
     }
 
 

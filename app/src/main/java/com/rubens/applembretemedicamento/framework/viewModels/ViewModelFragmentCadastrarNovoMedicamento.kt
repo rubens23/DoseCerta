@@ -21,8 +21,10 @@ import javax.inject.Inject
 class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
     private val repositoryAdicionarMedicamento: AddMedicineRepositoryImpl,
     private val medicationRepository: MedicationRepositoryImpl,
-    private val dosesManagerInterface: DosesManagerInterface
-): ViewModel(), FuncoesDeTempo, CalendarHelper {
+    private val dosesManagerInterface: DosesManagerInterface,
+    private val funcoesDeTempo: FuncoesDeTempo,
+    private val calendarHelper: CalendarHelper
+): ViewModel() {
 
 
     var insertResponse: MutableLiveData<Long> = MutableLiveData()

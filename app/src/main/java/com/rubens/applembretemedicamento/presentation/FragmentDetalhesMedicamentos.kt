@@ -5,7 +5,6 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.DialogInterface
 import android.media.MediaPlayer
-import android.media.Ringtone
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -28,7 +27,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.gms.ads.MobileAds
 import com.rubens.applembretemedicamento.databinding.FragmentDetalhesMedicamentosBinding
-import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiverInterface
 import com.rubens.applembretemedicamento.framework.data.AppDatabase
 import com.rubens.applembretemedicamento.framework.data.MyDataStore
 import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
@@ -38,7 +36,6 @@ import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTrat
 import com.rubens.applembretemedicamento.framework.domain.eventbus.AlarmEvent
 import com.rubens.applembretemedicamento.framework.domain.eventbus.MediaPlayerTocando
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
-import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentCadastrarNovoMedicamento
 import com.rubens.applembretemedicamento.presentation.interfaces.AccessAdapterMethodsInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.ConexaoBindingAdapterDetalhesMedicamentos
@@ -47,17 +44,24 @@ import com.rubens.applembretemedicamento.presentation.interfaces.FragmentDetalhe
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.OnDeleteMedicamentoListener
 import com.rubens.applembretemedicamento.presentation.recyclerviewadapters.DetalhesMedicamentoAdapter
+import com.rubens.applembretemedicamento.utils.AlarmUtilsInterface
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.comunicacaoFragmentAdapter
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import java.io.Serializable
+import javax.inject.Inject
 
 
-class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper, comunicacaoFragmentAdapter,
+@AndroidEntryPoint
+class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInterface: AlarmUtilsInterface,
+                                                       private val funcoesDeTempo: FuncoesDeTempo,
+                                                       private val calendarHelper: CalendarHelper
+) : Fragment(), comunicacaoFragmentAdapter,
     OnDeleteMedicamentoListener, FragmentDetalhesMedicamentosUi, DetalhesMedicamentosAdapterInterface {
 
 
@@ -81,7 +85,6 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     private lateinit var mainActivityInterface: MainActivityInterface
     private lateinit var adapterMethodsInterface: AccessAdapterMethodsInterface
     private lateinit var binding: FragmentDetalhesMedicamentosBinding
-    private lateinit var alarmReceiverInterface: AlarmReceiverInterface
     private lateinit var medicamentoDoseDao: MedicamentoDao
     private lateinit var conexaoBindingAdapterDetalhesMedicamentos: ConexaoBindingAdapterDetalhesMedicamentos
     private var diaAtualSelecionado = ""
@@ -104,7 +107,6 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         Log.d("ciclodevida19", "to no oncreate view do fragment detalhes")
         
 
-        initAlarmReceiverInterface()
         setupToolbar()
         initAdapterListaMedicamentosInterface()
 
@@ -128,9 +130,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
 
     }
 
-    private fun initAlarmReceiverInterface() {
-        alarmReceiverInterface = AlarmReceiverSingleton.getInstance()
-    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -215,7 +215,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     }
 
     private fun initTextViewWithCurrentDate() {
-        diaAtualSelecionado = pegarDataAtual()
+        diaAtualSelecionado = calendarHelper.pegarDataAtual()
         binding.dataAtualSelecionada.text = diaAtualSelecionado
     }
 
@@ -410,8 +410,8 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         }
 
         medicamentoManager.horaProximaDoseObserver.observe(viewLifecycleOwner){
-            if(alarmReceiverInterface.getMediaPlayerInstance() != null){
-                if(alarmReceiverInterface.getMediaPlayerInstance()!!.isPlaying){
+            if(alarmUtilsInterface.getMediaPlayerInstance() != null){
+                if(alarmUtilsInterface.getMediaPlayerInstance()!!.isPlaying){
                     //showBtnCancelarAlarme()
                     //hideBtnArmarAlarme()
                 }
@@ -420,9 +420,9 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
         }
         initButtonChangeListener()
 
-        alarmReceiverInterface.initButtonStateLiveData()
+        alarmUtilsInterface.initButtonStateLiveData()
 
-        alarmReceiverInterface.getButtonChangeLiveData().observe(viewLifecycleOwner){
+        alarmUtilsInterface.getButtonChangeLiveData().observe(viewLifecycleOwner){
             showBtnPararSom()
         }
 
@@ -464,7 +464,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     }
 
     private fun initButtonChangeListener() {
-        alarmReceiverInterface.initButtonStateLiveData()
+        alarmUtilsInterface.initButtonStateLiveData()
     }
 
     override fun hideBtnArmarAlarme() {
@@ -683,7 +683,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     }
 
     private fun subtrairUmDiaDaDataAtual() {
-        diaAtualSelecionado = subtrairUmDiaNumaData(diaAtualSelecionado)
+        diaAtualSelecionado = calendarHelper.subtrairUmDiaNumaData(diaAtualSelecionado)
     }
 
     private fun atualizarTextViewDaDataAtual() {
@@ -691,7 +691,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     }
 
     private fun somarUmDiaADataAtual() {
-        diaAtualSelecionado = somarUmDiaNumaData(diaAtualSelecionado)
+        diaAtualSelecionado = calendarHelper.somarUmDiaNumaData(diaAtualSelecionado)
     }
 
     private fun createDeleteAlertDialog(medicamento: MedicamentoTratamento) {
@@ -765,7 +765,7 @@ class FragmentDetalhesMedicamentos : Fragment(), FuncoesDeTempo, CalendarHelper,
     }
 
     private fun stopMusicPlayer() {
-        alarmReceiverInterface.stopAlarmSound(requireContext())
+        alarmUtilsInterface.stopAlarmSound(requireContext())
 
     }
 

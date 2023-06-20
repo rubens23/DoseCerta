@@ -35,6 +35,8 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+        freeCompilerArgs += "-Xextended-compiler-checks"
+
     }
 
     viewBinding{
@@ -79,8 +81,8 @@ dependencies {
     implementation("androidx.room:room-ktx:$room_version")
 
     //Dagger hilt
-    implementation "com.google.dagger:hilt-android:2.38.1"
-    kapt "com.google.dagger:hilt-android-compiler:2.38.1"
+    implementation "com.google.dagger:hilt-android:2.42"
+    kapt "com.google.dagger:hilt-android-compiler:2.42"
     kapt "androidx.hilt:hilt-compiler:1.0.0"
 
      implementation 'com.google.android.gms:play-services-ads:22.0.0'
@@ -108,6 +110,9 @@ dependencies {
     androidTestImplementation 'org.hamcrest:hamcrest-library:2.2'
 
     debugImplementation 'androidx.test:core:1.5.0'
+
+    implementation 'com.google.code.gson:gson:2.8.8'
+
 
 
 

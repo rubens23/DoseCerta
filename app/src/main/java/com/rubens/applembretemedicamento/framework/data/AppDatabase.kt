@@ -4,20 +4,28 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
+import com.rubens.applembretemedicamento.framework.data.entities.AlarmEntity
+import com.rubens.applembretemedicamento.framework.data.entities.BroadcastReceiverOnReceiveData
+import com.rubens.applembretemedicamento.framework.data.entities.ConfiguracoesEntity
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.data.entities.HistoricoMedicamentos
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
+import com.rubens.applembretemedicamento.framework.data.roomconverters.DosesConverter
 import com.rubens.applembretemedicamento.framework.data.roommigrations.MigrationFrom1To2
 
 @Database(
     entities = [MedicamentoTratamento::class,
         Doses::class,
-        HistoricoMedicamentos::class],
+        HistoricoMedicamentos::class,
+        BroadcastReceiverOnReceiveData::class,
+        AlarmEntity::class,
+        ConfiguracoesEntity::class],
     version = 1
 )
+@TypeConverters(DosesConverter::class)
 abstract class AppDatabase : RoomDatabase() {
-
 
 
     abstract val medicamentoDao: MedicamentoDao
@@ -44,4 +52,4 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
     }
-    }
+}

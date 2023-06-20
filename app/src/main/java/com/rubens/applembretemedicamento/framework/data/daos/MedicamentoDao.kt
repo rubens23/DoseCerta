@@ -2,6 +2,9 @@ package com.rubens.applembretemedicamento.framework.data.daos
 
 import androidx.room.*
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
+import com.rubens.applembretemedicamento.framework.data.entities.AlarmEntity
+import com.rubens.applembretemedicamento.framework.data.entities.BroadcastReceiverOnReceiveData
+import com.rubens.applembretemedicamento.framework.data.entities.ConfiguracoesEntity
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.data.entities.HistoricoMedicamentos
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
@@ -15,6 +18,9 @@ interface MedicamentoDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertDose(dose: Doses): Long
+
+    @Insert
+    fun insertMedicamentoBroadcastReceiver(medicamento: BroadcastReceiverOnReceiveData)
 
 
 
@@ -36,6 +42,12 @@ interface MedicamentoDao {
     @Query("SELECT * FROM MedicamentoTratamento WHERE nomeMedicamento = :nomeMedicamento")
     suspend fun getMedicamentoWithDoses(nomeMedicamento: String): List<MedicamentoComDoses>
 
+    @Query("SELECT * FROM AlarmEntity WHERE alarmActive = 1")
+    fun getAllActiveAlarms(): List<AlarmEntity>
+
+    @Insert
+    fun putNewActiveAlarmInRoom(alarmEntity: AlarmEntity)
+
     @Transaction
     @Query("SELECT * FROM MedicamentoTratamento WHERE nomeMedicamento = :nomeMedicamento")
     suspend fun getMedicamentoDosesByName(nomeMedicamento: String): MedicamentoComDoses
@@ -47,6 +59,9 @@ interface MedicamentoDao {
     @Transaction
     @Query("SELECT * FROM MedicamentoTratamento")
     fun getAllMedicamentoWithDoses(): List<MedicamentoComDoses>
+
+    @Query("SELECT * FROM BroadcastReceiverOnReceiveData")
+    fun getMedicamentosDataForBroadcastReceiver(): List<BroadcastReceiverOnReceiveData>
 
     @Query("SELECT * FROM HistoricoMedicamentos")
     fun getTodosMedicamentosFinalizados(): List<HistoricoMedicamentos>
@@ -85,4 +100,18 @@ interface MedicamentoDao {
 
     @Query("UPDATE medicamentotratamento SET alarmeAtivado = 0")
     fun desativarTodosOsAlarmes()
+
+
+
+    @Query("SELECT * FROM ConfiguracoesEntity")
+    fun podeTocarDepoisDeReiniciar(): ConfiguracoesEntity
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun inserirConfiguracoes(configuracoesEntity: ConfiguracoesEntity)
+
+    @Update
+    fun atualizarConfiguracoes(configuracoes: ConfiguracoesEntity)
+    @Query("SELECT * FROM ConfiguracoesEntity")
+    fun pegarConfiguracoes(): ConfiguracoesEntity
+
 }

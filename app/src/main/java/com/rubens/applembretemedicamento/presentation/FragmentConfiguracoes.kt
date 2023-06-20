@@ -15,7 +15,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.FragmentConfiguracoesBinding
 import com.rubens.applembretemedicamento.framework.data.datastore.interfaces.ThemeDataStoreInterface
+import com.rubens.applembretemedicamento.framework.data.entities.ConfiguracoesEntity
 import com.rubens.applembretemedicamento.framework.viewModels.ActivityHostAndFragmentConfikguracoesSharedViewModel
+import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentConfiguracoes
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 
 class FragmentConfiguracoes : Fragment() {
@@ -23,6 +25,7 @@ class FragmentConfiguracoes : Fragment() {
     private lateinit var binding: FragmentConfiguracoesBinding
     private lateinit var mainActivityInterface: MainActivityInterface
     private lateinit var sharedViewModel: ActivityHostAndFragmentConfikguracoesSharedViewModel
+    private lateinit var viewModel: ViewModelFragmentConfiguracoes
     private var temaEscolhido = ""
 
 
@@ -45,11 +48,24 @@ class FragmentConfiguracoes : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initViewModel()
+        setupSwitchers()
         onClickListeners()
+    }
+
+    private fun setupSwitchers() {
+        val configuracoes = viewModel.getSwitchersState()
+        if (configuracoes != null){
+            binding.toggleAtivarAlarmeAppFechado.isChecked = configuracoes.podeTocarQuandoFechado
+            binding.toggleAtivadoDepoisDeDesligar.isChecked = configuracoes.podeTocarDepoisDeReiniciar
+        }else{
+            viewModel.mudarConfiguracoes(ConfiguracoesEntity())
+        }
+
     }
 
     private fun initViewModel() {
         sharedViewModel = ViewModelProvider(requireActivity())[ActivityHostAndFragmentConfikguracoesSharedViewModel::class.java]
+        viewModel = ViewModelProvider(requireActivity())[ViewModelFragmentConfiguracoes::class.java]
         initObservers()
     }
 
@@ -79,6 +95,26 @@ class FragmentConfiguracoes : Fragment() {
             if(temaEscolhido != "Vermelho"){
                 mudarParaOTemaVermelho()
                 sharedViewModel.mudouTema(true)
+            }
+
+        }
+        binding.toggleAtivarAlarmeAppFechado.setOnCheckedChangeListener{
+            _, isChecked ->
+            if (isChecked){
+                viewModel.mudarConfiguracoes(ConfiguracoesEntity(podeTocarDepoisDeReiniciar = binding.toggleAtivadoDepoisDeDesligar.isChecked, podeTocarQuandoFechado = true))
+            }else{
+                viewModel.mudarConfiguracoes(ConfiguracoesEntity(podeTocarDepoisDeReiniciar = binding.toggleAtivadoDepoisDeDesligar.isChecked, podeTocarQuandoFechado = false))
+
+            }
+        }
+
+        binding.toggleAtivadoDepoisDeDesligar.setOnCheckedChangeListener {
+                _, isChecked ->
+            if (isChecked){
+                viewModel.mudarConfiguracoes(ConfiguracoesEntity(podeTocarDepoisDeReiniciar = true, podeTocarQuandoFechado = binding.toggleAtivarAlarmeAppFechado.isChecked))
+            }else{
+                viewModel.mudarConfiguracoes(ConfiguracoesEntity(podeTocarDepoisDeReiniciar = false, podeTocarQuandoFechado = binding.toggleAtivarAlarmeAppFechado.isChecked))
+
             }
 
         }

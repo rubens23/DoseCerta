@@ -42,7 +42,7 @@
     <androidx.fragment.app.FragmentContainerView
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:name="com.rubens.applembretemedicamento.presentation.MainNavHostFragment"
         app:defaultNavHost="true"
         app:navGraph="@navigation/navigation"
         android:id="@+id/fragmentContainerView"

@@ -1,22 +1,31 @@
 package com.rubens.applembretemedicamento.framework.domain
 
+import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.rubens.applembretemedicamento.framework.ApplicationContextProvider
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiver
-import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiverInterface
+import com.rubens.applembretemedicamento.utils.AlarmUtilsInterface
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
-import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
+import com.rubens.applembretemedicamento.framework.helpers.AlarmHelper
+import com.rubens.applembretemedicamento.framework.helpers.AlarmHelperImpl
 import com.rubens.applembretemedicamento.presentation.FragmentDetalhesMedicamentos
 import com.rubens.applembretemedicamento.presentation.MainActivity
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentDetalhesMedicamentosUi
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import java.io.Serializable
+import javax.inject.Inject
 
-class MedicamentoManager() : CalendarHelper, Parcelable {
-    private lateinit var context: FragmentDetalhesMedicamentos
+
+class MedicamentoManager @Inject constructor(
+    val context: Context,
+    private val alarmHelper: AlarmHelper,
+    private val calendarHelper: CalendarHelper
+) : Parcelable {
+    lateinit var fragCtx: FragmentDetalhesMedicamentos
     var nomeMedicamento = ""
     var horaProxDose: String? = null
     private lateinit var medicamento: MedicamentoTratamento
@@ -27,16 +36,25 @@ class MedicamentoManager() : CalendarHelper, Parcelable {
     var horaProximaDoseObserver = _horaProximaDoseObserver
     private var intervaloEntreDoses = 0.0
     private lateinit var fragmentDetalhesMedicamentosUi: FragmentDetalhesMedicamentosUi
-    private lateinit var alarmReceiverInterface: AlarmReceiverInterface
+    private lateinit var alarmUtilsInterface: AlarmUtilsInterface
 
 
     private lateinit var extra: Serializable
 
+    constructor(parcel: Parcel, alarmReceiver: AlarmReceiver, context: Context, alarmHelper: AlarmHelper, calendarHelper: CalendarHelper) : this(context, alarmHelper, calendarHelper) {
+        nomeMedicamento = parcel.readString().toString()
+        horaProxDose = parcel.readString()
+        intervaloEntreDoses = parcel.readDouble()
+    }
+
+    /*
     constructor(parcel: Parcel) : this() {
         nomeMedicamento = parcel.readString()!!
         horaProxDose = parcel.readString()
         intervaloEntreDoses = parcel.readDouble()
     }
+
+     */
 
 
     private fun updateMedicamento(medicamento: MedicamentoTratamento) {
@@ -44,8 +62,8 @@ class MedicamentoManager() : CalendarHelper, Parcelable {
         nomeMedicamento = medicamento.nomeMedicamento
     }
 
-    fun getReceiver(): AlarmReceiver {
-        return AlarmReceiverSingleton.getInstance()
+    fun getReceiver(): AlarmHelper {
+        return alarmHelper
     }
 
     fun initializeExtra(extra: Serializable) {
@@ -110,7 +128,7 @@ class MedicamentoManager() : CalendarHelper, Parcelable {
 
             //converte a string para uma data, se essa data estiver no futuro, o alarme pode tocar
             //nesse horário
-            convertStringToDate(hr)?.let {
+            calendarHelper.convertStringToDate(hr)?.let {
                 podeTocar = it.time >= System.currentTimeMillis()
             }
 
@@ -133,12 +151,13 @@ class MedicamentoManager() : CalendarHelper, Parcelable {
 
     private fun chamarMetodoParaSetarOAlarmNoAlarmReceiver() {
         horaProxDose?.let {
-            AlarmReceiverSingleton.getInstance().setAlarm2(
+            alarmHelper.setAlarm2(
                 intervaloEntreDoses,
                 (extra as MedicamentoComDoses).medicamentoTratamento.idMedicamento,
-                (extra as MedicamentoComDoses).listaDoses,
                 context,
-                context.requireActivity() as MainActivity,
+                (extra as MedicamentoComDoses).listaDoses,
+                fragCtx,
+                fragCtx.requireActivity() as MainActivity,
                 it,
                 (extra as MedicamentoComDoses).medicamentoTratamento.nomeMedicamento
             )
@@ -233,40 +252,44 @@ class MedicamentoManager() : CalendarHelper, Parcelable {
     }
 
     fun startAlarmManager(context: FragmentDetalhesMedicamentos) {
-        this.context = context
+        this.fragCtx = context
         initFragmentDetalhesUiInterface()
-        initAlarmReceiverInterface()
+        //initAlarmReceiverInterface()
         initializeAlarmManager()
     }
 
     private fun initFragmentDetalhesUiInterface() {
         if (!this::fragmentDetalhesMedicamentosUi.isInitialized) {
-            fragmentDetalhesMedicamentosUi = context as FragmentDetalhesMedicamentosUi
+            fragmentDetalhesMedicamentosUi = fragCtx as FragmentDetalhesMedicamentosUi
         }
     }
 
     fun startChecarSeAlarmeEstaAtivado(ctx: FragmentDetalhesMedicamentos) {
-        this.context = ctx
+        this.fragCtx = ctx
         initFragmentDetalhesUiInterface()
-        initAlarmReceiverInterface()
+        //initAlarmReceiverInterface()
         //checarSeAlarmeEstaAtivado()
     }
 
+    /*
     private fun initAlarmReceiverInterface() {
-        if (!this::alarmReceiverInterface.isInitialized) {
-            alarmReceiverInterface = AlarmReceiverSingleton.getInstance()
+        if (!this::alarmUtilsInterface.isInitialized) {
+            alarmUtilsInterface = alarmHelper
         }
     }
+
+     */
 
     private fun initAlarmReceiver() {
         //receiver = AlarmReceiverSingleton.getInstance()
     }
+    /*
 
     private fun checarSeAlarmeEstaAtivado() {
         if (medicamento.alarmeAtivado) {
-            if(alarmReceiverInterface.getMediaPlayerInstance() != null){
-                if (alarmReceiverInterface.getMediaPlayerInstance()!!.isPlaying) {
-                    alarmReceiverInterface.getListaIdMedicamentosTocandoNoMomentoFromAlarmReceiver()
+            if(alarmUtilsInterface.getMediaPlayerInstance() != null){
+                if (alarmUtilsInterface.getMediaPlayerInstance()!!.isPlaying) {
+                    alarmUtilsInterface.getListaIdMedicamentosTocandoNoMomentoFromAlarmReceiver()
                         .forEach {
                             if (it == medicamento.idMedicamento) {
                                 fragmentDetalhesMedicamentosUi.showBtnPararSom()
@@ -283,6 +306,8 @@ class MedicamentoManager() : CalendarHelper, Parcelable {
 
     }
 
+     */
+
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(nomeMedicamento)
         parcel.writeString(horaProxDose)
@@ -293,9 +318,25 @@ class MedicamentoManager() : CalendarHelper, Parcelable {
         return 0
     }
 
+    /*
     companion object CREATOR : Parcelable.Creator<MedicamentoManager> {
         override fun createFromParcel(parcel: Parcel): MedicamentoManager {
             return MedicamentoManager(parcel)
+        }
+
+        override fun newArray(size: Int): Array<MedicamentoManager?> {
+            return arrayOfNulls(size)
+        }
+    }
+
+     */
+    companion object CREATOR : Parcelable.Creator<MedicamentoManager> {
+        override fun createFromParcel(parcel: Parcel): MedicamentoManager {
+            val ar = MedicamentoManager::class.java.classLoader?.loadClass(AlarmReceiver::class.java.name)?.newInstance() as AlarmReceiver
+            val context = ApplicationContextProvider.getApplicationContext()
+            val alarmHelper = (parcel.readSerializable() as? AlarmHelper) ?: error("Failed to read AlarmHelper from Parcel.")
+            val calendarHelper = (parcel.readSerializable() as? CalendarHelper) ?: error("Failed to read CalendarHelper from Parcel.")
+            return MedicamentoManager(parcel, ar, context, alarmHelper, calendarHelper)
         }
 
         override fun newArray(size: Int): Array<MedicamentoManager?> {
