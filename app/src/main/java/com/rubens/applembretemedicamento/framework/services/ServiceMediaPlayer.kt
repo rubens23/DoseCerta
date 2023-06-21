@@ -60,6 +60,7 @@ class ServiceMediaPlayer: Service() {
 
 
             if(!algumMedicamentoTocando){
+                stopForeground(true)
                 stopSelf()
             }
             return START_NOT_STICKY
@@ -167,7 +168,7 @@ class ServiceMediaPlayer: Service() {
             //todo que essa é realmente a melhor maneira para pegar a instancia do mp? desse jeito eu vou ter que mostrar outra notificacao
             // Se a notificação não estiver presente, crie uma nova notificação aqui
             //val newNotification = criarNotificacao()
-            //startForeground(NOTIFICATION_ID, newNotification)
+            //startForeground(1, null)
         }
     }
 
@@ -188,8 +189,10 @@ class ServiceMediaPlayer: Service() {
     }
 
     private fun stopMediaPlayer() {
-        mp.stop()
-        Log.d("fluxo31", "chamei o stop para o mediaPlayer, instancia mp ${mp}")
+        if(this::mp.isInitialized){
+            mp.stop()
+
+        }
 
         //mp.release()
 

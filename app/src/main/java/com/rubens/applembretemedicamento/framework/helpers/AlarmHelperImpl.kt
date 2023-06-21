@@ -70,6 +70,8 @@ class AlarmHelperImpl @Inject constructor(
         nmMedicamento: String
     ) {
 
+        Log.d("testingname", "nome aqui no começo do setAlarm: $nmMedicamento")
+
 
 
 
@@ -229,7 +231,7 @@ class AlarmHelperImpl @Inject constructor(
         roomAccess.putMedicamentoDataOnRoom(
             BroadcastReceiverOnReceiveData(idMedicamento = idMedicamento, nomeMedicamento = nomeMedicamento, horaDose = calendarHelper2.formatarDataHoraSemSegundos(horaProxDose))
         )
-        roomAccess.putNewActiveAlarmOnRoom(AlarmEntity(idMedicamento = idMedicamento,horaProxDose= calendarHelper2.formatarDataHoraComSegundos(horaProxDose),nomeMedicamento = nomeMedicamento, alarmActive =  true, intervaloEntreDoses = intervaloEntreDoses, listaDoses =  listaDoses))
+        roomAccess.putNewActiveAlarmOnRoom(AlarmEntity(idMedicamento = idMedicamento,horaProxDose= calendarHelper2.formatarDataHoraComSegundos(horaProxDose),nomeMedicamento = nmMedicamento, alarmActive =  true, intervaloEntreDoses = intervaloEntreDoses, listaDoses =  listaDoses))
 
     }
 
@@ -422,7 +424,8 @@ class AlarmHelperImpl @Inject constructor(
         WakeLocker.release()
         val serviceIntent = Intent(context, ServiceMediaPlayer::class.java)
         serviceIntent.action = "STOP_SERVICE"
-        ContextCompat.startForegroundService(context, serviceIntent)
+        //ContextCompat.startForegroundService(context, serviceIntent)
+        context.stopService(serviceIntent)
         alarmeTocando.postValue(false)
 
     }
@@ -431,7 +434,7 @@ class AlarmHelperImpl @Inject constructor(
 
         val serviceIntent = Intent(context, ServiceMediaPlayer::class.java)
         serviceIntent.action = "STOP_SERVICE"
-        ContextCompat.startForegroundService(context!!, serviceIntent)
+        context.stopService(serviceIntent)
         alarmeTocando.postValue(false)
     }
 

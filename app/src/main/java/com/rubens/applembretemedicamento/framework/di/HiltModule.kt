@@ -105,11 +105,7 @@ object HiltModule {
         return CalendarHelperImpl()
     }
 
-    @Provides
-    @Singleton
-    fun providesCalendarHelper2(): CalendarHelper2 {
-        return CalendarHelperImpl2()
-    }
+
 
 
 
@@ -142,6 +138,12 @@ object HiltModule {
         val parcel = Parcel.obtain()
         return MedicamentoManager(parcel, alarmReceiver, context, alarmHelper, calendarHelper)
     }
+    @Provides
+    @Singleton
+    fun providesCalendarHelper2(): CalendarHelper2 {
+        return CalendarHelperImpl2()
+    }
+
 
 
 

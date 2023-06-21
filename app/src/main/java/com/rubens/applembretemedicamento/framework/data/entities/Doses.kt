@@ -13,7 +13,8 @@ data class Doses(
     val intervaloEntreDoses: Double,
     var dataHora: String? = null,
     val qntDosesPorHorario: Int = 1,
-    val jaTomouDose: Boolean
+    val jaTomouDose: Boolean,
+    val jaMostrouToast: Boolean = false
 ): Serializable{
 
 

@@ -22,15 +22,18 @@ class OnRestartDeviceReceiver: BroadcastReceiver() {
             Log.d("reinicio", "o dispositivo foi reiniciado")
             val listaMedicamentosComAlarmeAtivo = roomAccess.getAllActiveAlarms()
             val podeTocarDepoisQueReiniciar = roomAccess.podeTocarDepoisQueReiniciar()
-            if(podeTocarDepoisQueReiniciar){
-                listaMedicamentosComAlarmeAtivo.forEach {
-                    Log.d("reinicio", "alarme ativo para ${it.nomeMedicamento} proxima dose as ${it.horaProxDose} size da lista: ${listaMedicamentosComAlarmeAtivo.size}")
-                    alarmHelper.initAlarmManager(context!!)
-                    alarmHelper.initAlarmIntent(context)
-                    alarmHelper.setAlarm2(it.intervaloEntreDoses, it.idMedicamento, context, it.listaDoses, null, null, it.horaProxDose, it.nomeMedicamento)
+            if (podeTocarDepoisQueReiniciar != null){
+                if(podeTocarDepoisQueReiniciar){
+                    listaMedicamentosComAlarmeAtivo.forEach {
+                        Log.d("reinicio", "alarme ativo para ${it.nomeMedicamento} proxima dose as ${it.horaProxDose} size da lista: ${listaMedicamentosComAlarmeAtivo.size}")
+                        alarmHelper.initAlarmManager(context!!)
+                        alarmHelper.initAlarmIntent(context)
+                        alarmHelper.setAlarm2(it.intervaloEntreDoses, it.idMedicamento, context, it.listaDoses, null, null, it.horaProxDose, it.nomeMedicamento)
 
+                    }
                 }
             }
+
 
         }
     }

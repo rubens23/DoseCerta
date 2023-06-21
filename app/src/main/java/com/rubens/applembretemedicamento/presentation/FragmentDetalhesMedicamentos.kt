@@ -423,7 +423,7 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
         alarmUtilsInterface.initButtonStateLiveData()
 
         alarmUtilsInterface.getButtonChangeLiveData().observe(viewLifecycleOwner){
-            showBtnPararSom()
+            //showBtnPararSom()
         }
 
         viewHolderInstanceLiveData.observe(viewLifecycleOwner){
@@ -445,14 +445,14 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
         mudancaMedicamentoComDosesAlarmeTocando.observe(viewLifecycleOwner){
             if(it != null){
                 extra = it
-                Log.d("correctingidbug", "mudancaMedicamentoComDosesAlarmeTocando: medicamento adicionado a o extra agora: ${(extra as MedicamentoComDoses).medicamentoTratamento.nomeMedicamento}, id: ${(extra as MedicamentoComDoses).medicamentoTratamento.idMedicamento}")
 
                 if((extra as MedicamentoComDoses).medicamentoTratamento.alarmeTocando){
-                    showBtnPararSom()
-                    Log.d("entendendoshowstop", "to aqui no if que mostra o botao parar som")
+                    if(mediaPlayer != null){
+                        if(mediaPlayer!!.isPlaying){
+                            showBtnPararSom()
 
-                }else{
-                    Log.d("entendendoshowstop", "to aqui no else que nao mostrou o botao parar som")
+                        }
+                    }
 
                 }
             }
@@ -470,6 +470,8 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
     override fun hideBtnArmarAlarme() {
         binding.btnArmarAlarme.visibility = View.INVISIBLE
         binding.btnArmarAlarme.isClickable = false
+        binding.btnCancelarAlarme.isClickable = true
+
         Log.d("testeshowcancel", "eu to aqui no metodo de esconder botao de armar alarme, na implementação")
 
     }
@@ -477,16 +479,22 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
     override fun showBtnArmarAlarme() {
         binding.btnArmarAlarme.visibility = View.VISIBLE
         binding.btnArmarAlarme.isClickable = true
+        binding.btnCancelarAlarme.isClickable = false
 
-        Log.d("testeshowcancel", "eu to aqui no metodo que mostra o botao de armar alarme")
+
+        Log.d("testebtncancel", "eu to aqui no metodo que mostra o botao de armar alarme")
 
     }
 
     override fun showBtnCancelarAlarme() {
         binding.btnCancelarAlarme.visibility = View.VISIBLE
         binding.btnCancelarAlarme.isClickable = true
+        binding.btnArmarAlarme.isClickable = false
 
-        Log.d("testeshowcancel", "to aqui no metodo de mostrar botao cancelar alarme, na implementação")
+
+
+
+        Log.d("testebtncancel", "to aqui no metodo de mostrar botao cancelar alarme, na implementação")
 
     }
 
@@ -578,6 +586,8 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
         binding.btnArmarAlarme.setOnClickListener {
             salvarNoBancoAInformacaoDeQueOAlarmeDoMedicamentoEstaLigado()
             ligarAlarme()
+            hideBtnArmarAlarme()
+            showBtnCancelarAlarme()
             Log.d("testeshowcancel", "eu to aqui no clique do botão armar alarme")
         }
         binding.btnCancelarAlarme.setOnClickListener {
@@ -624,6 +634,8 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
             }
         }else{
             Log.d("testeplay2", "media player instance is null")
+            hideBtnPararSom()
+            avisarQueMedicamentoNaoEstaTocando()
 
         }
     }
@@ -765,7 +777,13 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
     }
 
     private fun stopMusicPlayer() {
-        alarmUtilsInterface.stopAlarmSound(requireContext())
+        val qntAlarmesTocando = viewModel.pegarTodosOsMedicamentosComAlarmeTocando()?.size
+        if(qntAlarmesTocando != null){
+            if(qntAlarmesTocando == 1){
+                //só para o som do alarme se só um medicamento estiver tocando o alarme no momento
+                alarmUtilsInterface.stopAlarmSound(requireContext())
+            }
+        }
 
     }
 
@@ -906,6 +924,10 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
     override fun hideBtnCancelarAlarme() {
         binding.btnCancelarAlarme.visibility = View.INVISIBLE
         binding.btnCancelarAlarme.isClickable = false
+        binding.btnArmarAlarme.isClickable = true
+
+        Log.d("testebtncancel", "to aqui no hide btn cancelar alarme")
+
 
 
 
@@ -923,6 +945,10 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
         medicamentoComDoses: MedicamentoComDoses
     ) {
         Toast.makeText(requireContext(), "Alarme ativado para próxima dose de ${medicamentoComDoses.medicamentoTratamento.nomeMedicamento} às $horaProxDose", Toast.LENGTH_LONG).show()
+    }
+
+    override fun showToastDosesAcabaram() {
+        Toast.makeText(requireActivity(), "as doses para esse medicamento acabaram!", Toast.LENGTH_SHORT).show()
     }
 
 

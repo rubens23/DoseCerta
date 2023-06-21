@@ -15,6 +15,7 @@ interface FragmentDetalhesMedicamentosUi {
     fun showBtnPararSom()
 
     fun showAlarmConfirmationToast(horaProxDose: String, medicamentoComDoses: MedicamentoComDoses)
+    fun showToastDosesAcabaram()
 
 
 }

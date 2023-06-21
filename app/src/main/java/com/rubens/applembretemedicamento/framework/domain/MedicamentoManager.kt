@@ -113,10 +113,14 @@ class MedicamentoManager @Inject constructor(
     }
 
     private fun initializeAlarmManager() {
+        Log.d("armaralarme", "to aqui no initialize alarm manager")
+
         //initAlarmReceiver()
         colocaHoraProximaDoseNoObserver()
 
         var podeTocar = false
+
+
 
         horaProxDose?.let { hora ->
             Log.d("smartalarm", "hora iterada $hora")
@@ -135,6 +139,8 @@ class MedicamentoManager @Inject constructor(
 
         }
 
+
+
         if (podeTocar) {
             //se pode tocar, seta o alarme
             chamarMetodoParaSetarOAlarmNoAlarmReceiver()
@@ -150,6 +156,7 @@ class MedicamentoManager @Inject constructor(
     }
 
     private fun chamarMetodoParaSetarOAlarmNoAlarmReceiver() {
+        Log.d("armaralarme", "to aqui no metodo que arma o alarme")
         horaProxDose?.let {
             alarmHelper.setAlarm2(
                 intervaloEntreDoses,
@@ -200,6 +207,10 @@ class MedicamentoManager @Inject constructor(
         //markToastAsShown()
         if((extra as MedicamentoComDoses).listaDoses.size - 1 != 0){
             initializeAlarmManager()
+        }else{
+            fragmentDetalhesMedicamentosUi.hideBtnCancelarAlarme()
+            fragmentDetalhesMedicamentosUi.showToastDosesAcabaram()
+
         }
     }
 

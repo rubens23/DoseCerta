@@ -1,20 +1,15 @@
 package com.rubens.applembretemedicamento.framework.viewModels
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.appmedicamentos.data.repository.AddMedicineRepositoryImpl
 import com.example.appmedicamentos.data.repository.MedicationRepositoryImpl
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
-import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
 import com.rubens.applembretemedicamento.framework.domain.doses.DosesManagerInterface
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
-import java.time.LocalTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -83,29 +78,10 @@ class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
         repositoryAdicionarMedicamento.ligarAlarmeDoMedicamento(nomeMedicamento, ativado)
     }
 
+    fun pegarTodosOsMedicamentosComAlarmeTocando(): List<MedicamentoTratamento>? {
+        return medicationRepository.getAllMedicamentosComAlarmeTocando()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    }
 
 
 }

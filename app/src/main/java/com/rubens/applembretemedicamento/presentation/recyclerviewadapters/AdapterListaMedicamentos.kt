@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
@@ -69,6 +70,8 @@ class AdapterListaMedicamentos(
     inner class ViewHolder(val binding: MedicamentoBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
+
+        private var shake: Animation? = null
 
         fun bind(medicamento: MedicamentoComDoses) {
             //pega o horario da proxima dose para mostrar no item
@@ -240,30 +243,16 @@ class AdapterListaMedicamentos(
 
         private fun checkIfMediaPlayerIsPlaying(medicamento: MedicamentoComDoses) {
             if (medicamento.medicamentoTratamento.alarmeTocando){
-                Log.d("alarmetocando", "alarme tocando? ${medicamento.medicamentoTratamento.alarmeTocando}")
-
                 if(fragmentListaMedicamentosInterface.getMediaPlayerInstance() != null){
-                    Log.d("alarmetocando", "media player instance is not null ${fragmentListaMedicamentosInterface.getMediaPlayerInstance()}")
-
-
                     if (fragmentListaMedicamentosInterface.getMediaPlayerInstance()!!.isPlaying) {
-
-
                         initShakingClockAnimation()
-                        Log.d("alarmetocando", "iniciei a shaking animation")
-
-
-                    }else{
-                        Log.d("alarmetocando", "media player não está tocando $${fragmentListaMedicamentosInterface.getMediaPlayerInstance()}")
 
                     }
-                }else{
-                    Log.d("alarmetocando", "media player instance is null")
-
                 }
 
             }else{
-                Log.d("alarmetocando", "alarme tocando? ${medicamento.medicamentoTratamento.alarmeTocando}")
+                stopShakingClockAnimation()
+
 
             }
 
@@ -271,8 +260,18 @@ class AdapterListaMedicamentos(
 
         }
 
+        private fun stopShakingClockAnimation() {
+            if(shake != null){
+                if (shake!!.hasStarted()){
+                    shake!!.cancel()
+
+                }
+            }
+
+        }
+
         private fun initShakingClockAnimation() {
-            val shake = AnimationUtils.loadAnimation(binding.root.context, R.anim.shake)
+            shake = AnimationUtils.loadAnimation(binding.root.context, R.anim.shake)
             binding.alarmeAtivado.startAnimation(shake)
 
         }

@@ -24,6 +24,7 @@ import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmRecei
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.OnRestartDeviceReceiver
 import com.rubens.applembretemedicamento.framework.data.datastore.DataStoreTheme
 import com.rubens.applembretemedicamento.framework.data.datastore.interfaces.ThemeDataStoreInterface
+import com.rubens.applembretemedicamento.framework.data.entities.ConfiguracoesEntity
 import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
 import com.rubens.applembretemedicamento.framework.viewModels.ActivityHostAndFragmentConfikguracoesSharedViewModel
 import com.rubens.applembretemedicamento.framework.viewModels.ActivityHostAndFragmentListaMedicamentosSharedViewModel
@@ -79,12 +80,20 @@ class MainActivity: AppCompatActivity(), MainActivityInterface{
         hideToolbar()
         configNavigation()
         initViewModel()
+        initConfiguracoesApp()
         onClickListeners()
         setApplicationContextt()
 
 
 
 
+    }
+
+    private fun initConfiguracoesApp() {
+        val configuracoes = viewModel.getSwitchersState()
+        if(configuracoes == null){
+            viewModel.mudarConfiguracoes(ConfiguracoesEntity())
+        }
     }
 
 

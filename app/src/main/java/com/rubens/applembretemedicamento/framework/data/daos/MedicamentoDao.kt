@@ -60,6 +60,10 @@ interface MedicamentoDao {
     @Query("SELECT * FROM MedicamentoTratamento")
     fun getAllMedicamentoWithDoses(): List<MedicamentoComDoses>
 
+    @Query("SELECT * FROM MedicamentoTratamento WHERE alarmeTocando = 1")
+    fun getAllMedicamentosComAlarmeTocando(): List<MedicamentoTratamento>?
+
+
     @Query("SELECT * FROM BroadcastReceiverOnReceiveData")
     fun getMedicamentosDataForBroadcastReceiver(): List<BroadcastReceiverOnReceiveData>
 
@@ -104,7 +108,7 @@ interface MedicamentoDao {
 
 
     @Query("SELECT * FROM ConfiguracoesEntity")
-    fun podeTocarDepoisDeReiniciar(): ConfiguracoesEntity
+    fun podeTocarDepoisDeReiniciar(): ConfiguracoesEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun inserirConfiguracoes(configuracoesEntity: ConfiguracoesEntity)
@@ -113,5 +117,8 @@ interface MedicamentoDao {
     fun atualizarConfiguracoes(configuracoes: ConfiguracoesEntity)
     @Query("SELECT * FROM ConfiguracoesEntity")
     fun pegarConfiguracoes(): ConfiguracoesEntity
+
+    @Query("UPDATE AlarmEntity SET listaDoses=:listaDoses WHERE idAlarme =:idAlarme")
+    fun atualizarDoseMudandoJaMostrouToast(listaDoses: ArrayList<Doses>, idAlarme: Int)
 
 }

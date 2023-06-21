@@ -96,13 +96,6 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
         return binding.root
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-    }
-
-
-
-
 
 
 
@@ -374,17 +367,21 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
 
     }
 
+
     private fun setAdapterOnScrollListener() {
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener(){
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
 
                 val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
-                val position = layoutManager.findFirstVisibleItemPosition()
+                val position = layoutManager.findFirstCompletelyVisibleItemPosition()
                 viewModel.onRecyclerViewScrolled(position)
             }
         })
     }
+
+
+
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)

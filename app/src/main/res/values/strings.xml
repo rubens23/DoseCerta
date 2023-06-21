@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">App Lembrete Medicamento</string>
+    <string name="app_name">Medicine Reminder</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
@@ -12,12 +12,16 @@
 
     <string name="hello_first_fragment">Dipirona</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
-    <string name="res_btn_add">botão para adicionar um medicamento novo</string>
-    <string name="label_act_adicionar_medicamentos">Adicionar Medicamento</string>
+    <string name="res_btn_add">Button to add new medicine</string>
+    <string name="label_act_adicionar_medicamentos">Add Medicine</string>
     <string name="res_nome_med_detalhe">losartana</string>
     <string name="res_horario_dose">14:20</string>
-    <string name="res_description_detail_med">medicamento ainda não tomado nesse horário</string>
-    <string name="res_btn_tomei_o_medicamento">Tomar Dose</string>
-    <string name="res_sem_medicamentos">Você não tem nenhum medicamento registrado!</string>
-    <string name="res_dica_confirmar_dose">* Clique na bolinha vermelha ao lado do horário da dose para confirmar que você tomou a dose desse horário!</string>
+    <string name="res_description_detail_med">medication not yet taken at that time</string>
+    <string name="res_btn_tomei_o_medicamento">Take dose</string>
+    <string name="res_sem_medicamentos">You don\'t have any medication registered!</string>
+    <string name="res_dica_confirmar_dose">* Click on the red dot next to the dose time to confirm that you took your dose for that time!</string>
+    <string name="configurations_label">Configurations</string>
+    <string name="label_config_play_alarm_when_app_closed">Play alarm even after app is closed</string>
+    <string name="label_play_alarm_after_device_reboot">Play alarm even after phone restart</string>
+    <string name="cor_do_tema_do_app">App theme color</string>
 </resources>
