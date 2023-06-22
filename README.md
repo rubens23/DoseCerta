@@ -63,14 +63,15 @@ Faça o download da <a href="apk/app-debug.apk?raw=true">APK diretamente</a>. Vo
 (Fragments -> ViewModel -> Repository(Manager) -> daos do room)
   
 - Bibliotecas 
-  - [Firebase](https://firebase.google.com/?gad=1&gclid=CjwKCAjws7WkBhBFEiwAIi16864LHiVEI5b4n9MrQ5qNyuOaIxlcwvBNFIalIJSvH4lAkYL5sw54qRoCPR8QAvD_BwE&gclsrc=aw.ds&hl=pt-br): Utilizei o serviço de banco de dados do firebase, o serviço de autenticação do firebase e o serviço de storage.
-  - [Picasso](https://square.github.io/picasso/): Biblioteca para carregar imagens através da url e mostrá-las na tela, além de armazená-las em cache.
-  - [Dagger Hilt](https://dagger.dev/hilt/gradle-setup): Biblioteca usada para injetar dependencias nas classes de maneira mais fácil, centralizando a inicialização de classes necessárias em outras classes de maneira única em uma classe só.
+  - [Maskara](https://github.com/santalu/maskara): Utilizei essa biblioteca para fornecer uma mascara que eu precisei em uma das minhas edit texts. Com ela eu consigo controlar melhor o que o user fornece como input.
+  - [CircleImageView](https://github.com/hdodenhof/CircleImageView): Biblioteca utilizada para obter imageView customizadas com formato arredondado e bordas customizaveis. Utilizei ela no circulo que representa a dose tomada ou não tomada.
+  
 
 
 
 ## Arquitetura
 **App Denúncia** utiliza a arquitetura [MVVM]
+todo
 (https://developer.android.com/topic/architecture).
 </br></br>
 <img width="60%" src="https://github.com/rubens23/appDenuncia/raw/master/app/src/main/appscreenshots/arquitetura app denuncia.png">
@@ -79,16 +80,19 @@ Faça o download da <a href="apk/app-debug.apk?raw=true">APK diretamente</a>. Vo
 
 ## Features
 
-### Usuários podem se cadastrar para terem acesso ao app.
-<img alt="screenshot" width="30%" src="https://github.com/rubens23/appDenuncia/raw/master/app/src/main/appscreenshots/Screenshot_20230616_194322.png"/>
+### Usuários podem ver os medicamentos do dia de hoje e ver o horário da próxima dose.
+<img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230622_163545.png"/>
 
 
-### Usuários podem postar novas denúncias, ver as denúncias que ele já postou ou ver todas as denúncias circulando na comunidade que usa o app.
-<img alt="screenshot" width="30%" src="https://github.com/rubens23/appDenuncia/raw/master/app/src/main/appscreenshots/Screenshot_20230616_194432.png"/>
 
-### Usuários podem colocar uma foto para representar sua denúncia e também podem curtir ou comentar as denúncias.
-<img alt="screenshot" width="30%" src="https://github.com/rubens23/appDenuncia/raw/master/app/src/main/appscreenshots/Screenshot_20230616_194628.png"/>
-<img alt="screenshot" width="30%" src="https://github.com/rubens23/appDenuncia/raw/master/app/src/main/appscreenshots/Screenshot_20230616_195725.png"/>
+### Usuários conseguem adicionar novos medicamentos e informar sobre o horario e dia que vai começar a tomar o medicamento para que os horários das doses sejam calculados automaticamente.
+  <img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230622_163640.png"/>
+  <img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230622_163658.png"/>
+
+
+### Uma tela de configurações com mudança de cor do tema do app e switches para a pessoa ter um controle melhor sobre o comportamento do alarme no app
+<img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230622_163722.png"/>
+
 
 
 
