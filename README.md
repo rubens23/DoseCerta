@@ -41,21 +41,26 @@ Faça o download da <a href="apk/app-debug.apk?raw=true">APK diretamente</a>. Vo
 
 ## Tecnologias usadas e bibliotecas de código aberto
 
-- Minimum SDK level 21
+- Minimum SDK level 26
 - [Linguagem Kotlin](https://kotlinlang.org/)
 
 - Componentes da SDK do android que foram utilizados:
-  - ViewModel: Utilizado para fornecer um pouco de desacoplamento entre a camada de dados e a view.
-  - Navigation: Utilizado para facilitar o código da navegação entre telas no app.
+  - Espresso: Utilizado para fazer testes de UI. 
+  - Navigation: Utilizado para simplificar a navegação das telas no meu app.
+  - NavigationTesting: Utilizado para os testes do Navigation Component nos meus testes de UI.
+  - Room: Utilizado para persistir os dados localmente no device do usuário.
+  - Dagger Hilt: Utilizado para facilitar a injeção de dependências nas minhas classes.
+  - ViewModel: Utilizado para fornecer um pouco de desacoplamento entre a camada de dados e a view. Também foi utilizada para fazer a comunicação entre activity-fragment ou fragment-fragment.
   - Fragment: Os fragments foram utilizados para fornecer uma organização melhor para as telas do meu app. Além de funcionar muito bem com o NavigationComponent.
-  - SharedFlow: utilizado como um observer para pegar os valores assim que eles terminam de serem coletados atraves de um método assíncrono. Utilizei ele ao invés do liveData porque queria que o valor não ficasse guardado depois que o fragment fosse reiniciado.
+  - SharedFlow: utilizado para ficar de olho em metodos assincronos e coletar esses dados para a camada de view.
+  - LiveData: utilizado para fornecer observers para a coleta de dados em métodos assíncronos além de manter o último dado salvo em cache para caso a view seja destruida e recriada novamente.
   - ViewBinding: Fornece uma maneira simples de referenciar os elementos da view nas classes que precisam manipular de alguma forma esses elementos.
-  - Espresso: biblioteca utilizada para fazer testes de ui no meu aplicativo.
+  - DataStore: Utilizado para guardar alguns dados simples de configuração do tema do meu app.
 
 - Arquitetura 
-  - MVVM (View - ViewModel - Model): Utilizada para colocar um intermediário entre a view e a lógica de negócio. No meu app a viewModel presente na arquitetura mvvm me ajuda a separar a lógica de obtenção de dados da camada de view(fragments e activity).
+  - Eu estou usando como rumo a arquitetura MVVM, porém ainda tem alguns métodos que estão na camada errada. Em breve farei uma limpeza no meu código para melhorar isso.
   - Eu também utilizei repositories e classes managers para separar a logica de obtenção dos dados da camada de viewModel.
-(Fragments -> ViewModel -> Repository(Manager) -> apis do firebase)
+(Fragments -> ViewModel -> Repository(Manager) -> daos do room)
   
 - Bibliotecas 
   - [Firebase](https://firebase.google.com/?gad=1&gclid=CjwKCAjws7WkBhBFEiwAIi16864LHiVEI5b4n9MrQ5qNyuOaIxlcwvBNFIalIJSvH4lAkYL5sw54qRoCPR8QAvD_BwE&gclsrc=aw.ds&hl=pt-br): Utilizei o serviço de banco de dados do firebase, o serviço de autenticação do firebase e o serviço de storage.
