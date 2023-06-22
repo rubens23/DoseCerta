@@ -14,7 +14,7 @@
 
 ⭐ Esse é um projeto para demonstrar meu conhecimento técnico no desenvolvimento Android nativo com Kotlin. Mais informações técnicas abaixo.
 
-:pill: Aplicativo que serve para as pessoas lembrarem dos horários dos medicamentos que elas estão tomando.
+:pill: Aplicativo que serve para as pessoas lembrarem dos horários dos medicamentos que elas estão tomando. O aplicativo conta com uma tela de detalhe para cada medicamento onde a pessoa pode ver informações como horários das doses, duração do tratamento, doses já tomadas além de um botão para ativar o alarme de lembrete de medicamentos.
 
 </p>
 
@@ -22,12 +22,11 @@
 
 <p float="left" align="center">
 
-<img alt="screenshot" width="30%" src="https://github.com/rubens23/appDenuncia/raw/master/app/src/main/appscreenshots/Screenshot_20230616_194322.png"/>
-  <img alt="screenshot" width="30%" src="https://github.com/rubens23/appDenuncia/raw/master/app/src/main/appscreenshots/Screenshot_20230616_194432.png"/>
-  <img alt="screenshot" width="30%" src="https://github.com/rubens23/appDenuncia/raw/master/app/src/main/appscreenshots/Screenshot_20230616_194458.png"/>
-<img alt="screenshot" width="30%" src="https://github.com/rubens23/appDenuncia/raw/master/app/src/main/appscreenshots/Screenshot_20230616_194549.png"/>
-<img alt="screenshot" width="30%" src="https://github.com/rubens23/appDenuncia/raw/master/app/src/main/appscreenshots/Screenshot_20230616_194628.png"/>
-<img alt="screenshot" width="30%" src="https://github.com/rubens23/appDenuncia/raw/master/app/src/main/appscreenshots/Screenshot_20230616_195725.png"/>
+<img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230622_163545.png"/>
+  <img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230622_163640.png"/>
+  <img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230622_163658.png"/>
+  <img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230622_163722.png"/>
+
   
 
 
