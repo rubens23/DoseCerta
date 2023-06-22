@@ -11,4 +11,5 @@ interface CalendarHelper {
     fun verificarSeDataHoraJaPassou(dataHoraTerminoTratamento: String): Boolean
     fun verificarSeDataJaPassou(dataTerminoTratamento: String): Boolean
     fun convertStringToDate(dateHour: String?): Date?
+    fun convertStringToDateSemSegundos(dateHour: String?): Date?
 }

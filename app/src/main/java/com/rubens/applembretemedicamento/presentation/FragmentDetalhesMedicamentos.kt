@@ -383,6 +383,7 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
 
     private fun getHorarioStringFromExtraAndInitMedicamentoManagerMethods() {
         val extraStringHorario = args.horaproximadose
+        Log.d("extrastring", args.horaproximadose)
         medicamentoManager.startUpdateHoraProxDose(extraStringHorario)
         medicamentoManager.startUpdateIntervaloEntreDoses(args.intervaloentredoses.toDouble())
     }

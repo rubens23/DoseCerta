@@ -134,14 +134,16 @@ object HiltModule {
 
     @Provides
     @Singleton
-    fun providesMedicamentoManager(alarmReceiver: AlarmReceiver, @ApplicationContext context: Context, alarmHelper: AlarmHelper, calendarHelper: CalendarHelper): MedicamentoManager{
-        val parcel = Parcel.obtain()
-        return MedicamentoManager(parcel, alarmReceiver, context, alarmHelper, calendarHelper)
-    }
-    @Provides
-    @Singleton
     fun providesCalendarHelper2(): CalendarHelper2 {
         return CalendarHelperImpl2()
+    }
+
+
+    @Provides
+    @Singleton
+    fun providesMedicamentoManager(alarmReceiver: AlarmReceiver, @ApplicationContext context: Context, alarmHelper: AlarmHelper, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2): MedicamentoManager{
+        val parcel = Parcel.obtain()
+        return MedicamentoManager(parcel, alarmReceiver, context, alarmHelper, calendarHelper, calendarHelper2)
     }
 
 

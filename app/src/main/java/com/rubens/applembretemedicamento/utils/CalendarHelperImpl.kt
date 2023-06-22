@@ -20,6 +20,16 @@ class CalendarHelperImpl: CalendarHelper {
         return null
     }
 
+    override fun convertStringToDateSemSegundos(dateHour: String?): Date? {
+        val format = SimpleDateFormat("dd/MM/yyyy HH:mm")
+        try {
+            return format.parse(dateHour)
+        } catch (pe: ParseException) {
+            Log.e("erroparsestringdata", pe.message!!)
+        }
+        return null
+    }
+
     override fun verificarSeDataJaPassou(dataTerminoTratamento: String): Boolean{
         val dateFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
