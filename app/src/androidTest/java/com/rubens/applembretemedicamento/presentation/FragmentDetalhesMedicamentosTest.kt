@@ -19,6 +19,7 @@ import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
 @RunWith(AndroidJUnit4ClassRunner::class)
 class FragmentDetalhesMedicamentosTest{
 
+
     @Test
     fun test_openFragmentDetalhes() {
         val mm = MedicamentoManager()
@@ -37,4 +38,6 @@ class FragmentDetalhesMedicamentosTest{
         onView(withId(R.id.label_data_inicio_tratamento)).check(matches(isDisplayed()))
 
     }
+
+
 }
