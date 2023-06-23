@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiver
+import com.rubens.applembretemedicamento.framework.data.managers.RoomAccess
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
 import com.rubens.applembretemedicamento.utils.AlarmUtilsInterface
 import com.rubens.applembretemedicamento.utils.CalendarHelper
@@ -17,7 +18,8 @@ constructor(
     private val medicamentoManager: MedicamentoManager,
     private val funcoesDeTempo: FuncoesDeTempo,
     private val calendarHelper: CalendarHelper,
-    private val context: Context
+    private val context: Context,
+    private val roomAccess: RoomAccess
 
 ) : FragmentFactory() {
     override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
@@ -32,7 +34,7 @@ constructor(
                 FragmentHistoricoMedicamentos()
             }
             FragmentConfiguracoes::class.java.name->{
-                FragmentConfiguracoes()
+                FragmentConfiguracoes(roomAccess)
             }
             FragmentCadastrarNovoMedicamento::class.java.name->{
                 FragmentCadastrarNovoMedicamento(funcoesDeTempo, calendarHelper)

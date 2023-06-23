@@ -16,11 +16,17 @@ import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.FragmentConfiguracoesBinding
 import com.rubens.applembretemedicamento.framework.data.datastore.interfaces.ThemeDataStoreInterface
 import com.rubens.applembretemedicamento.framework.data.entities.ConfiguracoesEntity
+import com.rubens.applembretemedicamento.framework.data.managers.RoomAccess
 import com.rubens.applembretemedicamento.framework.viewModels.ActivityHostAndFragmentConfikguracoesSharedViewModel
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentConfiguracoes
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
-class FragmentConfiguracoes : Fragment() {
+@AndroidEntryPoint
+class FragmentConfiguracoes @Inject constructor(
+    private val roomAccess: RoomAccess
+) : Fragment() {
 
     private lateinit var binding: FragmentConfiguracoesBinding
     private lateinit var mainActivityInterface: MainActivityInterface
@@ -85,6 +91,7 @@ class FragmentConfiguracoes : Fragment() {
         binding.ivTemaAzul.setOnClickListener {
             if(temaEscolhido != "Azul"){
                 mudarParaOTemaAzul()
+                salvarColorResourceNoBanco("Azul")
                 sharedViewModel.mudouTema(true)
             }
 
@@ -94,6 +101,7 @@ class FragmentConfiguracoes : Fragment() {
         binding.ivTemaVermelho.setOnClickListener{
             if(temaEscolhido != "Vermelho"){
                 mudarParaOTemaVermelho()
+                salvarColorResourceNoBanco("Vermelho")
                 sharedViewModel.mudouTema(true)
             }
 
@@ -117,6 +125,24 @@ class FragmentConfiguracoes : Fragment() {
 
             }
 
+        }
+    }
+
+    private fun salvarColorResourceNoBanco(color: String) {
+        val configuracoes = roomAccess.pegarConfiguracoes()
+
+        if(color == "Azul"){
+            if(configuracoes != null){
+                roomAccess.colocarConfiguracoesAtualizadas(ConfiguracoesEntity(configuracoes.idConfiguracao, configuracoes.podeTocarQuandoFechado, configuracoes.podeTocarDepoisDeReiniciar, R.color.blue ))
+
+            }
+
+        }else{
+            if(configuracoes != null){
+                roomAccess.colocarConfiguracoesAtualizadas(ConfiguracoesEntity(configuracoes.idConfiguracao, configuracoes.podeTocarQuandoFechado, configuracoes.podeTocarDepoisDeReiniciar, R.color.rosa_salmao ))
+
+            }
+            //cor é vermelha
         }
     }
 

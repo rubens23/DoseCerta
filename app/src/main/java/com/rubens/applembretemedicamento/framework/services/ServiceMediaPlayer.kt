@@ -58,10 +58,14 @@ class ServiceMediaPlayer: Service() {
                 }
             }
 
+            Log.d("stoptag", "entrei aqui na tag de stop service")
+
 
             if(!algumMedicamentoTocando){
                 stopForeground(true)
                 stopSelf()
+                Log.d("stoptag", "nao tem nenhum medicamento tocando")
+
             }
             return START_NOT_STICKY
         }

@@ -53,5 +53,9 @@ class RoomAccessImpl @Inject constructor(
         return dao.verSeMedicamentoEstaComAlarmeAtivado(idMedicamento)
     }
 
+    override fun getColorResource(): Int {
+        return dao.pegarConfiguracoes().colorResource
+    }
+
 
 }

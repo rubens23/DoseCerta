@@ -16,4 +16,5 @@ interface RoomAccess {
     fun pegarConfiguracoes(): ConfiguracoesEntity?
     fun atualizarDoseNaTabelaAlarms(listaDoses: ArrayList<Doses>, idAlarme: Int)
     fun verSeMedicamentoEstaComAlarmeAtivado(idMedicamento: Int): Boolean
+    fun getColorResource(): Int
 }

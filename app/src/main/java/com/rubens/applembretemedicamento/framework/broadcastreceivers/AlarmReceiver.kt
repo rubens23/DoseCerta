@@ -175,6 +175,11 @@ class AlarmReceiver: BroadcastReceiver()  {
     ) {
 
 
+        var colorResource = roomAccess.getColorResource()
+
+
+
+
         val notification = p0?.let { context ->
             NotificationCompat.Builder(context, "something")
                 .setContentTitle(nomeMedicamento)
@@ -183,7 +188,7 @@ class AlarmReceiver: BroadcastReceiver()  {
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(pi)
-                .setColor(ContextCompat.getColor(context, R.color.rosa_salmao))
+                .setColor(ContextCompat.getColor(context, colorResource))
                 .setColorized(true)
                 .build()
         }
