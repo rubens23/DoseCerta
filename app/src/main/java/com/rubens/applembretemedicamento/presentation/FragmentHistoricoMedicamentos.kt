@@ -94,8 +94,18 @@ class FragmentHistoricoMedicamentos : Fragment() {
     }
 
     private fun setupAdapter() {
+        hideEmptyDataPlaceHolder()
+
         adapter = HistoricoMedicamentosAdapter(listaMedicamentos)
         binding.recyclerViewHistoricoMedicamentos.adapter = adapter
+    }
+
+    private fun hideEmptyDataPlaceHolder() {
+        if(listaMedicamentos.isNotEmpty()){
+            binding.labelMedicamento.visibility = View.VISIBLE
+            binding.labelHorarioDose.visibility = View.VISIBLE
+            binding.txtNoData.visibility = View.INVISIBLE
+        }
     }
 
 

@@ -1,6 +1,7 @@
 package com.rubens.applembretemedicamento.presentation.recyclerviewadapters
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.media.MediaPlayer
 import android.provider.Settings
 import android.util.Log
@@ -10,7 +11,6 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.MedicamentoBinding
@@ -28,23 +28,22 @@ import kotlin.collections.ArrayList
 
 class AdapterListaMedicamentos(
     private val list: ArrayList<MedicamentoComDoses>,
-    val context: FragmentListaMedicamentos,
+    val fragmentListaInstance: FragmentListaMedicamentos,
+    val context: Context,
     val medicamentoManager: MedicamentoManager,
-    val alarmReceiver: AlarmUtilsInterface
+    private val alarmReceiver: AlarmUtilsInterface
 ) : RecyclerView.Adapter<AdapterListaMedicamentos.ViewHolder>(), AdapterListaMedicamentosInterface {
     private lateinit var alarmUtilsInterface: AlarmUtilsInterface
-    //private var alarmReceiver: AlarmReceiver = AlarmReceiverSingleton.getInstance()
     private var listaIdMedicamentosTocandoNoMomento: ArrayList<Int> = ArrayList()
     private lateinit var fragmentListaMedicamentosInterface: FragmentListaMedicamentosInterface
-    private var mediaPlayer = MediaPlayer.create(context.requireContext(), Settings.System.DEFAULT_RINGTONE_URI)
+    private var mediaPlayer = MediaPlayer.create(fragmentListaInstance.requireContext(), Settings.System.DEFAULT_RINGTONE_URI)
 
 
     private lateinit var medicamentoDoseDao: MedicamentoDao
-    var listaComDosesToast: MutableLiveData<List<Doses>> = MutableLiveData()
 
 
     init {
-        initFragmentListaInterface(context)
+        initFragmentListaInterface(fragmentListaInstance)
         fragmentListaMedicamentosInterface.initDb()
         initAlarmReceiverInterface()
         idMedicamentoTocandoObserver()
@@ -57,7 +56,7 @@ class AdapterListaMedicamentos(
 
     private fun idMedicamentoTocandoObserver() {
 
-        alarmUtilsInterface.getAlarmeTocandoLiveData().observe(context as LifecycleOwner) {
+        alarmUtilsInterface.getAlarmeTocandoLiveData().observe(fragmentListaInstance as LifecycleOwner) {
 
         }
     }
@@ -77,6 +76,7 @@ class AdapterListaMedicamentos(
             //pega o horario da proxima dose para mostrar no item
             pegarHorarioProximaDose(medicamento)
             Log.d("testeshakingclock", "medicamento atual: ${medicamento.medicamentoTratamento.nomeMedicamento} alarme tocando: ${medicamento.medicamentoTratamento.alarmeTocando}")
+
 
 
 

@@ -122,14 +122,14 @@ object HiltModule {
 
     @Provides
     @Singleton
-    fun providesAlarmHelper(roomAccess: RoomAccess, funcoesDeTempo: FuncoesDeTempo, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2): AlarmHelper{
-        return AlarmHelperImpl(roomAccess, funcoesDeTempo, calendarHelper2, calendarHelper)
+    fun providesAlarmHelper(roomAccess: RoomAccess, funcoesDeTempo: FuncoesDeTempo, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2, @ApplicationContext context: Context): AlarmHelper{
+        return AlarmHelperImpl(roomAccess, funcoesDeTempo, calendarHelper2, calendarHelper, context)
     }
 
     @Provides
     @Singleton
-    fun provideAlarmUtilsInterface(roomAccess: RoomAccess, funcoesDeTempo: FuncoesDeTempo, calendarHelper2: CalendarHelper2, calendarHelper: CalendarHelper): AlarmUtilsInterface {
-        return AlarmHelperImpl(roomAccess, funcoesDeTempo, calendarHelper2, calendarHelper)
+    fun provideAlarmUtilsInterface(roomAccess: RoomAccess, funcoesDeTempo: FuncoesDeTempo, calendarHelper2: CalendarHelper2, calendarHelper: CalendarHelper, @ApplicationContext context: Context): AlarmUtilsInterface {
+        return AlarmHelperImpl(roomAccess, funcoesDeTempo, calendarHelper2, calendarHelper, context)
     }
 
     @Provides

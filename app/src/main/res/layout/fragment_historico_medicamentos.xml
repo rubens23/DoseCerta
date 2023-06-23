@@ -13,8 +13,24 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_margin="16dp"
         android:textSize="20sp"
+        android:visibility="invisible"
         app:layout_constraintTop_toTopOf="parent"
-        android:text="Medicamento"/>
+        android:text="@string/medicine"/>
+
+    <TextView
+        android:id="@+id/txt_no_data"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:text="@string/you_haven_t_finished_any_medication_yet"
+        android:textAlignment="center"
+        android:fontFamily="sans-serif"
+        android:textColor="?android:textColorPrimary"
+        android:textSize="22sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
     <TextView
         android:id="@+id/label_horario_dose"
@@ -23,9 +39,10 @@
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="16dp"
         android:textSize="20sp"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:text="Finalizado em:"/>
+        android:text="@string/finished_at"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"

@@ -24,4 +24,7 @@
     <string name="label_config_play_alarm_when_app_closed">Play alarm even after app is closed</string>
     <string name="label_play_alarm_after_device_reboot">Play alarm even after phone restart</string>
     <string name="cor_do_tema_do_app">App theme color</string>
+    <string name="you_haven_t_finished_any_medication_yet">you haven\'t finished any medication yet</string>
+    <string name="medicine">Medicine</string>
+    <string name="finished_at">Finished at:</string>
 </resources>

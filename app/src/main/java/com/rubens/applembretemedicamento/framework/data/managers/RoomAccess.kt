@@ -15,4 +15,5 @@ interface RoomAccess {
     fun colocarConfiguracoesAtualizadas(configuracoesEntity: ConfiguracoesEntity)
     fun pegarConfiguracoes(): ConfiguracoesEntity?
     fun atualizarDoseNaTabelaAlarms(listaDoses: ArrayList<Doses>, idAlarme: Int)
+    fun verSeMedicamentoEstaComAlarmeAtivado(idMedicamento: Int): Boolean
 }

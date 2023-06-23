@@ -93,17 +93,15 @@ class AlarmReceiver: BroadcastReceiver()  {
             //extras from intent
             medicamentoNoAlarme.listaDoses.forEach {
                 dose->
-                /**
-                 * todo converter ambas as horas para o mesmo formato antes de comparar
-                 * eu só tenho que me certificar que essa comparacao funcione: if(dose.dataHora == medicamentoNoAlarme.horaProxDose) porque essas strings podem estar em formatos diferentes
-                 */
-                Log.d("testingdose", "dose.horarioDose ${calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose)} medicamentoNoAlarme.horaProxDose ${medicamentoNoAlarme.horaProxDose}")
+                val alarmeDoMedicamentoAtivado = roomAccess.verSeMedicamentoEstaComAlarmeAtivado(medicamentoNoAlarme.idMedicamento)
+                Log.d("testingdose", "dose.horarioDose ${calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose)} medicamentoNoAlarme.horaProxDose ${calendarHelper2.formatarDataHoraSemSegundos(medicamentoNoAlarme.horaProxDose)}")
                 if(calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose) == calendarHelper2.formatarDataHoraSemSegundos(medicamentoNoAlarme.horaProxDose)){
-                    if(!dose.jaMostrouToast){
-                        var idMedicamento = medicamentoNoAlarme.idMedicamento
-                        notificarOFragmentDetalhesDeQueJaPodeMostrarBotaoDePararSom(idMedicamento)
-                        val horaDose = medicamentoNoAlarme.horaProxDose
-                        val nomeMedicamento = medicamentoNoAlarme.nomeMedicamento
+                    if(!dose.jaMostrouToast ){
+                        if(alarmeDoMedicamentoAtivado){
+                            var idMedicamento = medicamentoNoAlarme.idMedicamento
+                            notificarOFragmentDetalhesDeQueJaPodeMostrarBotaoDePararSom(idMedicamento)
+                            val horaDose = medicamentoNoAlarme.horaProxDose
+                            val nomeMedicamento = medicamentoNoAlarme.nomeMedicamento
 
 
 
@@ -112,29 +110,30 @@ class AlarmReceiver: BroadcastReceiver()  {
 
 
 
-                        initWakeLocker(p0)
-                        showToastTomeMedicamento(nomeMedicamento, p0)
-                        initOnAudioFocusChangeListener(p0)
+                            initWakeLocker(p0)
+                            showToastTomeMedicamento(nomeMedicamento, p0)
+                            initOnAudioFocusChangeListener(p0)
 
 
 
 
-                        notificarOFragmentListaDeQueOAlarmeDoMedicamentoEstaTocando(idMedicamento)
+                            notificarOFragmentListaDeQueOAlarmeDoMedicamentoEstaTocando(idMedicamento)
 
 
-                        val pendingIntent = criarPendingIntentComIdDoMedicamento(p0, idMedicamento)
+                            val pendingIntent = criarPendingIntentComIdDoMedicamento(p0, idMedicamento)
 
-                        createNotificationForMedicationAlarmThatIsRinging(
-                            nomeMedicamento,
-                            p0,
-                            horaDose,
-                            pendingIntent,
-                            idMedicamento
-                        )
+                            createNotificationForMedicationAlarmThatIsRinging(
+                                nomeMedicamento,
+                                p0,
+                                horaDose,
+                                pendingIntent,
+                                idMedicamento
+                            )
 
-                        val jaMostrouToast = true
-                        var doseAuxiliar = Doses(idDose = dose.idDose, nomeMedicamento = dose.nomeMedicamento, horarioDose = dose.horarioDose, intervaloEntreDoses = dose.intervaloEntreDoses, dataHora = dose.dataHora, qntDosesPorHorario = dose.qntDosesPorHorario, jaTomouDose = dose.jaTomouDose, jaMostrouToast = true)
-                        listaDoses.add(doseAuxiliar)
+                            var doseAuxiliar = Doses(idDose = dose.idDose, nomeMedicamento = dose.nomeMedicamento, horarioDose = dose.horarioDose, intervaloEntreDoses = dose.intervaloEntreDoses, dataHora = dose.dataHora, qntDosesPorHorario = dose.qntDosesPorHorario, jaTomouDose = dose.jaTomouDose, jaMostrouToast = true)
+                            listaDoses.add(doseAuxiliar)
+                        }
+
                     }else{
                         listaDoses.add(dose)
 

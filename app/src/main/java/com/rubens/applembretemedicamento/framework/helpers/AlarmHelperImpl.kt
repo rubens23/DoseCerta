@@ -7,14 +7,15 @@ import android.content.Intent
 import android.media.MediaPlayer
 import android.net.Uri
 import android.util.Log
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.appmedicamentos.utils.WakeLocker
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiver
+import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.AlarmEntity
 import com.rubens.applembretemedicamento.framework.data.entities.BroadcastReceiverOnReceiveData
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
+import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
 import com.rubens.applembretemedicamento.framework.data.managers.RoomAccess
 import com.rubens.applembretemedicamento.framework.services.ServiceMediaPlayer
 import com.rubens.applembretemedicamento.presentation.FragmentDetalhesMedicamentos
@@ -24,7 +25,6 @@ import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInt
 import com.rubens.applembretemedicamento.utils.AlarmUtilsInterface
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.CalendarHelper2
-import com.rubens.applembretemedicamento.utils.CalendarHelperImpl
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -35,9 +35,12 @@ class AlarmHelperImpl @Inject constructor(
     private val roomAccess: RoomAccess,
     private val funcoesDeTempo: FuncoesDeTempo,
     private val calendarHelper2: CalendarHelper2,
-    private val calendarHelper: CalendarHelper
+    private val calendarHelper: CalendarHelper,
+    private val context: Context
 ): AlarmHelper, AlarmUtilsInterface {
 
+    private var medicamento: MedicamentoComDoses? = null
+    private var horaProxDose: String? = null
     private lateinit var alarmManager: AlarmManager
     private lateinit var fragmentDetalhesMedicamentosUi: FragmentDetalhesMedicamentosUi
     private var listaDoses: ArrayList<Doses> = ArrayList()
@@ -448,6 +451,60 @@ class AlarmHelperImpl @Inject constructor(
 
 
         }
+
+    }
+
+    override fun verSeMedicamentoEstaComAlarmeAtivado(medicamentoTratamento: MedicamentoTratamento): Boolean {
+        return roomAccess.verSeMedicamentoEstaComAlarmeAtivado(medicamentoTratamento.idMedicamento)
+    }
+
+    override fun pegarProximaDoseESetarAlarme(medicamento: MedicamentoComDoses) {
+        this.horaProxDose = null
+        iterarSobreDosesEAcharProxima(medicamento)
+        initializeAlarmManager()
+    }
+
+    private fun iterarSobreDosesEAcharProxima(medicamento: MedicamentoComDoses) {
+        this.medicamento = medicamento
+        medicamento.listaDoses.forEach {
+                dose->
+            if(calendarHelper.convertStringToDateSemSegundos(calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose))!!.time > System.currentTimeMillis()){
+                this.horaProxDose = dose.horarioDose
+                return
+            }
+        }
+    }
+
+    private fun initializeAlarmManager() {
+        if(this.horaProxDose != null){
+            chamarMetodoParaSetarOAlarmNoAlarmReceiver()
+
+
+
+        }else{
+            Log.d("ahdosesacabaram","as doses acabaram")
+
+        }
+
+
+    }
+
+    private fun chamarMetodoParaSetarOAlarmNoAlarmReceiver() {
+        this.horaProxDose?.let {
+            setAlarm2(
+                medicamento!!.listaDoses[0].intervaloEntreDoses,
+                medicamento!!.medicamentoTratamento.idMedicamento,
+                context,
+                medicamento!!.listaDoses,
+                null,
+                null,
+                it,
+                medicamento!!.medicamentoTratamento.nomeMedicamento
+            )
+
+        }
+
+
 
     }
 

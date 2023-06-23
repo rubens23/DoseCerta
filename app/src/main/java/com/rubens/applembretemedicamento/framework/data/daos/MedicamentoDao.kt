@@ -121,4 +121,8 @@ interface MedicamentoDao {
     @Query("UPDATE AlarmEntity SET listaDoses=:listaDoses WHERE idAlarme =:idAlarme")
     fun atualizarDoseMudandoJaMostrouToast(listaDoses: ArrayList<Doses>, idAlarme: Int)
 
+    @Query("SELECT alarmeAtivado FROM MedicamentoTratamento WHERE idMedicamento =:idMedicamento")
+    fun verSeMedicamentoEstaComAlarmeAtivado(idMedicamento: Int): Boolean
+
+
 }

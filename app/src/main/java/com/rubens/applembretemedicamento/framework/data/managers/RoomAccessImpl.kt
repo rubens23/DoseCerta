@@ -49,5 +49,9 @@ class RoomAccessImpl @Inject constructor(
         dao.atualizarDoseMudandoJaMostrouToast(listaDoses, idAlarme)
     }
 
+    override fun verSeMedicamentoEstaComAlarmeAtivado(idMedicamento: Int): Boolean {
+        return dao.verSeMedicamentoEstaComAlarmeAtivado(idMedicamento)
+    }
+
 
 }

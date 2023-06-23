@@ -51,7 +51,8 @@ import com.rubens.applembretemedicamento.utils.AlarmUtilsInterface
 class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterface: AlarmUtilsInterface,
                                                     private val medicamentoManager: MedicamentoManager,
                                                     private val funcoesDeTempo: FuncoesDeTempo,
-                                                    private val calendarHelper: CalendarHelper
+                                                    private val calendarHelper: CalendarHelper,
+                                                    private val context: Context
                                                     ): Fragment(), FragmentListaMedicamentosInterface {
 
     private lateinit var binding: FragmentListaMedicamentosBinding
@@ -289,7 +290,7 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
     fun setAdapter(medicamentos: List<MedicamentoComDoses>?){
         Log.d("testeshakingclock", "to dentro do setadapter")
 
-            adapter = AdapterListaMedicamentos(medicamentos as ArrayList<MedicamentoComDoses>, this, medicamentoManager, alarmUtilsInterface)
+            adapter = AdapterListaMedicamentos(medicamentos as ArrayList<MedicamentoComDoses>, this,context, medicamentoManager, alarmUtilsInterface)
             binding.recyclerView.adapter = adapter
 
         initAdapterInterface()
@@ -298,8 +299,24 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
 
             setAdapterOnScrollListener()
             voltarARecyclerParaAPosicaoSalva()
+            loadAlarms(medicamentos)
 
 
+
+
+    }
+
+    private fun loadAlarms(medicamentos: ArrayList<MedicamentoComDoses>) {
+        medicamentos.forEach {
+            val medicamentoComAlarmeAtivado = alarmUtilsInterface.verSeMedicamentoEstaComAlarmeAtivado(it.medicamentoTratamento)
+            if(medicamentoComAlarmeAtivado){
+                    alarmUtilsInterface.initAlarmManager(context)
+                    alarmUtilsInterface.initAlarmIntent(context)
+                    alarmUtilsInterface.pegarProximaDoseESetarAlarme(it)
+
+
+            }
+        }
 
 
     }
