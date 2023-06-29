@@ -269,6 +269,7 @@ class AlarmHelperImpl @Inject constructor(
     }
 
     private fun adicionarPrfixoZeroNaHoraESufixoZeroZeroNaHora(horaProxDose: String): String {
+
         return horaProxDose.subSequence(0, 11).toString() + "0" + horaProxDose.subSequence(
             11,
             16
@@ -418,18 +419,26 @@ class AlarmHelperImpl @Inject constructor(
         mainActivityInterface.clearPendingIntentsList()
     }
 
-    override fun cancelAlarm(context: Context) {
+    override fun cancelAlarm(context: Context, qntAlarmesTocando: Int) {
         if(this::alarmManager.isInitialized){
             alarmManager.cancel(pendingIntent)
 
         }
 
-        WakeLocker.release()
-        val serviceIntent = Intent(context, ServiceMediaPlayer::class.java)
-        serviceIntent.action = "STOP_SERVICE"
-        //ContextCompat.startForegroundService(context, serviceIntent)
-        context.stopService(serviceIntent)
-        alarmeTocando.postValue(false)
+        if(qntAlarmesTocando < 2){
+            Log.d("controlcancel", "AlarmHelper a quantidade de alarmes tocando é menor do que 2 entao posso cancelar o som")
+            WakeLocker.release()
+            val serviceIntent = Intent(context, ServiceMediaPlayer::class.java)
+            serviceIntent.action = "STOP_SERVICE"
+            //ContextCompat.startForegroundService(context, serviceIntent)
+            context.stopService(serviceIntent)
+            alarmeTocando.postValue(false)
+        }else{
+            Log.d("controlcancel", "AlarmHelper a quantidade de alarmes tocando é MAIOR do que 1 entao NAO posso cancelar o som")
+
+        }
+
+
 
     }
 

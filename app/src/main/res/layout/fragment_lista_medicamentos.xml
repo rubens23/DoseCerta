@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:fontFamily="sans-serif-light"
-        android:text="Medicamentos"
+        android:text="@string/medicines"
         android:textColor="?android:textColorPrimary"
         android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"

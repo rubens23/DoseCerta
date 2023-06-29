@@ -88,9 +88,6 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
         savedInstanceState: Bundle?
     ): View {
 
-
-
-
         initDb()
 
         binding = FragmentListaMedicamentosBinding.inflate(inflater)
@@ -99,17 +96,8 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
 
 
 
-
-
-
-
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-
-
-
 
 
         registerAlarmeMedicamentoTocandoEventBus()
@@ -453,8 +441,8 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
 
             val medicamentoDao = getMedicamentoDao()
             if(medicamento.medicamentoTratamento.diasRestantesDeTratamento > 1){
-                medicamentoDao.diaConcluido(medicamento.medicamentoTratamento.diasRestantesDeTratamento - 1, medicamento.medicamentoTratamento.nomeMedicamento)
-                medicamentoDao.resetarDosesTomadasParaDiaNovoDeTratamento(false, medicamento.medicamentoTratamento.nomeMedicamento)
+                medicamentoDao.diaConcluido(medicamento.medicamentoTratamento.diasRestantesDeTratamento - medicamento.medicamentoTratamento.diasRestantesDeTratamento, medicamento.medicamentoTratamento.nomeMedicamento)
+                //medicamentoDao.resetarDosesTomadasParaDiaNovoDeTratamento(false, medicamento.medicamentoTratamento.nomeMedicamento)
                 Log.d("testeinserthistorico", "eu to dentro do if do coroutine scope")
 
             }else{

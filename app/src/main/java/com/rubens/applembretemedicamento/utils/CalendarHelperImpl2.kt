@@ -3,6 +3,7 @@ package com.rubens.applembretemedicamento.utils
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -77,18 +78,43 @@ class CalendarHelperImpl2: CalendarHelper2{
         return horasEmSegundos + minutosEmHoras
     }
 
+    /*
     override fun formatarDataHoraSemSegundos(dataString: String): String {
-        val formatoAtual = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
-        val formatoDesejado = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+        val formatoAtual = DateTimeFormatter.ofPattern("dd/MM/yyyy H:mm:ss", Locale.getDefault())
+        val formatoDesejado = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", Locale.getDefault())
 
         try {
-            val data = formatoAtual.parse(dataString)
+            val data = LocalDateTime.parse(dataString, formatoAtual)
             return formatoDesejado.format(data)
         } catch (e: Exception) {
             // A string não está no formato desejado, retorna a mesma string
             return dataString
         }
     }
+
+     */
+
+    override fun formatarDataHoraSemSegundos(dataString: String): String {
+        val formatoAtual = SimpleDateFormat("dd/MM/yyyy H:mm:ss", Locale.getDefault())
+        val formatoAtual2 = SimpleDateFormat("dd/MM/yyyy H:mm", Locale.getDefault())
+        val formatoDesejado = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+
+        try {
+            val data = formatoAtual.parse(dataString)
+            return formatoDesejado.format(data)
+        } catch (e: Exception) {
+            try {
+                val data2 = formatoAtual2.parse(dataString)
+                return formatoDesejado.format(data2)
+            }catch (e: ParseException){
+                return dataString
+
+            }
+            // A string não está no formato desejado, retorna a mesma string
+        }
+    }
+
+
 
     override fun formatarDataHoraComSegundos(dataString: String): String {
         val formatoAtual = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())

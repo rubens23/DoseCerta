@@ -6,4 +6,6 @@
     <string name="cor_do_tema_do_app">App theme color</string>
     <string name="you_haven_t_finished_any_medication_yet">you haven\'t finished any medication yet</string>
     <string name="finished_at">Finished at:</string>
+    <string name="times_a_day">times a day</string>
+    <string name="how_long_will_you_take_this_medicine">How long will you take this medicine?</string>
 </resources>

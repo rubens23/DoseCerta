@@ -33,9 +33,7 @@ class RoomAccessImpl @Inject constructor(
         return dao.podeTocarDepoisDeReiniciar()?.podeTocarDepoisDeReiniciar
     }
 
-    override fun podeTocarComOAppFechado(): Boolean?{
-        return dao.podeTocarDepoisDeReiniciar()?.podeTocarQuandoFechado
-    }
+
 
     override fun colocarConfiguracoesAtualizadas(configuracoesEntity: ConfiguracoesEntity){
         dao.inserirConfiguracoes(configuracoesEntity)

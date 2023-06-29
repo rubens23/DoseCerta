@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
+import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.FragmentCadastrarNovoMedicamentoBinding
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentCadastrarNovoMedicamento
@@ -113,7 +114,7 @@ class FragmentCadastrarNovoMedicamento @Inject constructor(
                     if(medicamento.medicamentoTratamento.nomeMedicamento == getNomeRemedioFromEditText()){
                         //medicamento com mesmo nome ja existe
                         Log.d("perseguindofluxo", "ja tem um medicmaento com esse nome")
-                        Toast.makeText(requireContext(), "Já existe um medicamento cadastrado com esse nome!", Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), getString(R.string.medicine_already_registered), Toast.LENGTH_LONG).show()
 
                         return@observe
                     }
@@ -160,7 +161,7 @@ class FragmentCadastrarNovoMedicamento @Inject constructor(
     }
 
     private fun showFailedInsertToast() {
-        Toast.makeText(requireContext(), "Erro ao cadastrar medicamento", Toast.LENGTH_LONG)
+        Toast.makeText(requireContext(), getString(R.string.error_registering_medication), Toast.LENGTH_LONG)
             .show()
     }
 
@@ -169,7 +170,7 @@ class FragmentCadastrarNovoMedicamento @Inject constructor(
     }
 
     private fun showToastMedicamentoInseridoComSucesso() {
-        Toast.makeText(requireContext(), "$nomeRemedio cadastrado com sucesso!", Toast.LENGTH_LONG)
+        Toast.makeText(requireContext(), "$nomeRemedio ${getString(R.string.registered_successfully)}", Toast.LENGTH_LONG)
             .show()
     }
 
@@ -291,7 +292,7 @@ class FragmentCadastrarNovoMedicamento @Inject constructor(
 
                 saveNewMedication(nomeRemedio, qntDoses, horarioPrimeiraDose, qntDiasTrat)
             }else{
-                Toast.makeText(requireContext(), "a data e hora que você escolheu para a primeira dose já passaram!", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), getString(R.string.dose_time_already_passed), Toast.LENGTH_LONG).show()
             }
 
 
@@ -306,7 +307,7 @@ class FragmentCadastrarNovoMedicamento @Inject constructor(
     private fun showErrorCadastratingNewMedicationToast() {
         Toast.makeText(
             requireContext(),
-            "Erro ao cadastrar medicamento. Verifique o preenchimento dos dados.",
+            getString(R.string.error_registering_medication_check_data),
             Toast.LENGTH_LONG
         ).show()
 

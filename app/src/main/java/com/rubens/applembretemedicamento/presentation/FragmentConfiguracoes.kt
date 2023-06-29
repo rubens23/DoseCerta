@@ -61,7 +61,6 @@ class FragmentConfiguracoes @Inject constructor(
     private fun setupSwitchers() {
         val configuracoes = viewModel.getSwitchersState()
         if (configuracoes != null){
-            binding.toggleAtivarAlarmeAppFechado.isChecked = configuracoes.podeTocarQuandoFechado
             binding.toggleAtivadoDepoisDeDesligar.isChecked = configuracoes.podeTocarDepoisDeReiniciar
         }else{
             viewModel.mudarConfiguracoes(ConfiguracoesEntity())
@@ -106,22 +105,14 @@ class FragmentConfiguracoes @Inject constructor(
             }
 
         }
-        binding.toggleAtivarAlarmeAppFechado.setOnCheckedChangeListener{
-            _, isChecked ->
-            if (isChecked){
-                viewModel.mudarConfiguracoes(ConfiguracoesEntity(podeTocarDepoisDeReiniciar = binding.toggleAtivadoDepoisDeDesligar.isChecked, podeTocarQuandoFechado = true))
-            }else{
-                viewModel.mudarConfiguracoes(ConfiguracoesEntity(podeTocarDepoisDeReiniciar = binding.toggleAtivadoDepoisDeDesligar.isChecked, podeTocarQuandoFechado = false))
 
-            }
-        }
 
         binding.toggleAtivadoDepoisDeDesligar.setOnCheckedChangeListener {
                 _, isChecked ->
             if (isChecked){
-                viewModel.mudarConfiguracoes(ConfiguracoesEntity(podeTocarDepoisDeReiniciar = true, podeTocarQuandoFechado = binding.toggleAtivarAlarmeAppFechado.isChecked))
+                viewModel.mudarConfiguracoes(ConfiguracoesEntity(podeTocarDepoisDeReiniciar = true))
             }else{
-                viewModel.mudarConfiguracoes(ConfiguracoesEntity(podeTocarDepoisDeReiniciar = false, podeTocarQuandoFechado = binding.toggleAtivarAlarmeAppFechado.isChecked))
+                viewModel.mudarConfiguracoes(ConfiguracoesEntity(podeTocarDepoisDeReiniciar = false))
 
             }
 
@@ -133,13 +124,13 @@ class FragmentConfiguracoes @Inject constructor(
 
         if(color == "Azul"){
             if(configuracoes != null){
-                roomAccess.colocarConfiguracoesAtualizadas(ConfiguracoesEntity(configuracoes.idConfiguracao, configuracoes.podeTocarQuandoFechado, configuracoes.podeTocarDepoisDeReiniciar, R.color.blue ))
+                roomAccess.colocarConfiguracoesAtualizadas(ConfiguracoesEntity(configuracoes.idConfiguracao, configuracoes.podeTocarDepoisDeReiniciar, R.color.blue ))
 
             }
 
         }else{
             if(configuracoes != null){
-                roomAccess.colocarConfiguracoesAtualizadas(ConfiguracoesEntity(configuracoes.idConfiguracao, configuracoes.podeTocarQuandoFechado, configuracoes.podeTocarDepoisDeReiniciar, R.color.rosa_salmao ))
+                roomAccess.colocarConfiguracoesAtualizadas(ConfiguracoesEntity(configuracoes.idConfiguracao, configuracoes.podeTocarDepoisDeReiniciar, R.color.rosa_salmao ))
 
             }
             //cor é vermelha

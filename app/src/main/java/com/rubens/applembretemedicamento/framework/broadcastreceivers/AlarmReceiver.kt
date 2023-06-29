@@ -21,7 +21,6 @@ import com.rubens.applembretemedicamento.framework.domain.eventbus.AlarmEvent
 import com.rubens.applembretemedicamento.framework.domain.eventbus.AlarmeMedicamentoTocando
 import com.rubens.applembretemedicamento.framework.services.ServiceMediaPlayer
 import com.rubens.applembretemedicamento.presentation.MainActivity
-import com.rubens.applembretemedicamento.utils.AppUtils
 import com.rubens.applembretemedicamento.utils.CalendarHelper2
 import com.rubens.applembretemedicamento.utils.CalendarHelperImpl
 import dagger.hilt.android.AndroidEntryPoint
@@ -45,24 +44,19 @@ class AlarmReceiver: BroadcastReceiver()  {
 
     override fun onReceive(p0: Context?, p1: Intent?) {
         context = p0
+        Log.d("controllingplay", "to no inicio do onreceive")
 
 
-        //todo dar um jeito de persistir o toast e fazer ele só aparecer uma vez por medicamento e por horario
 
-        val isAppOpenOrMinimized = AppUtils.isAppInForeground(context!!)
 
-        if(isAppOpenOrMinimized){
+
+
             procedimentosAoChegarAHoraDoAlarme(p0)
-        }else{
-            //app esta fechado
-            val podeTocarQuandoAppEstaFechado = roomAccess.podeTocarComOAppFechado()
-            if(podeTocarQuandoAppEstaFechado != null){
-                if(podeTocarQuandoAppEstaFechado){
-                    procedimentosAoChegarAHoraDoAlarme(p0)
-                }
-            }
 
-        }
+
+
+
+
 
 
 
@@ -96,7 +90,11 @@ class AlarmReceiver: BroadcastReceiver()  {
                 val alarmeDoMedicamentoAtivado = roomAccess.verSeMedicamentoEstaComAlarmeAtivado(medicamentoNoAlarme.idMedicamento)
                 Log.d("testingdose", "dose.horarioDose ${calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose)} medicamentoNoAlarme.horaProxDose ${calendarHelper2.formatarDataHoraSemSegundos(medicamentoNoAlarme.horaProxDose)}")
                 if(calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose) == calendarHelper2.formatarDataHoraSemSegundos(medicamentoNoAlarme.horaProxDose)){
-                    if(!dose.jaMostrouToast ){
+                    Log.d("controllingplay", "horas sao iguais ")
+
+                    if(!dose.jaMostrouToast){
+                        Log.d("controllingplay", "ainda nao mostrou toast para esse medicamento")
+
                         if(alarmeDoMedicamentoAtivado){
                             var idMedicamento = medicamentoNoAlarme.idMedicamento
                             notificarOFragmentDetalhesDeQueJaPodeMostrarBotaoDePararSom(idMedicamento)
@@ -136,10 +134,14 @@ class AlarmReceiver: BroadcastReceiver()  {
 
                     }else{
                         listaDoses.add(dose)
+                        Log.d("controllingplay", "ja mostrou toast")
+
 
                     }
                 }else{
                     listaDoses.add(dose)
+                    Log.d("controllingplay", "horas nao sao iguais, input 1 ${dose.horarioDose}  input 2 ${medicamentoNoAlarme.horaProxDose}")
+
                 }
             }
             roomAccess.atualizarDoseNaTabelaAlarms(listaDoses, medicamentoNoAlarme.idAlarme)
@@ -225,8 +227,9 @@ class AlarmReceiver: BroadcastReceiver()  {
 
     private fun showToastTomeMedicamento(nomeMedicamento: String?, p0: Context?) {
         Log.d("controletoast", "mostrei o toast do medicamento $nomeMedicamento")
-        if(nomeMedicamento != null){
-                Toast.makeText(p0, "Tome o medicamento $nomeMedicamento", Toast.LENGTH_LONG).show()
+        if(nomeMedicamento != null && p0 != null){
+                Toast.makeText(p0, "${p0.getString(R.string.take_dose_of)} $nomeMedicamento", Toast.LENGTH_LONG).show()
+
 
 
         }

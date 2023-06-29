@@ -11,6 +11,7 @@ import android.provider.Settings
 import android.util.Log
 import com.rubens.applembretemedicamento.framework.data.AppDatabase
 import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
+import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.domain.eventbus.AlarmEvent
 import com.rubens.applembretemedicamento.framework.domain.eventbus.MediaPlayerTocando
 import org.greenrobot.eventbus.EventBus
@@ -47,24 +48,33 @@ class ServiceMediaPlayer: Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         initDb(applicationContext)
         initDao()
-        var algumMedicamentoTocando = false
 
         if(intent?.action == "STOP_SERVICE"){
+            var algumMedicamentoTocando = false
+
+            val listaMedicamentosTocando = arrayListOf<MedicamentoComDoses>()
 
             medicamentoDoseDao.getAllMedicamentoWithDoses().forEach {
                 if(it.medicamentoTratamento.alarmeTocando){
                     algumMedicamentoTocando = true
-                    return@forEach
+                    listaMedicamentosTocando.add(it)
                 }
             }
 
             Log.d("stoptag", "entrei aqui na tag de stop service")
 
 
-            if(!algumMedicamentoTocando){
-                stopForeground(true)
-                stopSelf()
-                Log.d("stoptag", "nao tem nenhum medicamento tocando")
+            if(!algumMedicamentoTocando && listaMedicamentosTocando.isEmpty()){
+                Log.d("controlcancel", "nao tem nenhum medicamento tocando e a lista de medicamentos tocando esta vazia")
+
+                    stopForeground(true)
+                    stopSelf()
+                    Log.d("stoptag", "nao tem nenhum medicamento tocando")
+
+
+
+            }else{
+                Log.d("controlcancel", "temAlgumMedicamentoTocando $algumMedicamentoTocando lista.size ${listaMedicamentosTocando.isEmpty()}")
 
             }
             return START_NOT_STICKY

@@ -102,8 +102,9 @@ class AdapterListaMedicamentos(
                 if (dose.jaTomouDose && i != medicamento.listaDoses.size - 1) {
                     definiuProxDose = false
                 } else if (i == medicamento.listaDoses.size - 1 && dose.jaTomouDose) {
-                    proxDose = medicamento.medicamentoTratamento.horaPrimeiraDose
+                    //proxDose = medicamento.medicamentoTratamento.horaPrimeiraDose
                     fragmentListaMedicamentosInterface.launchCoroutineScope(medicamento)
+                    binding.horaProximaDose.text = context.getString(R.string.finished)
                     Log.d("testeinserthistorico", "eu to aqui no else if do adapter")
 
 
@@ -198,13 +199,19 @@ class AdapterListaMedicamentos(
 
 
         private fun formataStringProximaDoseIfStringSize16(proxDose: String?) {
+
             if (proxDose != null) {
+                Log.d("testefimdoses", "$proxDose")
+
                 Log.d("testeformatadapter", "to no if ${proxDose.length}")
 
                 if (proxDose.length == 16) {
                     Log.d("testeformatadapter", "to no if length == 18")
 
                     binding.horaProximaDose.text = proxDose.subSequence(11, 16)
+                }else{
+                    Log.d("testefimdoses", "as doses acabaram")
+
                 }
             }
 
@@ -212,11 +219,16 @@ class AdapterListaMedicamentos(
 
         private fun formataStringProximaDoseIfStringSize15(proxDose: String?) {
             if (proxDose != null) {
+                Log.d("testefimdoses", "$proxDose")
+
                 Log.d("testeformatadapter", "to no if ${proxDose.length}")
                 if (proxDose.length == 15) {
                     Log.d("testeformatadapter", "to no if length é 17")
 
                     binding.horaProximaDose.text = proxDose.subSequence(11, 15)
+                }else{
+                    Log.d("testefimdoses", "as doses acabaram")
+
                 }
             }
 

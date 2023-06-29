@@ -14,7 +14,7 @@
         android:layout_margin="16dp"
         android:textSize="20sp"
         app:layout_constraintTop_toTopOf="parent"
-        android:text="Início Tratamento: "/>
+        android:text="@string/treatment_start"/>
 
     <TextView
         android:id="@+id/data_inicio_tratamento"
@@ -36,7 +36,7 @@
         android:layout_marginHorizontal="16dp"
         android:textSize="20sp"
         app:layout_constraintTop_toBottomOf="@id/label_data_inicio_tratamento"
-        android:text="Término em: "/>
+        android:text="@string/end_in"/>
 
     <TextView
         android:id="@+id/data_termino_tratamento"
@@ -154,7 +154,7 @@
         android:layout_margin="16dp"
         android:textSize="20sp"
         app:layout_constraintTop_toBottomOf="@id/data_atual_selecionada"
-        android:text="Medicamento"/>
+        android:text="@string/medicine"/>
 
     <TextView
         android:id="@+id/label_horario_dose"
@@ -165,7 +165,7 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/data_atual_selecionada"
-        android:text="horário dose"/>
+        android:text="@string/dose_time"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"

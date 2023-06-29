@@ -8,7 +8,6 @@ import com.rubens.applembretemedicamento.R
 data class ConfiguracoesEntity(
     @PrimaryKey
     val idConfiguracao: Int = 1,
-    val podeTocarQuandoFechado: Boolean = true,
     val podeTocarDepoisDeReiniciar: Boolean = true,
     val colorResource: Int = R.color.rosa_salmao
 )

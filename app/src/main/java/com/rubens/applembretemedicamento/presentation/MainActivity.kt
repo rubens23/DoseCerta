@@ -31,7 +31,6 @@ import com.rubens.applembretemedicamento.framework.viewModels.ActivityHostAndFra
 import com.rubens.applembretemedicamento.framework.viewModels.MainActivityViewModel
 import com.rubens.applembretemedicamento.presentation.interfaces.FragmentListaMedicamentosInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
-import com.rubens.applembretemedicamento.utils.AppUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest

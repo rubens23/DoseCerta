@@ -19,40 +19,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/label_tocar_alarme_ate_com_app_fechado"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-medium"
-        android:text="@string/label_config_play_alarm_when_app_closed"
-        android:layout_marginTop="20dp"
-        android:textColor="?android:textColorPrimary"
-        android:lines="2"
-        android:maxLines="2"
-        android:textSize="22sp"
-        app:layout_constraintStart_toStartOf="@id/configuracoes_label"
-        app:layout_constraintTop_toBottomOf="@id/configuracoes_label"
-        app:layout_constraintEnd_toStartOf="@id/toggle_ativar_alarme_app_fechado" />
 
-    <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/toggle_ativar_alarme_app_fechado"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:checked="true"
-        app:layout_constraintStart_toEndOf="@id/label_tocar_alarme_ate_com_app_fechado"
-        app:layout_constraintTop_toTopOf="@id/label_tocar_alarme_ate_com_app_fechado"
-        app:layout_constraintBottom_toBottomOf="@id/label_tocar_alarme_ate_com_app_fechado"
-        app:layout_constraintEnd_toEndOf="parent" />
 
-    <FrameLayout
-        android:id="@+id/divisoria"
-        android:layout_width="match_parent"
-        android:layout_height="3dp"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/label_tocar_alarme_ate_com_app_fechado"
-        android:background="?attr/colorPrimary"/>
+
+
 
     <TextView
         android:id="@+id/label_tocar_alarme_ate_depois_de_desligar_cel"
@@ -66,8 +36,8 @@
         android:maxLines="2"
         android:textSize="22sp"
         app:layout_constraintStart_toStartOf="@id/configuracoes_label"
-        app:layout_constraintTop_toBottomOf="@id/divisoria"
-        app:layout_constraintEnd_toStartOf="@id/toggle_ativar_alarme_app_fechado" />
+        app:layout_constraintTop_toBottomOf="@id/configuracoes_label"
+        app:layout_constraintEnd_toStartOf="@id/toggle_ativado_depois_de_desligar" />
 
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/toggle_ativado_depois_de_desligar"
@@ -102,7 +72,7 @@
         android:textSize="22sp"
         app:layout_constraintStart_toStartOf="@id/configuracoes_label"
         app:layout_constraintTop_toBottomOf="@id/divisoria2"
-        app:layout_constraintEnd_toStartOf="@id/toggle_ativar_alarme_app_fechado" />
+        app:layout_constraintEnd_toStartOf="@id/iv_tema_vermelho" />
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/iv_tema_vermelho"

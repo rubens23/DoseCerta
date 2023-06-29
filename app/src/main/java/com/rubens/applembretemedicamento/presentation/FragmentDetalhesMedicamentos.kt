@@ -26,6 +26,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.gms.ads.MobileAds
+import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.FragmentDetalhesMedicamentosBinding
 import com.rubens.applembretemedicamento.framework.data.AppDatabase
 import com.rubens.applembretemedicamento.framework.data.MyDataStore
@@ -65,6 +66,7 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
     OnDeleteMedicamentoListener, FragmentDetalhesMedicamentosUi, DetalhesMedicamentosAdapterInterface {
 
 
+    private var qntAlarmesTocando: Int? = null
     private lateinit var extra: Serializable
     private lateinit var adapter : DetalhesMedicamentoAdapter
     lateinit var viewModel: ViewModelFragmentCadastrarNovoMedicamento
@@ -259,15 +261,14 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
         if(!doses.jaTomouDose){
             //mostrar o dialog confirmando a dose a ser tomada
             val alert: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(requireContext())
-            alert.setTitle("Tomar ${doses.nomeMedicamento}")
-            alert.setMessage("Você quer tomar a dose de ${doses.horarioDose} agora?")
-            Log.d("testehora", "${doses.horarioDose}")
-            alert.setPositiveButton("Sim", DialogInterface.OnClickListener { dialog, which ->
+            alert.setTitle("${getString(R.string.take)} ${doses.nomeMedicamento}")
+            alert.setMessage("${getString(R.string.do_u_wanna)} (${doses.horarioDose})?")
+            alert.setPositiveButton(getString(R.string.yes), DialogInterface.OnClickListener { dialog, _ ->
 
                 viewLifecycleOwner.lifecycleScope.launch {
                     medicamentoDoseDao.tomarDoseMedicamento(true, doses.idDose)
                 }
-                Toast.makeText(requireContext(), "você tomou a dose das ${doses.horarioDose}", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), "${doses.horarioDose} ${getString(R.string.dose_taken)}", Toast.LENGTH_LONG).show()
 
                 adapterMethodsInterface.atualizarDose(Doses(doses.idDose, doses.nomeMedicamento, doses.horarioDose, doses.intervaloEntreDoses, doses.dataHora, doses.qntDosesPorHorario, true))
 
@@ -285,9 +286,9 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
         }else{
             //mostrar o dialog confirmando a dose a ser tomada
             val alert: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(requireContext())
-            alert.setTitle("Dose Tomada!")
-            alert.setMessage("Você já tomou a dose das ${doses.horarioDose}!")
-            alert.setPositiveButton("OK", DialogInterface.OnClickListener { dialog, which ->
+            alert.setTitle(getString(R.string.dose_already_taken))
+            alert.setMessage(getString(R.string.dose_already_taken2))
+            alert.setPositiveButton(getString(R.string.ok), DialogInterface.OnClickListener { dialog, which ->
 
 
                 dialog.dismiss()
@@ -302,12 +303,7 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
 
 
 
-    override fun onStop() {
-        super.onStop()
 
-        Log.d("ciclodevida19", "to no onStop do fragment detalhes")
-
-    }
 
     override fun onDoseImageViewClick(doses: Doses) {
 
@@ -316,16 +312,16 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
         if(!doses.jaTomouDose){
             //mostrar o dialog confirmando a dose a ser tomada
             val alert: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(requireContext())
-            alert.setTitle("Tomar ${doses.nomeMedicamento}")
-            alert.setMessage("Você quer tomar a dose de ${doses.horarioDose} agora?")
-            alert.setPositiveButton("Sim", DialogInterface.OnClickListener { dialog, which ->
+            alert.setTitle("${getString(R.string.take)} ${doses.nomeMedicamento}")
+            alert.setMessage("${getString(R.string.do_u_wanna)} (${doses.horarioDose})?")
+            alert.setPositiveButton(getString(R.string.yes), DialogInterface.OnClickListener { dialog, which ->
 
                 GlobalScope.launch {
                     //doseAtualizada recebe a dose atualizada
                      medicamentoDoseDao.tomarDoseMedicamento(true, doses.idDose)
                 }
 
-                Toast.makeText(requireContext(), "você tomou a dose das ${doses.horarioDose}", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), "${doses.horarioDose} ${getString(R.string.dose_taken)}", Toast.LENGTH_LONG).show()
 
                 adapterMethodsInterface.atualizarDose(Doses(doses.idDose, doses.nomeMedicamento, doses.horarioDose, doses.intervaloEntreDoses, doses.dataHora, doses.qntDosesPorHorario, true))
 
@@ -335,7 +331,7 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
                 dialog.dismiss()
             })
 
-            alert.setNegativeButton("Não",
+            alert.setNegativeButton(getString(R.string.no),
                 DialogInterface.OnClickListener { dialog, which ->
                     dialog.dismiss() })
 
@@ -343,9 +339,9 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
         }else{
             //mostrar o dialog confirmando a dose a ser tomada
             val alert: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(requireContext())
-            alert.setTitle("Dose Tomada!")
-            alert.setMessage("Você já tomou a dose das ${doses.horarioDose}!")
-            alert.setPositiveButton("OK", DialogInterface.OnClickListener { dialog, which ->
+            alert.setTitle(getString(R.string.dose_already_taken))
+            alert.setMessage(getString(R.string.dose_already_taken2))
+            alert.setPositiveButton(getString(R.string.ok), DialogInterface.OnClickListener { dialog, _ ->
 
 
                 dialog.dismiss()
@@ -499,26 +495,6 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
 
     }
 
-    /*
-    private fun markToastAsShownInDataStore() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            val TOAST_ALREADY_SHOWN = booleanPreferencesKey(medicamentoManager.getMedicamento().stringDataStore)
-
-            val hasToastAlreadyShow = myDataStore.hasToastAlreadyShown(TOAST_ALREADY_SHOWN)
-            if (hasToastAlreadyShow){
-                Log.d("testepodetocar", "toast ja foi mostrado, portanto ele não vai aparecer denovo")
-
-            }else{
-                Log.d("testepodetocar", "toast ainda não foi mostrado, portanto ele aparecerá")
-
-
-                myDataStore.markToastAsShown(TOAST_ALREADY_SHOWN)
-
-            }
-        }
-    }
-
-     */
 
     private fun removeMedicamentoById(id: Int?) {
         if (id != null) {
@@ -598,6 +574,9 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
             cancelarOAlarmeNoBroadcastReceiver()
             hideBtnCancelarAlarme()
             showBtnArmarAlarme()
+
+
+
         }
         binding.btnPararSom.setOnClickListener {
             pararSomSeMediaPlayerEstiverTocando()
@@ -619,12 +598,13 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
 
     }
 
-    private fun pararSomSeMediaPlayerEstiverTocando() {
+    private fun pararSomSeMediaPlayerEstiverTocando(){
         if (getMediaPlayerInstance() != null){
             Log.d("testeplay2", "media player instance is not null ${getMediaPlayerInstance()}")
 
             if (getMediaPlayerInstance()!!.isPlaying){
                 Log.d("testeplay2", "media player is playing ${getMediaPlayerInstance()}")
+
 
 
                 stopMusicPlayer()
@@ -710,8 +690,8 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
     private fun createDeleteAlertDialog(medicamento: MedicamentoTratamento) {
         val alert: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(binding.root.context)
         alert.setTitle(medicamento.nomeMedicamento)
-        alert.setMessage("Tem certeza que deseja deletar o medicamento ${medicamento.nomeMedicamento}")
-        alert.setPositiveButton("Sim", DialogInterface.OnClickListener { dialog, which ->
+        alert.setMessage("${getString(R.string.sure_delete)} ${medicamento.nomeMedicamento}")
+        alert.setPositiveButton(getString(R.string.yes), DialogInterface.OnClickListener { dialog, _ ->
 
             procedimentosDaExclusaoDoMedicamento()
 
@@ -721,8 +701,8 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
             fecharFragment()
         })
 
-        alert.setNegativeButton("Não",
-            DialogInterface.OnClickListener { dialog, which ->
+        alert.setNegativeButton(getString(R.string.no),
+            DialogInterface.OnClickListener { dialog, _ ->
                 dialog.dismiss()
                 initIntertitialAd()
             })
@@ -742,7 +722,10 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
     }
 
     private fun cancelarOAlarmeNoBroadcastReceiver() {
-        medicamentoManager.getReceiver().cancelAlarm(requireContext())
+        if(qntAlarmesTocando != null){
+            medicamentoManager.getReceiver().cancelAlarm(requireContext(), qntAlarmesTocando!!)
+
+        }
     }
 
     private fun salvarNoBancoAInformacaoDeQueOAlarmeDoMedicamentoEstaDesligado() {
@@ -751,7 +734,7 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
 
 
     private fun mostrarToastDeAlarmeDesativado() {
-        Toast.makeText(requireContext(), "Alarme desativado para o ${(extra as MedicamentoComDoses).medicamentoTratamento.nomeMedicamento}!", Toast.LENGTH_LONG).show()
+        Toast.makeText(requireContext(), "${getString(R.string.alarm_deactivated_for)} ${(extra as MedicamentoComDoses).medicamentoTratamento.nomeMedicamento}!", Toast.LENGTH_LONG).show()
     }
 
 
@@ -778,21 +761,21 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
     }
 
     private fun stopMusicPlayer() {
-        val qntAlarmesTocando = viewModel.pegarTodosOsMedicamentosComAlarmeTocando()?.size
+        qntAlarmesTocando = viewModel.pegarTodosOsMedicamentosComAlarmeTocando()?.size
         if(qntAlarmesTocando != null){
             if(qntAlarmesTocando == 1){
+                Log.d("controlcancel", "quantidade de alarmes tocando é igual a 1 stopMusicPlayer")
                 //só para o som do alarme se só um medicamento estiver tocando o alarme no momento
                 alarmUtilsInterface.stopAlarmSound(requireContext())
+            }else{
+                Log.d("controlcancel", "quantidade de alarmes tocando é igual a $qntAlarmesTocando dont stopMusicPlayer")
+
             }
         }
 
     }
 
-    private fun markToastAsNotShownInDataStore() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            myDataStore.markToastAsNotShown(booleanPreferencesKey(medicamentoManager.getMedicamento().stringDataStore))
-        }
-    }
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -823,7 +806,7 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
     }
 
     override fun mostrarToastExcluido(nome: String) {
-        Toast.makeText(requireContext(), "o medicamento $nome foi excluído", Toast.LENGTH_LONG).show()
+        Toast.makeText(requireContext(), "${getString(R.string.the_medicine)} $nome ${getString(R.string.was_excluded)}", Toast.LENGTH_LONG).show()
     }
 
     override fun verificarSeDataJaPassou(dataFinalizacao: String): Boolean {
@@ -945,11 +928,11 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
         horaProxDose: String,
         medicamentoComDoses: MedicamentoComDoses
     ) {
-        Toast.makeText(requireContext(), "Alarme ativado para próxima dose de ${medicamentoComDoses.medicamentoTratamento.nomeMedicamento} às $horaProxDose", Toast.LENGTH_LONG).show()
+        Toast.makeText(requireContext(), "${getString(R.string.alarm_activated)} ${medicamentoComDoses.medicamentoTratamento.nomeMedicamento} ${getString(R.string.at)} $horaProxDose", Toast.LENGTH_LONG).show()
     }
 
     override fun showToastDosesAcabaram() {
-        Toast.makeText(requireActivity(), "as doses para esse medicamento acabaram!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireActivity(), getString(R.string.doses_are_over), Toast.LENGTH_SHORT).show()
     }
 
 

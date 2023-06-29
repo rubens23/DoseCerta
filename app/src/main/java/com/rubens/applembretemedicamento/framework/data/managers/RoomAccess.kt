@@ -11,7 +11,6 @@ interface RoomAccess {
     fun putNewActiveAlarmOnRoom(alarmEntity: AlarmEntity)
     fun getAllActiveAlarms(): List<AlarmEntity>
     fun podeTocarDepoisQueReiniciar(): Boolean?
-    fun podeTocarComOAppFechado(): Boolean?
     fun colocarConfiguracoesAtualizadas(configuracoesEntity: ConfiguracoesEntity)
     fun pegarConfiguracoes(): ConfiguracoesEntity?
     fun atualizarDoseNaTabelaAlarms(listaDoses: ArrayList<Doses>, idAlarme: Int)
