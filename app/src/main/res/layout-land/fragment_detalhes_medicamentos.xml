@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_margin="16dp"
+        android:visibility="gone"
         android:textSize="20sp"
         app:layout_constraintTop_toTopOf="parent"
         android:text="@string/treatment_start"/>
@@ -21,6 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone"
         android:layout_marginHorizontal="16dp"
         android:textSize="20sp"
         android:textColor="?android:textColorPrimary"
@@ -34,6 +36,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginHorizontal="16dp"
+        android:visibility="gone"
         android:textSize="20sp"
         app:layout_constraintTop_toBottomOf="@id/label_data_inicio_tratamento"
         android:text="@string/end_in"/>
@@ -42,6 +45,7 @@
         android:id="@+id/data_termino_tratamento"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="@id/data_inicio_tratamento"
         app:layout_constraintEnd_toEndOf="@id/data_inicio_tratamento"
         android:textSize="20sp"
@@ -57,7 +61,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:textSize="32sp"
-        android:layout_marginTop="20dp"
         android:textColor="?android:textColorPrimary"
         app:layout_constraintTop_toBottomOf="@id/label_data_termino_tratamento"
         tools:text="17/11/2022"/>
@@ -66,24 +69,24 @@
         android:id="@+id/back_arrow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="@id/label_data_termino_tratamento"
+        app:layout_constraintEnd_toStartOf="@id/data_atual_selecionada"
         app:layout_constraintTop_toTopOf="@id/data_atual_selecionada"
         app:layout_constraintBottom_toBottomOf="@id/data_atual_selecionada"
         android:src="@drawable/baseline_arrow_back_24"
         app:tint="?android:textColorPrimary"
         android:background="?android:attr/actionBarItemBackground"
-        android:layout_gravity="end"
-        android:layout_marginEnd="16dp"/>
+        android:layout_marginEnd="26dp"/>
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/forward_arrow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="@id/data_termino_tratamento"
+        app:layout_constraintStart_toEndOf="@id/data_atual_selecionada"
         app:layout_constraintTop_toTopOf="@id/data_atual_selecionada"
         app:layout_constraintBottom_toBottomOf="@id/data_atual_selecionada"
         android:src="@drawable/baseline_arrow_forward_24"
         app:tint="?android:textColorPrimary"
+        android:layout_marginStart="26dp"
         android:background="?android:attr/actionBarItemBackground"
         />
 
@@ -199,6 +202,7 @@
         app:strokeColor="?attr/colorPrimary"
         android:layout_margin="16dp"
         app:strokeWidth="2dp"
+        android:visibility="gone"
         android:clickable="true"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"

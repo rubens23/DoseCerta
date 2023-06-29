@@ -101,7 +101,6 @@ class AlarmHelperImpl @Inject constructor(
         if (mainActivity != null) {
             initAlarmIntent(mainActivity)
         }
-        var horaProximaDose = ""
 
 
 
@@ -163,12 +162,6 @@ class AlarmHelperImpl @Inject constructor(
 
 
 
-
-
-
-
-        //compara hora atual e hora proxima dose
-
         addPendingIntentToIntentList(pendingIntent, mainActivity, ctx)
         roomAccess.putMedicamentoDataOnRoom(
             BroadcastReceiverOnReceiveData(idMedicamento = idMedicamento, nomeMedicamento = nomeMedicamento, horaDose = calendarHelper2.formatarDataHoraSemSegundos(horaProxDose))
@@ -207,16 +200,7 @@ class AlarmHelperImpl @Inject constructor(
             applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
     }
 
-    private fun adicionarPrfixoZeroNaHoraESufixoZeroZeroNaHora(horaProxDose: String): String {
 
-        return horaProxDose.subSequence(0, 11).toString() + "0" + horaProxDose.subSequence(
-            11,
-            16
-        ).toString() + ":00"
-
-
-
-    }
 
     private fun initFragmentDetalhesInterface(ctx: FragmentDetalhesMedicamentos) {
         if (!this::fragmentDetalhesMedicamentosUi.isInitialized) {
@@ -239,15 +223,7 @@ class AlarmHelperImpl @Inject constructor(
 
     }
 
-    private fun adicionarPrefixoZeroNaHora(horaProxDose: String): String {
-        return  horaProxDose.subSequence(0, 11).toString() + "0" + horaProxDose.subSequence(
-            11,
-            16
-        ).toString()
 
-
-
-    }
 
     private fun initMainActivityInterface(ctx: MainActivity?) {
         if (ctx != null) {
@@ -258,19 +234,12 @@ class AlarmHelperImpl @Inject constructor(
     }
 
 
-    private fun getFormatadorComUmDigitoNaHora(): DateTimeFormatter {
-        return DateTimeFormatter.ofPattern("dd/MM/yyyy H:mm:ss")
-
-    }
 
 
 
 
 
-    private fun adicionarSufixoZeroZeroDepoisDaHora(horaProxDose: String): String {
-        return horaProxDose + ":00"
 
-    }
 
 
     private fun transformarHoraProximaDoseEmLocalDate(horaProximaDose: String): LocalDateTime {
@@ -280,9 +249,6 @@ class AlarmHelperImpl @Inject constructor(
 
     }
 
-    private fun getFormatadorComDoisDigitosNaHora(): DateTimeFormatter {
-        return DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
-    }
 
 
 
@@ -310,10 +276,7 @@ class AlarmHelperImpl @Inject constructor(
 
     }
 
-    private fun putExtraNoAlarmIntent(medicamentoIdStr: String, medicamentoId: Int) {
-        alarmIntent.putExtra(medicamentoIdStr, medicamentoId)
 
-    }
 
     private fun pegarDateTimeAtualEmMillisegundos(localDateHoraAtual: LocalDateTime): Long {
         return localDateHoraAtual.atOffset(ZoneOffset.UTC).toInstant().toEpochMilli()
@@ -322,21 +285,8 @@ class AlarmHelperImpl @Inject constructor(
 
     }
 
-    private fun putNomeMedicamentoEHoraProximaDoseNoExtraDoAlarmIntent(
-        horaProximaDose: String,
-        nmMedicamento: String
-    ) {
-        alarmIntent.data = Uri.parse(horaProximaDose)
-        alarmIntent.putExtra("nomemedicamento", nmMedicamento)
 
-    }
 
-    private fun adicionarSufixoZeroZeroDepoisDaHoraSeguindoFormatacaoDoCampoHorarioDoseDaTabelaDeDoses(
-        horarioDose: String
-    ): String {
-        return horarioDose + ":00"
-
-    }
 
     private fun makePendingIntent(context: Context, medicamentoId: Int, alarmIntent: Intent, i: Int): PendingIntent {
         return PendingIntent.getBroadcast(context, medicamentoId, alarmIntent, i)
@@ -345,10 +295,6 @@ class AlarmHelperImpl @Inject constructor(
     }
 
 
-    private fun cancelAlarmByPendingIntent(pendingIntent: PendingIntent) {
-        alarmManager.cancel(pendingIntent)
-
-    }
 
     override fun cancelAlarmByMedicamentoId(medicamentoId: Int, context: Context) {
         if(this::alarmManager.isInitialized){
@@ -357,9 +303,6 @@ class AlarmHelperImpl @Inject constructor(
         }
     }
 
-    private fun clearPendingIntentList() {
-        mainActivityInterface.clearPendingIntentsList()
-    }
 
     override fun cancelAlarm(context: Context, qntAlarmesTocando: Int) {
         if(this::alarmManager.isInitialized){
@@ -495,13 +438,6 @@ class AlarmHelperImpl @Inject constructor(
 
         return buttonStateLiveData
     }
-
-
-
-
-
-
-
 
 
 

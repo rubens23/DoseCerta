@@ -48,6 +48,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:overScrollMode="never"
+        tools:listitem="@layout/item_historico_medicamento"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:id="@+id/recycler_view_historico_medicamentos"
         app:layout_constraintTop_toBottomOf="@id/label_medicamento"
