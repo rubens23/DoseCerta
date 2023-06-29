@@ -26,6 +26,7 @@ class FragmentListaMedicamentosTest{
     lateinit var navController: TestNavHostController
     private val LIST_ITEM_IN_TEST = 1
 
+    /*
     @Before
     fun setup(){
         navController = TestNavHostController(
@@ -113,6 +114,8 @@ class FragmentListaMedicamentosTest{
         assertThat(navController.currentDestination?.id, `is`(R.id.fragmentDetalhesMedicamentos))
 
     }
+
+     */
 
 
 

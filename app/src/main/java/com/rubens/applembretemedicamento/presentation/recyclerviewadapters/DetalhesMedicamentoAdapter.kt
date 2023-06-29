@@ -2,8 +2,10 @@ package com.rubens.applembretemedicamento.presentation.recyclerviewadapters
 
 import android.content.Context
 import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.rubens.applembretemedicamento.R
@@ -122,6 +124,7 @@ class DetalhesMedicamentoAdapter(var listaDosagemMedicamento: MedicamentoComDose
         fun bind(doses: Doses){
             Log.d("atualizandorv", "eu entrei aqui no bind onde o item será atualizado ${doses.horarioDose} ${doses.jaTomouDose}")
             setDosageTakenOrNotTaken(doses)
+            setColors()
 
 
             binding.itemMedicamento.setOnClickListener {
@@ -144,6 +147,15 @@ class DetalhesMedicamentoAdapter(var listaDosagemMedicamento: MedicamentoComDose
 
 
 
+        }
+
+        private fun setColors() {
+            val attribute = android.R.attr.textColorPrimary
+            val typedValue = TypedValue()
+            context.requireContext().theme.resolveAttribute(attribute, typedValue, true)
+            val textColorPrimary = ContextCompat.getColor(context.requireContext(), typedValue.resourceId)
+
+            binding.ivStatusDosage.borderColor = textColorPrimary
         }
 
         private fun formatarHorarioDoseSeHorarioDoseSize16(doses: Doses) {

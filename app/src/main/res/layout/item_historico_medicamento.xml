@@ -20,11 +20,11 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="20dp"
+        android:textColor="?android:textColorPrimary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:text="@string/res_nome_med_detalhe"
-        android:textSize="32sp"
-        android:textColor="@color/black"/>
+        android:textSize="32sp" />
 
     <TextView
         android:id="@+id/data_finalizacao"
@@ -36,7 +36,8 @@
         android:layout_marginHorizontal="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:textColor="@color/black" />
+        android:textColor="?android:textColorPrimary"
+        />
 
 
 

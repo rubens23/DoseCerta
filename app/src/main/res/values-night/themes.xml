@@ -22,7 +22,7 @@
         <item name="colorControlNormal">@color/white</item>
     </style>
 
-    <style name="CustomThemeAzulDark" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="CustomThemeAzul" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/blue</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>

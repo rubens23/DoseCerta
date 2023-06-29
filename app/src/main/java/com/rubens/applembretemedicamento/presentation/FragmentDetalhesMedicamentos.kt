@@ -4,15 +4,18 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.DialogInterface
+import android.content.res.ColorStateList
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
@@ -112,12 +115,15 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
         setupToolbar()
         initAdapterListaMedicamentosInterface()
 
+
         return binding.root
     }
 
     private fun initAdapterMethodsInterface() {
         adapterMethodsInterface = adapter
     }
+
+
     
 
 
@@ -158,6 +164,7 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
         registerAlarmEventBus()
         observers()
         onClickListeners()
+
 
         Log.d("ciclodevida19", "to no onviewcreated view do fragment detalhes")
 
