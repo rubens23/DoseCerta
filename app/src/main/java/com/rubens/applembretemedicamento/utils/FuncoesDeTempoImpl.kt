@@ -20,7 +20,7 @@ class FuncoesDeTempoImpl: FuncoesDeTempo {
 
 
     override fun pegarHoraAtual(): String{
-        val formatarHora = SimpleDateFormat("HH:mm:ss")
+        val formatarHora = SimpleDateFormat("HH:mm")
         val hora = Calendar.getInstance().time
 
         val horaFormatada = formatarHora.format(hora)

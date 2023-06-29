@@ -1,5 +1,6 @@
 package com.rubens.applembretemedicamento.utils
 
+import android.util.Log
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -136,6 +137,19 @@ class CalendarHelperImpl2: CalendarHelper2{
         val dataFormatada = formatarData.format(data)
 
         return dataFormatada
+    }
+
+    override fun padronizarHoraProxDose(horaProxDose: String): String? {
+        val pattern = Regex("""(\d{2})[/:](\d{2})[/:](\d{4}) (\d{1,2}):(\d{2})""")
+        val matchResult = pattern.find(horaProxDose)
+
+        return if (matchResult != null) {
+            val (dia, mes, ano, hora, minuto) = matchResult.destructured
+            val horaPadronizada = hora.padStart(2, '0')
+            "$dia/$mes/$ano $horaPadronizada:$minuto"
+        } else {
+            null
+        }
     }
 
 

@@ -13,4 +13,5 @@ interface CalendarHelper2 {
     fun verificarSeDataJaPassou(dataTerminoTratamento: String): Boolean
     @Throws(ParseException::class)
     fun convertStringToDate(dateHour: String?): Date?
+    fun padronizarHoraProxDose(horaProxDose: String): String?
 }

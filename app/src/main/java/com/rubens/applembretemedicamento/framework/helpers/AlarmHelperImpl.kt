@@ -73,7 +73,9 @@ class AlarmHelperImpl @Inject constructor(
         nmMedicamento: String
     ) {
 
-        Log.d("testingname", "nome aqui no começo do setAlarm: $nmMedicamento")
+        var horaProxDosePadronizada = calendarHelper2.padronizarHoraProxDose(horaProxDose)
+        Log.d("testepattern", "saida $horaProxDosePadronizada")
+
 
 
 
@@ -101,77 +103,64 @@ class AlarmHelperImpl @Inject constructor(
         }
         var horaProximaDose = ""
 
-        var mudarFormatador = false
-        if (horaProxDose.get(2).toString() == "/") {
-            if (horaProxDose.length < 17) {
-                horaProximaDose = adicionarSufixoZeroZeroDepoisDaHora(horaProxDose)
-                if (horaProximaDose.length == 18) {
-                    mudarFormatador = true
-                }
-            } else {
-                if (horaProxDose.length == 18) {
-                    horaProximaDose = horaProxDose
-                    mudarFormatador = true
 
-                } else {
-                    if (horaProxDose.length == 19) {
-                        horaProximaDose = horaProxDose
-                        mudarFormatador = true
+
+
+        horaProxDosePadronizada?.let {
+            var localDateTimeHoraProximaDose: LocalDateTime = transformarHoraProximaDoseEmLocalDate(
+                horaProxDosePadronizada!!
+            )
+            var horaProximaDoseInMilliseconds = transformarDateTimeEmMilliseconds(localDateTimeHoraProximaDose)
+
+            val horaAtual = pegarDataEHoraAtualFormatada()
+            val localDateHoraAtual = pegarLocalDateTimeDaHoraAtual(horaAtual)
+            val horaAtualEmMillisegundos = pegarDateTimeAtualEmMillisegundos(localDateHoraAtual)
+
+            if (horaProximaDoseInMilliseconds > horaAtualEmMillisegundos) {
+                var millisegundosAteProximaDose = horaProximaDoseMenosHoraAtual(horaProximaDoseInMilliseconds, horaAtualEmMillisegundos)
+
+
+                //faz configurações finais na intent e inicializa o alarme
+                pendingIntent = makePendingIntent(ctx, idMedicamento, alarmIntent, 0)
+                Log.d("testepattern", "setei o alarme para $horaProxDosePadronizada")
+
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    System.currentTimeMillis() + millisegundosAteProximaDose,
+                    pendingIntent
+                )
+            } else {
+                run lit@{
+                    listaDoses.forEach { doses ->
+
+                        horaProxDosePadronizada = calendarHelper2.padronizarHoraProxDose(doses.horarioDose)
+                        horaProxDosePadronizada?.let{
+                            localDateTimeHoraProximaDose =
+                                transformarHoraProximaDoseEmLocalDate(horaProxDosePadronizada!!)
+                            horaProximaDoseInMilliseconds = transformarDateTimeEmMilliseconds(localDateTimeHoraProximaDose)
+                            if (horaProximaDoseInMilliseconds > horaAtualEmMillisegundos) {
+                                return@lit
+                            }
+                        }
 
                     }
-
                 }
 
+                pendingIntent = makePendingIntent(ctx, idMedicamento, alarmIntent, 0)
+                val millisegundosAteProximaDose =
+                    horaProximaDoseMenosHoraAtual(horaProximaDoseInMilliseconds, horaAtualEmMillisegundos)
+                Log.d("testepattern", "setei o alarme para $horaProxDosePadronizada")
+
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    System.currentTimeMillis() + millisegundosAteProximaDose,
+                    pendingIntent
+                )
+
             }
-
-        } else {
-
-            if (horaProxDose.get(1).toString() == ":") {
-                if (horaProximaDose.length < 16) {
-                    horaProximaDose = adicionarPrfixoZeroNaHoraESufixoZeroZeroNaHora(horaProxDose)
-                    mudarFormatador = true
-                } else {
-                    horaProximaDose = adicionarPrefixoZeroNaHora(horaProxDose)
-                    mudarFormatador = true
-
-                }
-            } else {
-                if (horaProximaDose.length < 16) {
-                    horaProximaDose = adicionarSufixoZeroZeroDepoisDaHora(horaProxDose)
-                    mudarFormatador = true
-                } else {
-                    horaProximaDose = horaProxDose
-                }
-            }
-
-        }
-
-        //escolher formatador baseado no size da string.
-        var dateTimeFormatter: DateTimeFormatter
-        if (mudarFormatador) {
-            if (horaProximaDose.length > 19) {
-                horaProximaDose = horaProximaDose.subSequence(0, 19).toString()
-            }
-            dateTimeFormatter = getFormatadorComUmDigitoNaHora()
-
-        } else {
-            if (horaProximaDose.length > 19) {
-                horaProximaDose = horaProximaDose.subSequence(0, 19).toString()
-            }
-            dateTimeFormatter = getFormatadorComDoisDigitosNaHora()
         }
 
 
-        //pegarHoraProximaDose e horaAtualEmMillisegundos
-        var localDateTimeHoraProximaDose: LocalDateTime = transformarHoraProximaDoseEmLocalDate(horaProximaDose, dateTimeFormatter)
-        var horaProximaDoseInMilliseconds = transformarDateTimeEmMilliseconds(localDateTimeHoraProximaDose)
-
-        val horaAtual = pegarDataEHoraAtualFormatada()
-        val localDateHoraAtual = pegarLocalDateTimeDaHoraAtual(horaAtual, dateTimeFormatter)
-        val horaAtualEmMillisegundos = pegarDateTimeAtualEmMillisegundos(localDateHoraAtual)
-
-        //colocar o id do medicamento na alarme intent para esse alarme ser unico para esse medicamento
-        putExtraNoAlarmIntent("medicamentoid", idMedicamento)
 
 
 
@@ -179,57 +168,7 @@ class AlarmHelperImpl @Inject constructor(
 
 
         //compara hora atual e hora proxima dose
-        if (horaProximaDoseInMilliseconds > horaAtualEmMillisegundos) {
-            var millisegundosAteProximaDose = horaProximaDoseMenosHoraAtual(horaProximaDoseInMilliseconds, horaAtualEmMillisegundos)
 
-
-            //faz configurações finais na intent e inicializa o alarme
-            putNomeMedicamentoEHoraProximaDoseNoExtraDoAlarmIntent(horaProximaDose, nmMedicamento)
-            pendingIntent = makePendingIntent(ctx, idMedicamento, alarmIntent, 0)
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                System.currentTimeMillis() + millisegundosAteProximaDose,
-                pendingIntent
-            )
-        } else {
-            run lit@{
-                listaDoses.forEach { doses ->
-
-                    if (doses.horarioDose.get(12).toString() == ":") {
-                        horaProximaDose = adicionarPrfixoZeroNaHoraESufixoZeroZeroNaHora(horaProxDose)
-                        mudarFormatador = true
-                    } else {
-                        if (horaProximaDose.length < 17) {
-                            horaProximaDose = adicionarSufixoZeroZeroDepoisDaHoraSeguindoFormatacaoDoCampoHorarioDoseDaTabelaDeDoses(doses.horarioDose)
-                        }
-                    }
-
-                    if (mudarFormatador) {
-                        dateTimeFormatter = getFormatadorComUmDigitoNaHora()
-                    } else {
-                        dateTimeFormatter = getFormatadorComDoisDigitosNaHora()
-                    }
-                    localDateTimeHoraProximaDose =
-                        transformarHoraProximaDoseEmLocalDate(horaProximaDose, dateTimeFormatter)
-                    horaProximaDoseInMilliseconds = transformarDateTimeEmMilliseconds(localDateTimeHoraProximaDose)
-                    if (horaProximaDoseInMilliseconds > horaAtualEmMillisegundos) {
-                        return@lit
-                    }
-                }
-            }
-
-            //faz configurações finais na alarm Intent e seta o alarme
-            putNomeMedicamentoEHoraProximaDoseNoExtraDoAlarmIntent(horaProximaDose, nmMedicamento)
-            pendingIntent = makePendingIntent(ctx, idMedicamento, alarmIntent, 0)
-            val millisegundosAteProximaDose =
-                horaProximaDoseMenosHoraAtual(horaProximaDoseInMilliseconds, horaAtualEmMillisegundos)
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                System.currentTimeMillis() + millisegundosAteProximaDose,
-                pendingIntent
-            )
-
-        }
         addPendingIntentToIntentList(pendingIntent, mainActivity, ctx)
         roomAccess.putMedicamentoDataOnRoom(
             BroadcastReceiverOnReceiveData(idMedicamento = idMedicamento, nomeMedicamento = nomeMedicamento, horaDose = calendarHelper2.formatarDataHoraSemSegundos(horaProxDose))
@@ -334,8 +273,9 @@ class AlarmHelperImpl @Inject constructor(
     }
 
 
-    private fun transformarHoraProximaDoseEmLocalDate(horaProximaDose: String, dateTimeFormatter: DateTimeFormatter): LocalDateTime {
-        return LocalDateTime.parse(horaProximaDose, dateTimeFormatter)
+    private fun transformarHoraProximaDoseEmLocalDate(horaProximaDose: String): LocalDateTime {
+        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+        return LocalDateTime.parse(horaProximaDose, formatter)
 
 
     }
@@ -346,8 +286,10 @@ class AlarmHelperImpl @Inject constructor(
 
 
 
-    private fun pegarLocalDateTimeDaHoraAtual(horaAtual: CharSequence, dateTimeFormatter: DateTimeFormatter): LocalDateTime {
-        return LocalDateTime.parse(horaAtual, dateTimeFormatter)
+    private fun pegarLocalDateTimeDaHoraAtual(horaAtual: CharSequence): LocalDateTime {
+        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+
+        return LocalDateTime.parse(horaAtual, formatter)
 
 
     }
