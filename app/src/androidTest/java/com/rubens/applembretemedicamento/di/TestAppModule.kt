@@ -36,8 +36,8 @@ object TestAppModule {
 
     @Provides
     @Named("db")
-    fun provideDB(@ApplicationContext context: Context): AppDatabase? {
-        return AppDatabase.getAppDatabase(context)
+    fun provideDB(@ApplicationContext context: Context): AppDatabase {
+        return AppDatabase.getAppDatabaseTest(context)
     }
 
     @Provides
@@ -48,8 +48,8 @@ object TestAppModule {
 
 
 
-    @Singleton
-    @Named("medicmaentoDao")
+    @Provides
+    @Named("medicamentoDao")
     fun provideMedicamentosDao(db: AppDatabase?): MedicamentoDao {
         return db!!.medicamentoDao
     }

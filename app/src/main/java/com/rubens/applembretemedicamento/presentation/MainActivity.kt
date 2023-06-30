@@ -25,7 +25,6 @@ import com.rubens.applembretemedicamento.framework.broadcastreceivers.OnRestartD
 import com.rubens.applembretemedicamento.framework.data.datastore.DataStoreTheme
 import com.rubens.applembretemedicamento.framework.data.datastore.interfaces.ThemeDataStoreInterface
 import com.rubens.applembretemedicamento.framework.data.entities.ConfiguracoesEntity
-import com.rubens.applembretemedicamento.framework.singletons.AlarmReceiverSingleton
 import com.rubens.applembretemedicamento.framework.viewModels.ActivityHostAndFragmentConfikguracoesSharedViewModel
 import com.rubens.applembretemedicamento.framework.viewModels.ActivityHostAndFragmentListaMedicamentosSharedViewModel
 import com.rubens.applembretemedicamento.framework.viewModels.MainActivityViewModel

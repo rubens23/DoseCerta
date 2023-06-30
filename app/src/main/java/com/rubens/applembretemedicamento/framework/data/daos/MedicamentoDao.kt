@@ -42,6 +42,9 @@ interface MedicamentoDao {
     @Query("SELECT * FROM MedicamentoTratamento WHERE nomeMedicamento = :nomeMedicamento")
     suspend fun getMedicamentoWithDoses(nomeMedicamento: String): List<MedicamentoComDoses>
 
+    @Query("SELECT * FROM MedicamentoTratamento")
+    fun getMedicamentos(): List<MedicamentoTratamento>
+
     @Query("SELECT * FROM AlarmEntity WHERE alarmActive = 1")
     fun getAllActiveAlarms(): List<AlarmEntity>
 

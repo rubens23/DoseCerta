@@ -14,7 +14,7 @@ class CalendarHelperImpl: CalendarHelper {
         val format = SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
         try {
             return format.parse(dateHour)
-        } catch (pe: ParseException) {
+        } catch (pe: Exception) {
             Log.e("erroparsestringdata", pe.message!!)
         }
         return null

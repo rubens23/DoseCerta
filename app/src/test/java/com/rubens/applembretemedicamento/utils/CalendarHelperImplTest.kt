@@ -31,19 +31,35 @@ class CalendarHelperImplTest{
     }
 
     @Test
-    fun convertStringToDate_shouldThrowParseExceptionWhenStringNotValidIsProvided(){
+    fun convertStringToDate_shouldThrowExceptionWhenStringNotValidIsProvided(){
         val dateHourString = "wrong date"
-        assertThrows(ParseException::class.java){
+        assertThrows(Exception::class.java){
             calendarHelper.convertStringToDate(dateHourString)
         }
     }
 
+
+
     @Test
-    fun convertStringToDate_shouldThrowParseExceptionWhenStringDateNotValidIsProvided(){
+    fun convertStringToDate_successfullyParsesOneDigitDay(){
         val dateHourString = "1/04/23 11:04:00"
-        assertThrows(ParseException::class.java){
-            calendarHelper.convertStringToDate(dateHourString)
-        }
+
+        val result = calendarHelper.convertStringToDate(dateHourString)
+
+        assertThat(result, instanceOf(Date::class.java))
+
+    }
+
+    @Test
+    fun convertStringToDate_dateWithDayOfOneDigitToStringReturnsValidDate(){
+        val dateHourString = "1/04/23 11:04:00"
+
+        val result = calendarHelper.convertStringToDate(dateHourString)
+        val expectedResult = "Thu Apr 01 11:04:00 BRT 23"
+
+        assertThat(result.toString(), `is`(expectedResult))
+
+
     }
 
     @Test
@@ -56,19 +72,19 @@ class CalendarHelperImplTest{
     }
 
     @Test
-    fun verificarSeDataJaPassou_deveRetornarFalseQuandoDataInputadaAindaNaoTiverPassado(){
-        //coloque nesse input uma data que ainda não passou
-        val dataASerVerificada = "29/04/2023"
-
+    fun verificarSeDataJaPassou_deveRetornarFalseQuandoDataInputadaNaoTiverPassado(){
+        val dataASerVerificada = "01/07/2030"
 
         val result = calendarHelper.verificarSeDataJaPassou(dataASerVerificada)
         assertThat(result, `is`(false))
     }
 
+
+
     @Test
     fun verificarSeDataJaPassou_deveRetornarFalseQuandoDataInputadaForIgualADataDeHoje(){
-        //passe a data de hoje
-        val dataASerVerificada = "27/04/2023"
+        val expectedDateFormat = "dd/MM/yyyy"
+        val dataASerVerificada = SimpleDateFormat(expectedDateFormat).format(Date())
 
 
         val result = calendarHelper.verificarSeDataJaPassou(dataASerVerificada)

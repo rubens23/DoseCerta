@@ -1,6 +1,7 @@
 package com.rubens.applembretemedicamento.framework.data
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -33,6 +34,7 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
 
         private var INSTANCE: AppDatabase? = null
+        private var TEST_INSTANCE: AppDatabase? = null
 
         private val MIGRATION_1_2 = MigrationFrom1To2()
 
@@ -50,6 +52,21 @@ abstract class AppDatabase : RoomDatabase() {
             }
             return INSTANCE
         }
+
+        fun getAppDatabaseTest(context: Context): AppDatabase {
+            if (TEST_INSTANCE == null) {
+
+                TEST_INSTANCE = Room.inMemoryDatabaseBuilder(
+                    context.applicationContext,
+                    AppDatabase::class.java
+                )
+                    .allowMainThreadQueries().build()
+                Log.d("nullinstance", "o test instance recebeu a instancia do room")
+            }
+            return TEST_INSTANCE!!
+        }
+
+
 
     }
 }
