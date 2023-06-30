@@ -175,7 +175,7 @@
             android:id="@+id/btn_open_time_picker"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="pick time"
+            android:text="@string/pick_time"
             android:backgroundTint="?attr/colorPrimary"
             android:textColor="@color/white"
             android:textStyle="bold"

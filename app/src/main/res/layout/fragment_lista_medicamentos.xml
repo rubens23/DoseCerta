@@ -16,7 +16,7 @@
         android:src="@drawable/baseline_settings_24"
         app:tint="?android:textColorPrimary"
         android:background="?android:attr/actionBarItemBackground"
-        android:layout_marginEnd="16dp"/>
+        android:layout_marginEnd="16dp" />
 
     <TextView
         android:id="@+id/medicamentos_label"
@@ -74,17 +74,7 @@
 
 
 
-    <Button
-        android:id="@+id/btn_stop_service"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="parar service"
-        android:visibility="gone"
-        android:backgroundTint="?attr/colorPrimary"
-        app:layout_constraintTop_toTopOf="@id/fab"
-        app:layout_constraintBottom_toBottomOf="@id/fab"
-        app:layout_constraintEnd_toStartOf="@id/fab"
-        android:layout_marginEnd="30dp"/>
+
 
 
 
@@ -105,7 +95,7 @@
         android:background="@drawable/ripple_oval"
         app:layout_constraintTop_toBottomOf="@id/data_atual"
         app:layout_constraintEnd_toEndOf="parent"
-        android:contentDescription="@string/res_btn_add" />
+        android:contentDescription="@string/add_new_medication" />
 
 
 
@@ -117,7 +107,8 @@
         app:layout_constraintBottom_toBottomOf="@id/guideline2"
         app:layout_constraintTop_toTopOf="@id/guideline"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        android:contentDescription="@string/image_you_dont_have_any_medication_registered_yet"/>
 
 
     <TextView

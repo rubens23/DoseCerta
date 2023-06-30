@@ -6,11 +6,13 @@
     <item
         android:id="@+id/medicamentosFragment"
         android:icon="@drawable/ic_pills_bottle"
-        android:title="@string/medicines"/>
+        android:title="@string/medicines"
+        android:contentDescription="@string/medicines"/>
 
     <item
         android:id="@+id/historicoFragment"
         android:icon="@drawable/ic_historico"
-        android:title="@string/history"/>
+        android:title="@string/history"
+        android:contentDescription="@string/medicines"/>
 
 </menu>

@@ -65,5 +65,10 @@
     <string name="alarm_deactivated_for">Alarme desativado para</string>
     <string name="take_dose_of">Tome a dose de</string>
     <string name="finished">finalizado</string>
+    <string name="image_you_dont_have_any_medication_registered_yet">você ainda não tem nenhum medicamento registrado</string>
+    <string name="add_new_medication">adicione um novo medicamento</string>
+    <string name="pick_time">escolha horário da dose</string>
+    <string name="button_to_change_theme_to_blue">mude o tema para azul</string>
+    <string name="button_to_change_theme_to_red">mude o tema para vermelho</string>
 
 </resources>

@@ -419,12 +419,7 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
         binding.btnSettings.setOnClickListener {
             findNavController().navigate(R.id.action_medicamentosFragment_to_fragmentConfiguracoes)
         }
-        binding.btnStopService.setOnClickListener {
-                val serviceIntent = Intent(requireContext(), ServiceMediaPlayer::class.java)
-                serviceIntent.action = "STOP_SERVICE"
-                ContextCompat.startForegroundService(requireContext(), serviceIntent)
 
-        }
     }
 
 

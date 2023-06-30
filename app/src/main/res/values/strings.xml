@@ -12,7 +12,7 @@
 
     <string name="hello_first_fragment">Dipirona</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
-    <string name="res_btn_add">Button to add new medicine</string>
+    <string name="res_btn_add">add new medicine</string>
     <string name="label_act_adicionar_medicamentos">Add Medicine</string>
     <string name="res_nome_med_detalhe">losartana</string>
     <string name="res_horario_dose">14:20</string>
@@ -65,5 +65,10 @@
     <string name="alarm_deactivated_for">Alarm deactivated for</string>
     <string name="take_dose_of">Take the dose of</string>
     <string name="finished">finished</string>
+    <string name="image_you_dont_have_any_medication_registered_yet">image you dont have any medication registered yet</string>
+    <string name="add_new_medication">add new medication</string>
+    <string name="pick_time">pick time</string>
+    <string name="button_to_change_theme_to_blue">change theme to blue</string>
+    <string name="button_to_change_theme_to_red">change theme to red</string>
 
 </resources>

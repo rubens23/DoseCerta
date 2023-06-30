@@ -85,7 +85,8 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         app:layout_constraintTop_toTopOf="@id/label_cor_tema"
         app:layout_constraintEnd_toStartOf="@id/iv_tema_azul"
-        android:src="@drawable/tema_vermelho"/>
+        android:src="@drawable/tema_vermelho"
+        android:contentDescription="@string/button_to_change_theme_to_red"/>
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/iv_tema_azul"
@@ -100,7 +101,8 @@
         android:clickable="true"
         android:background="?attr/selectableItemBackgroundBorderless"
         app:layout_constraintTop_toTopOf="@id/label_cor_tema"
-        android:src="@drawable/tema_azul"/>
+        android:src="@drawable/tema_azul"
+        android:contentDescription="@string/button_to_change_theme_to_blue"/>
 
 
 
