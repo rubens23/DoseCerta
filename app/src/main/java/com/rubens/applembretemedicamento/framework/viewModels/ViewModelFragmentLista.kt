@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.appmedicamentos.data.repository.MedicationRepositoryImpl
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
-import com.rubens.applembretemedicamento.framework.data.roomdatasourcemanager.DataSourceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -15,8 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ViewModelFragmentLista @Inject constructor(
-    private val medicationRepository: MedicationRepositoryImpl,
-    private val dataSourceManager: DataSourceManager
+    private val medicationRepository: MedicationRepositoryImpl
 ): ViewModel(){
 
     var medicamentos: MutableLiveData<List<MedicamentoComDoses>?> = MutableLiveData()

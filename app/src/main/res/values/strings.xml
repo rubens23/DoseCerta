@@ -76,5 +76,7 @@
     <string name="rate_now">Rate now</string>
     <string name="rate_later">Rate Later</string>
     <string name="never_show_again">Never show again</string>
+    <string name="how_many_months">How many months?</string>
+    <string name="how_many_days">How many days?</string>
 
 </resources>

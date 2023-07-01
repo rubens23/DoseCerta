@@ -71,6 +71,13 @@
     <string name="button_to_change_theme_to_blue">mude o tema para azul</string>
     <string name="button_to_change_theme_to_red">mude o tema para vermelho</string>
     <string name="take_your_dose">Tome sua dose das</string>
+    <string name="rate_our_app">Avalie nosso app</string>
+    <string name="if_you_are_enjoying_our_app_please_consider_leaving_a_review_this_helps_us_to_improve_and_offer_you_an_even_better_service">Se você está gostando do nosso aplicativo, considere deixar um comentário. Isso nos ajuda a melhorar e oferecer a você um serviço ainda melhor.</string>
+    <string name="rate_now">Avalie agora</string>
+    <string name="rate_later">Avalie depois</string>
+    <string name="never_show_again">Nunca mostrar denovo</string>
+    <string name="how_many_months">Quantos meses?</string>
+    <string name="how_many_days">Quantos dias?</string>
 
 
 </resources>

@@ -375,7 +375,7 @@ class FragmentCadastrarNovoMedicamento @Inject constructor(
     }
 
     private fun setTilMedicineTimeTreatmentHint() {
-        binding.tilMedicineTimeTreatment.hint = "Quantos meses?"
+        binding.tilMedicineTimeTreatment.hint = getString(R.string.how_many_months)
     }
 
     private fun hideContainerButtons() {
@@ -385,7 +385,7 @@ class FragmentCadastrarNovoMedicamento @Inject constructor(
 
     fun mudarVisibilidadeDasViewsRelacionadasADuracaoTratamento() {
         binding.containerButtons.visibility = View.INVISIBLE
-        binding.tilMedicineTimeTreatment.hint = "Quantos dias?"
+        binding.tilMedicineTimeTreatment.hint = getString(R.string.how_many_days)
         binding.tilMedicineTimeTreatment.visibility = View.VISIBLE
     }
 

@@ -845,7 +845,7 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
     override fun initIntertitialAd() {
         var adRequest = AdRequest.Builder().build()
 
-        InterstitialAd.load(requireContext(), "ca-app-pub-3940256099942544/1033173712", adRequest, object : InterstitialAdLoadCallback(){
+        InterstitialAd.load(requireContext(), "ca-app-pub-7310668570098943/7636714495", adRequest, object : InterstitialAdLoadCallback(){
             override fun onAdFailedToLoad(p0: LoadAdError) {
                 super.onAdFailedToLoad(p0)
                 Log.d("tagintersticial", p0.toString())

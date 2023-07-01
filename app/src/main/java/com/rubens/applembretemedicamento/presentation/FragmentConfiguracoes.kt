@@ -12,6 +12,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.MobileAds
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.FragmentConfiguracoesBinding
 import com.rubens.applembretemedicamento.framework.data.datastore.interfaces.ThemeDataStoreInterface
@@ -54,6 +56,7 @@ class FragmentConfiguracoes @Inject constructor(
         super.onViewCreated(view, savedInstanceState)
 
         initViewModel()
+        initAds()
         setupSwitchers()
         onClickListeners()
     }
@@ -164,6 +167,16 @@ class FragmentConfiguracoes @Inject constructor(
         mainActivityInterface = context as MainActivityInterface
 
     }
+
+
+    private fun initAds() {
+        MobileAds.initialize(requireContext()) {}
+
+
+        val adRequest = AdRequest.Builder().build()
+        binding.adView.loadAd(adRequest)
+    }
+
 
 
 }

@@ -3,7 +3,6 @@ package com.rubens.applembretemedicamento.framework.data.roomdatasourcemanager
 import android.content.Context
 import com.example.appmedicamentos.data.repository.MedicationRepositoryImpl
 import com.rubens.applembretemedicamento.BuildConfig
-import com.rubens.applembretemedicamento.framework.data.FakeMedicamentoData
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -12,6 +11,7 @@ import javax.inject.Singleton
 class DataSourceManager {
 
 
+    /*
 
 
         fun getDataSource(medicationRepository: MedicationRepositoryImpl): List<MedicamentoComDoses>? {
@@ -26,4 +26,6 @@ class DataSourceManager {
             }
 
     }
+
+     */
 }
