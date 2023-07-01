@@ -50,6 +50,7 @@ import com.rubens.applembretemedicamento.presentation.interfaces.OnDeleteMedicam
 import com.rubens.applembretemedicamento.presentation.recyclerviewadapters.DetalhesMedicamentoAdapter
 import com.rubens.applembretemedicamento.utils.AlarmUtilsInterface
 import com.rubens.applembretemedicamento.utils.CalendarHelper
+import com.rubens.applembretemedicamento.utils.CalendarHelper2
 import com.rubens.applembretemedicamento.utils.comunicacaoFragmentAdapter
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
 import dagger.hilt.android.AndroidEntryPoint
@@ -64,7 +65,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInterface: AlarmUtilsInterface,
                                                        private val funcoesDeTempo: FuncoesDeTempo,
-                                                       private val calendarHelper: CalendarHelper
+                                                       private val calendarHelper: CalendarHelper,
+                                                       private val calendarHelper2: CalendarHelper2
 ) : Fragment(), comunicacaoFragmentAdapter,
     OnDeleteMedicamentoListener, FragmentDetalhesMedicamentosUi, DetalhesMedicamentosAdapterInterface {
 
@@ -381,7 +383,7 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
     }
 
     private fun initDetalhesMedicamentosAdapter() {
-        adapter = DetalhesMedicamentoAdapter(extra as MedicamentoComDoses, this, diaAtualSelecionado)
+        adapter = DetalhesMedicamentoAdapter(extra as MedicamentoComDoses, this, diaAtualSelecionado, calendarHelper2)
     }
 
     private fun getHorarioStringFromExtraAndInitMedicamentoManagerMethods() {

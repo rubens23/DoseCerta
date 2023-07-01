@@ -124,13 +124,13 @@ class FragmentConfiguracoes @Inject constructor(
 
         if(color == "Azul"){
             if(configuracoes != null){
-                roomAccess.colocarConfiguracoesAtualizadas(ConfiguracoesEntity(configuracoes.idConfiguracao, configuracoes.podeTocarDepoisDeReiniciar, R.color.blue ))
+                roomAccess.colocarConfiguracoesAtualizadas(ConfiguracoesEntity(configuracoes.idConfiguracao, configuracoes.podeTocarDepoisDeReiniciar, colorResource = R.color.blue ))
 
             }
 
         }else{
             if(configuracoes != null){
-                roomAccess.colocarConfiguracoesAtualizadas(ConfiguracoesEntity(configuracoes.idConfiguracao, configuracoes.podeTocarDepoisDeReiniciar, R.color.rosa_salmao ))
+                roomAccess.colocarConfiguracoesAtualizadas(ConfiguracoesEntity(configuracoes.idConfiguracao, configuracoes.podeTocarDepoisDeReiniciar, colorResource = R.color.rosa_salmao ))
 
             }
             //cor é vermelha

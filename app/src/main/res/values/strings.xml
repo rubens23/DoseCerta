@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Medicine Reminder</string>
+    <string name="app_name">RightDose</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
@@ -70,5 +70,11 @@
     <string name="pick_time">pick time</string>
     <string name="button_to_change_theme_to_blue">change theme to blue</string>
     <string name="button_to_change_theme_to_red">change theme to red</string>
+    <string name="take_your_dose">Take your dose:</string>
+    <string name="rate_our_app">Rate our app</string>
+    <string name="if_you_are_enjoying_our_app_please_consider_leaving_a_review_this_helps_us_to_improve_and_offer_you_an_even_better_service">If you are enjoying our app, please consider leaving a review. This helps us to improve and offer you an even better service.</string>
+    <string name="rate_now">Rate now</string>
+    <string name="rate_later">Rate Later</string>
+    <string name="never_show_again">Never show again</string>
 
 </resources>

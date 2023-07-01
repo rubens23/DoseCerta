@@ -14,7 +14,7 @@ interface FragmentListaMedicamentosInterface {
     fun launchCoroutineScope(medicamento: MedicamentoComDoses)
     fun onMedicamentoClick(proxDose: String?, intervaloEntreDoses: Double, medicamento: MedicamentoComDoses, medicamentoManager: MedicamentoManager)
     fun changeFloatingActionButtonColor(color: Int)
-
+    fun showDialogOfEvaluation()
 
 
 }

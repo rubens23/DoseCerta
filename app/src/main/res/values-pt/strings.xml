@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Lembrete Medicamento</string>
+    <string name="app_name">DoseCerta</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
@@ -70,5 +70,7 @@
     <string name="pick_time">escolha horário da dose</string>
     <string name="button_to_change_theme_to_blue">mude o tema para azul</string>
     <string name="button_to_change_theme_to_red">mude o tema para vermelho</string>
+    <string name="take_your_dose">Tome sua dose das</string>
+
 
 </resources>

@@ -8,6 +8,7 @@ import com.rubens.applembretemedicamento.framework.data.managers.RoomAccess
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
 import com.rubens.applembretemedicamento.utils.AlarmUtilsInterface
 import com.rubens.applembretemedicamento.utils.CalendarHelper
+import com.rubens.applembretemedicamento.utils.CalendarHelper2
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
 import javax.inject.Inject
 
@@ -19,7 +20,8 @@ constructor(
     private val funcoesDeTempo: FuncoesDeTempo,
     private val calendarHelper: CalendarHelper,
     private val context: Context,
-    private val roomAccess: RoomAccess
+    private val roomAccess: RoomAccess,
+    private val calendarHelper2: CalendarHelper2
 
 ) : FragmentFactory() {
     override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
@@ -28,7 +30,7 @@ constructor(
                 FragmentListaMedicamentos(alarmUtilsInterface, medicamentoManager, funcoesDeTempo, calendarHelper, context)
             }
             FragmentDetalhesMedicamentos::class.java.name->{
-                FragmentDetalhesMedicamentos(alarmUtilsInterface, funcoesDeTempo, calendarHelper)
+                FragmentDetalhesMedicamentos(alarmUtilsInterface, funcoesDeTempo, calendarHelper, calendarHelper2)
             }
             FragmentHistoricoMedicamentos::class.java.name->{
                 FragmentHistoricoMedicamentos()

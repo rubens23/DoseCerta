@@ -1,6 +1,7 @@
 package com.rubens.applembretemedicamento.presentation
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -14,8 +15,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -48,6 +51,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import javax.inject.Inject
 import com.rubens.applembretemedicamento.utils.AlarmUtilsInterface
+import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
 class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterface: AlarmUtilsInterface,
@@ -180,8 +184,68 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
         sharedViewModel = ViewModelProvider(requireActivity())[ActivityHostAndFragmentListaMedicamentosSharedViewModel::class.java]
         viewModel = ViewModelProvider(requireActivity())[ViewModelFragmentLista::class.java]
         initObservers()
+        initCollectors()
         initFragmentInstance()
 
+    }
+
+    private fun initCollectors() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.pegouConfiguracoesDeAvaliacao.collectLatest {
+                    podeMostrarAvaliacao->
+                    if(podeMostrarAvaliacao){
+                        mostrarDialogAvaliacao()
+
+                    }
+                }
+            }
+        }
+    }
+
+    private fun mostrarDialogAvaliacao() {
+        val alertDialog = AlertDialog.Builder(requireContext())
+        alertDialog.setTitle(getString(R.string.rate_our_app))
+        alertDialog.setMessage(getString(R.string.if_you_are_enjoying_our_app_please_consider_leaving_a_review_this_helps_us_to_improve_and_offer_you_an_even_better_service))
+        alertDialog.setPositiveButton(getString(R.string.rate_now)) { dialog, which ->
+            // Aqui você pode direcionar o usuário para a página de avaliação do aplicativo na loja
+            initIntentToOpenPlayStore()
+        }
+        alertDialog.setNegativeButton(getString(R.string.rate_later)) { dialog, which ->
+            // Ação para o usuário decidir avaliar mais tarde
+        }
+        alertDialog.setNeutralButton(getString(R.string.never_show_again)) { _, _ ->
+            // Ação para o usuário decidir nunca mostrar o AlertDialog de avaliação novamente
+            viewModel.nuncaMaisMostrarDialogAvaliacao()
+        }
+        alertDialog.setCancelable(false)
+        alertDialog.show()
+    }
+
+    private fun initIntentToOpenPlayStore() {
+        /*
+    }
+        val packageName = packageName // Substitua pelo nome do pacote do seu aplicativo
+        val playStoreAppUri = "market://details?id=$packageName"
+        val playStoreWebUri = "https://play.google.com/store/apps/details?id=$packageName"
+
+        try {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = Uri.parse(playStoreAppUri)
+            intent.setPackage("com.android.vending") // Pacote do aplicativo da Play Store
+
+            // Verifica se o aplicativo da Play Store está instalado
+            if (intent.resolveActivity(packageManager) != null) {
+                startActivity(intent)
+            } else {
+                // Caso o aplicativo da Play Store não esteja instalado, abre a página na web
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(playStoreWebUri)))
+            }
+        } catch (e: ActivityNotFoundException) {
+            // Lidar com o caso de a Play Store não estar disponível no dispositivo
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(playStoreWebUri)))
+
+         */
     }
 
     private fun initFragmentInstance() {
@@ -441,6 +505,7 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
             val medicamentoDao = getMedicamentoDao()
             if(medicamento.medicamentoTratamento.diasRestantesDeTratamento > 1){
                 medicamentoDao.diaConcluido(medicamento.medicamentoTratamento.diasRestantesDeTratamento - medicamento.medicamentoTratamento.diasRestantesDeTratamento, medicamento.medicamentoTratamento.nomeMedicamento)
+
                 //medicamentoDao.resetarDosesTomadasParaDiaNovoDeTratamento(false, medicamento.medicamentoTratamento.nomeMedicamento)
                 Log.d("testeinserthistorico", "eu to dentro do if do coroutine scope")
 
@@ -457,6 +522,8 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
                         date
                     )
                 )
+
+                showDialogOfEvaluation()
 
 
                 medicamentoDao.deleteMedicamentoFromMedicamentoTratamento(medicamento.medicamentoTratamento.nomeMedicamento)
@@ -498,6 +565,10 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
         }
         binding.fab.backgroundTintList = ContextCompat.getColorStateList(requireContext(), color)
 
+    }
+
+    override fun showDialogOfEvaluation() {
+        viewModel.podeMostrarDialogDeAvaliacao()
     }
 
     @SuppressLint("SimpleDateFormat")

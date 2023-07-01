@@ -117,6 +117,28 @@ class CalendarHelperImpl2: CalendarHelper2{
 
 
 
+    override fun formatarDataHoraSemSegundos2(dataString: String): String {
+        val formatoAtual = SimpleDateFormat("dd/MM/yyyy H:mm", Locale.getDefault())
+        val formatoAtual2 = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+        val formatoDesejado = SimpleDateFormat("HH:mm", Locale.getDefault())
+
+        try {
+            val data = formatoAtual.parse(dataString)
+            return formatoDesejado.format(data)
+        } catch (e: Exception) {
+            try {
+                val data2 = formatoAtual2.parse(dataString)
+                return formatoDesejado.format(data2)
+            }catch (e: ParseException){
+                return dataString
+
+            }
+            // A string não está no formato desejado, retorna a mesma string
+        }
+    }
+
+
+
     override fun formatarDataHoraComSegundos(dataString: String): String {
         val formatoAtual = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
         val formatoDesejado = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())

@@ -14,4 +14,5 @@ interface CalendarHelper2 {
     @Throws(ParseException::class)
     fun convertStringToDate(dateHour: String?): Date?
     fun padronizarHoraProxDose(horaProxDose: String): String?
+    fun formatarDataHoraSemSegundos2(dataString: String): String
 }

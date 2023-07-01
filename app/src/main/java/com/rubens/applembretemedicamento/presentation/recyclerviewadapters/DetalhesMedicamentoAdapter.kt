@@ -17,9 +17,10 @@ import com.rubens.applembretemedicamento.presentation.interfaces.AccessAdapterMe
 import com.rubens.applembretemedicamento.presentation.interfaces.ConexaoBindingAdapterDetalhesMedicamentos
 import com.rubens.applembretemedicamento.presentation.interfaces.DetalhesMedicamentosAdapterInterface
 import com.rubens.applembretemedicamento.utils.CalendarHelper
+import com.rubens.applembretemedicamento.utils.CalendarHelper2
 
 
-class DetalhesMedicamentoAdapter(var listaDosagemMedicamento: MedicamentoComDoses, val context: FragmentDetalhesMedicamentos, private val dataAtual: String): RecyclerView.Adapter<DetalhesMedicamentoAdapter.ViewHolder>(),
+class DetalhesMedicamentoAdapter(var listaDosagemMedicamento: MedicamentoComDoses, val context: FragmentDetalhesMedicamentos, private val dataAtual: String, private val calendarHelper2: CalendarHelper2): RecyclerView.Adapter<DetalhesMedicamentoAdapter.ViewHolder>(),
     AccessAdapterMethodsInterface {
     private var listaDoses: ArrayList<Doses> = ArrayList()
     private lateinit var detalhesMedicamentosAdapterInterface: DetalhesMedicamentosAdapterInterface
@@ -136,8 +137,9 @@ class DetalhesMedicamentoAdapter(var listaDosagemMedicamento: MedicamentoComDose
 
             setNomeMedicamentoOnItemTextView(doses)
 
-            formatarHorarioDoseSeHorarioDoseSize15(doses)
-            formatarHorarioDoseSeHorarioDoseSize16(doses)
+            binding.timeDosage.text = calendarHelper2.formatarDataHoraSemSegundos2(doses.horarioDose)
+            //formatarHorarioDoseSeHorarioDoseSize15(doses)
+            //formatarHorarioDoseSeHorarioDoseSize16(doses)
 
 
 
@@ -162,7 +164,8 @@ class DetalhesMedicamentoAdapter(var listaDosagemMedicamento: MedicamentoComDose
             if(doses.horarioDose.length == 16){
 
                 binding.timeDosage.text = doses.horarioDose
-                Log.d("testelistadedoses", "${doses.nomeMedicamento} ${doses.horarioDose}")
+                Log.d("testdosestr", "${doses.nomeMedicamento} ${doses.horarioDose}")
+
 
             }
 
@@ -171,7 +174,7 @@ class DetalhesMedicamentoAdapter(var listaDosagemMedicamento: MedicamentoComDose
         private fun formatarHorarioDoseSeHorarioDoseSize15(doses: Doses) {
             if(doses.horarioDose.length == 15){
                 binding.timeDosage.text = doses.horarioDose
-                Log.d("testelistadedoses", "${doses.nomeMedicamento} ${doses.horarioDose}")
+                Log.d("testdosestr", "${doses.nomeMedicamento} ${doses.horarioDose}")
 
             }
 

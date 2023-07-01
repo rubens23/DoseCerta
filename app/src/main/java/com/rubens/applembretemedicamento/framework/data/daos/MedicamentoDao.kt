@@ -127,5 +127,8 @@ interface MedicamentoDao {
     @Query("SELECT alarmeAtivado FROM MedicamentoTratamento WHERE idMedicamento =:idMedicamento")
     fun verSeMedicamentoEstaComAlarmeAtivado(idMedicamento: Int): Boolean
 
+    @Query("UPDATE ConfiguracoesEntity SET podeMostrarDialogAvaliacao = :podeMostrar WHERE idConfiguracao = 1")
+    fun nuncaMaisMostrarDialogDeAvaliacao(podeMostrar: Boolean)
+
 
 }

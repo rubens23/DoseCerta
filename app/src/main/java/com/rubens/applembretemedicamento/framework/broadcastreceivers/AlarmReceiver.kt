@@ -69,7 +69,11 @@ class AlarmReceiver: BroadcastReceiver()  {
         listaMedicamentos.forEach {
             Log.d("monitorandofor", "it: ${it.horaProxDose} calendar: ${CalendarHelperImpl().pegarDataHoraAtual()}")
             if(it.horaProxDose == CalendarHelperImpl().pegarDataHoraAtual()+":00"){
+                Log.d("inspectinglistadd", "horario adicionado a lista de alarmes: ${it.horaProxDose} ${it.nomeMedicamento}")
                 listaDeAlarmesTocando.add(it)
+            }else{
+                Log.d("inspectinglistadd", "horario NÃO adicionado a lista de alarmes: ${it.horaProxDose} ${it.nomeMedicamento}")
+
             }
         }
 
@@ -77,29 +81,42 @@ class AlarmReceiver: BroadcastReceiver()  {
 
 
 
+        var horarioDoseAnterior = ""
 
 
+
+
+        Log.d("inspectinglistadd", "listaDeAlarmesTocando size ${listaDeAlarmesTocando.size}")
 
 
         listaDeAlarmesTocando.forEach {
                 medicamentoNoAlarme->
             val listaDoses = arrayListOf<Doses>()
+            Log.d("inspectinglistadd", "to aqui no primeiro for each")
             //extras from intent
             medicamentoNoAlarme.listaDoses.forEach {
                 dose->
+                Log.d("inspectinglistadd", "to aqui no segundo for each")
+
                 val alarmeDoMedicamentoAtivado = roomAccess.verSeMedicamentoEstaComAlarmeAtivado(medicamentoNoAlarme.idMedicamento)
                 Log.d("testingdose", "dose.horarioDose ${calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose)} medicamentoNoAlarme.horaProxDose ${calendarHelper2.formatarDataHoraSemSegundos(medicamentoNoAlarme.horaProxDose)}")
                 if(calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose) == calendarHelper2.formatarDataHoraSemSegundos(medicamentoNoAlarme.horaProxDose)){
-                    Log.d("controllingplay", "horas sao iguais ")
+                    Log.d("inspectinglistadd", "as horas sao iguais: ${calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose)} ${dose.nomeMedicamento}")
+
 
                     if(!dose.jaMostrouToast){
                         Log.d("controllingplay", "ainda nao mostrou toast para esse medicamento")
 
-                        if(alarmeDoMedicamentoAtivado){
+                        if(alarmeDoMedicamentoAtivado && horarioDoseAnterior != dose.horarioDose){
                             var idMedicamento = medicamentoNoAlarme.idMedicamento
                             notificarOFragmentDetalhesDeQueJaPodeMostrarBotaoDePararSom(idMedicamento)
                             val horaDose = medicamentoNoAlarme.horaProxDose
                             val nomeMedicamento = medicamentoNoAlarme.nomeMedicamento
+
+                            horarioDoseAnterior = dose.horarioDose
+
+
+                            Log.d("podetocaralarm", "toast, notificação e som serão acionados para a dose: $dose ")
 
 
 
@@ -130,6 +147,9 @@ class AlarmReceiver: BroadcastReceiver()  {
 
                             var doseAuxiliar = Doses(idDose = dose.idDose, nomeMedicamento = dose.nomeMedicamento, horarioDose = dose.horarioDose, intervaloEntreDoses = dose.intervaloEntreDoses, dataHora = dose.dataHora, qntDosesPorHorario = dose.qntDosesPorHorario, jaTomouDose = dose.jaTomouDose, jaMostrouToast = true)
                             listaDoses.add(doseAuxiliar)
+                        }else{
+                            Log.d("podetocaralarm", "essa dose era repetida, por isso ela nao tocou $dose ")
+
                         }
 
                     }else{
@@ -140,7 +160,9 @@ class AlarmReceiver: BroadcastReceiver()  {
                     }
                 }else{
                     listaDoses.add(dose)
-                    Log.d("controllingplay", "horas nao sao iguais, input 1 ${dose.horarioDose}  input 2 ${medicamentoNoAlarme.horaProxDose}")
+                    Log.d("inspectinglistadd", "as horas sao iguais: ${calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose)} ${dose.nomeMedicamento}")
+
+
 
                 }
             }
@@ -185,7 +207,7 @@ class AlarmReceiver: BroadcastReceiver()  {
         val notification = p0?.let { context ->
             NotificationCompat.Builder(context, "something")
                 .setContentTitle(nomeMedicamento)
-                .setContentText("Tome sua dose das " + horaDose + " o id do medicamento é $idMedicamento")
+                .setContentText("${context.getString(R.string.take_your_dose)} $horaDose")
                 .setSmallIcon(R.drawable.ic_pills_bottle)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)

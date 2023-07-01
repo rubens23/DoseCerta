@@ -3,6 +3,7 @@ package com.example.appmedicamentos.data.repository
 
 import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
+import com.rubens.applembretemedicamento.framework.data.entities.ConfiguracoesEntity
 import com.rubens.applembretemedicamento.framework.data.entities.HistoricoMedicamentos
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
 import javax.inject.Inject
@@ -34,6 +35,14 @@ class MedicationRepositoryImpl @Inject constructor(
 
     fun desativarTodosOsAlarmes(){
         medicamentoDao.desativarTodosOsAlarmes()
+    }
+
+    fun pegarConfiguracoes(): ConfiguracoesEntity {
+        return medicamentoDao.pegarConfiguracoes()
+    }
+
+    fun nuncaMaisMostrarDialogDeAvaliacao() {
+        medicamentoDao.nuncaMaisMostrarDialogDeAvaliacao(false)
     }
 
 }

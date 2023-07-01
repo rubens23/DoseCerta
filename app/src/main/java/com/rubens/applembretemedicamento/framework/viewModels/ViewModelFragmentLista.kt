@@ -2,11 +2,15 @@ package com.rubens.applembretemedicamento.framework.viewModels
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.appmedicamentos.data.repository.MedicationRepositoryImpl
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
 import com.rubens.applembretemedicamento.framework.data.roomdatasourcemanager.DataSourceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -17,6 +21,9 @@ class ViewModelFragmentLista @Inject constructor(
 
     var medicamentos: MutableLiveData<List<MedicamentoComDoses>?> = MutableLiveData()
     var recyclerViewPosition = 0
+
+    private val _pegouConfiguracoesDeAvaliacao: MutableSharedFlow<Boolean> = MutableSharedFlow(replay = 0)
+    val pegouConfiguracoesDeAvaliacao: SharedFlow<Boolean> = _pegouConfiguracoesDeAvaliacao
 
     init{
         loadMedications()
@@ -44,7 +51,17 @@ class ViewModelFragmentLista @Inject constructor(
         medicationRepository.insertMedicamento(medicamento)
     }
 
+    fun podeMostrarDialogDeAvaliacao() {
+        val configuracoes = medicationRepository.pegarConfiguracoes()
+        viewModelScope.launch {
+            _pegouConfiguracoesDeAvaliacao.emit(configuracoes.podeMostrarDialogAvaliacao)
+        }
 
+    }
+
+    fun nuncaMaisMostrarDialogAvaliacao() {
+        medicationRepository.nuncaMaisMostrarDialogDeAvaliacao()
+    }
 
 
 }
