@@ -2,6 +2,7 @@ package com.rubens.applembretemedicamento.presentation
 
 import android.app.TimePickerDialog
 import android.os.Bundle
+import android.text.format.DateFormat
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -223,6 +224,8 @@ class FragmentCadastrarNovoMedicamento @Inject constructor(
         val hour: Int = cal.get(Calendar.HOUR_OF_DAY)
         val minute: Int = cal.get(Calendar.MINUTE)
 
+        val is24HourFormat = DateFormat.is24HourFormat(requireContext())
+
         val timePickerDialog = TimePickerDialog(requireContext(),
             TimePickerDialog.OnTimeSetListener { view, hourOfDay, minuteOfDay ->
                 //Manipule o horário selecionado pelo usuário aqui
@@ -232,7 +235,7 @@ class FragmentCadastrarNovoMedicamento @Inject constructor(
                 //editText.setText(selectedTime)
                 timeFirstTake = selectedTime
             },
-            hour, minute, true)
+            hour, minute, is24HourFormat)
 
 
 
@@ -284,15 +287,20 @@ class FragmentCadastrarNovoMedicamento @Inject constructor(
         qntDiasTrat: Int?,
         diaInicioTratamento: String
     ) {
+        Log.d("pmam", "is 24 hour format ${DateFormat.is24HourFormat(requireContext())}")
+
 
         if (diaInicioTratamento.length == 10 && diaInicioTratamento.isNotEmpty() && qntDoses > 0 && nomeRemedio.isNotEmpty() && horarioPrimeiraDose.isNotEmpty() && horarioPrimeiraDose.length == 5 && horarioPrimeiraDose[2].toString() == ":" && binding.inputDataInicioTratamento.isDone && qntDiasTrat != null
             && horarioPrimeiraDose.isNotEmpty() && horarioPrimeiraDose.length == 5 && horarioPrimeiraDose[2].toString() == ":") {
             if(!calendarHelper.verificarSeDataHoraJaPassou("$diaInicioTratamento $horarioPrimeiraDose")){
 
+                Log.d("pmam", "$horarioPrimeiraDose")
 
                 saveNewMedication(nomeRemedio, qntDoses, horarioPrimeiraDose, qntDiasTrat)
             }else{
                 Toast.makeText(requireContext(), getString(R.string.dose_time_already_passed), Toast.LENGTH_LONG).show()
+                Log.d("pmam", "$horarioPrimeiraDose")
+
             }
 
 

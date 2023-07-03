@@ -8,7 +8,7 @@ interface CalendarHelper {
     fun somarUmDiaNumaData(data: String): String
     fun pegarDataHoraAtual(): String
     fun pegarDataAtual(): String
-    fun verificarSeDataHoraJaPassou(dataHoraTerminoTratamento: String): Boolean
+    fun verificarSeDataHoraJaPassou(horarioPrimeiraDoseTratamento: String): Boolean
     fun verificarSeDataJaPassou(dataTerminoTratamento: String): Boolean
     fun convertStringToDate(dateHour: String?): Date?
     fun convertStringToDateSemSegundos(dateHour: String?): Date?

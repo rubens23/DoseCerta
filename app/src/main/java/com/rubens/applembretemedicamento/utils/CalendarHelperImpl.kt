@@ -1,6 +1,8 @@
 package com.rubens.applembretemedicamento.utils
 
+import android.text.format.DateFormat
 import android.util.Log
+import java.text.DateFormatSymbols
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -40,20 +42,28 @@ class CalendarHelperImpl: CalendarHelper {
         val date1 = LocalDate.parse(date1Str, dateFormat)
         val date2 = LocalDate.parse(date2Str, dateFormat)
 
+
         return date1 > date2
 
 
 
     }
 
-    override fun verificarSeDataHoraJaPassou(dataHoraTerminoTratamento: String): Boolean {
+    override fun verificarSeDataHoraJaPassou(horarioPrimeiraDoseTratamento: String): Boolean {
         val dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
 
         val dateTime1Str = pegarDataHoraAtual()
-        val dateTime2Str = dataHoraTerminoTratamento
+        val dateTime2Str = horarioPrimeiraDoseTratamento
 
         val dateTime1 = LocalDateTime.parse(dateTime1Str, dateTimeFormat)
         val dateTime2 = LocalDateTime.parse(dateTime2Str, dateTimeFormat)
+
+        Log.d("pmam", "dateTime1 = $dateTime1 dateTime2 = $dateTime2  dateTime1 é maior que dateTime2? ${dateTime1 > dateTime2}")
+
+
+
+        Log.d("pmam", "dateTime1 = $dateTime1 dateTime2 = $dateTime2  dateTime1 é maior que dateTime2? ${dateTime1 > dateTime2}")
+
 
         return dateTime1 > dateTime2
     }
@@ -71,6 +81,18 @@ class CalendarHelperImpl: CalendarHelper {
         val currentDateTime = LocalDateTime.now()
 
         return currentDateTime.format(dateTimeFormat)
+    }
+
+    fun usaFormatoAMPM(): Boolean{
+        val symbols = DateFormatSymbols(Locale.getDefault())
+        val amPmPattern = symbols.amPmStrings[0]
+
+        Log.d("pmam", "$symbols")
+
+
+
+
+        return amPmPattern.isNotBlank()
     }
 
     override fun somarUmDiaNumaData(data: String): String{
