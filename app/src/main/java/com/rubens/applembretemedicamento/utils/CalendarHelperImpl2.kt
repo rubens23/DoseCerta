@@ -95,24 +95,43 @@ class CalendarHelperImpl2: CalendarHelper2{
 
      */
 
-    override fun formatarDataHoraSemSegundos(dataString: String): String {
-        val formatoAtual = SimpleDateFormat("dd/MM/yyyy H:mm:ss", Locale.getDefault())
-        val formatoAtual2 = SimpleDateFormat("dd/MM/yyyy H:mm", Locale.getDefault())
-        val formatoDesejado = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+    override fun formatarDataHoraSemSegundos(dataString: String, is24HourFormat: Boolean): String {
+        if(is24HourFormat){
+            val formatoAtual = SimpleDateFormat("dd/MM/yyyy H:mm:ss", Locale.getDefault())
+            val formatoAtual2 = SimpleDateFormat("dd/MM/yyyy H:mm", Locale.getDefault())
+            val formatoDesejado = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
 
-        try {
-            val data = formatoAtual.parse(dataString)
-            return formatoDesejado.format(data)
-        } catch (e: Exception) {
             try {
-                val data2 = formatoAtual2.parse(dataString)
-                return formatoDesejado.format(data2)
-            }catch (e: ParseException){
-                return dataString
+                val data = formatoAtual.parse(dataString)
+                return formatoDesejado.format(data)
+            } catch (e: Exception) {
+                try {
+                    val data2 = formatoAtual2.parse(dataString)
+                    return formatoDesejado.format(data2)
+                }catch (e: ParseException){
+                    return dataString
 
+                }
+                // A string não está no formato desejado, retorna a mesma string
             }
-            // A string não está no formato desejado, retorna a mesma string
+        }else {
+            val formatoAtual = SimpleDateFormat("dd/MM/yyyy h:mm a", Locale.getDefault())
+            val formatoAtual2 = SimpleDateFormat("dd/MM/yyyy h:mm", Locale.getDefault())
+            val formatoDesejado = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault())
+
+            try {
+                val data = formatoAtual.parse(dataString)
+                return formatoDesejado.format(data)
+            } catch (e: Exception) {
+                try {
+                    val data2 = formatoAtual2.parse(dataString)
+                    return formatoDesejado.format(data2)
+                } catch (e: ParseException) {
+                    return dataString
+                }
+            }
         }
+
     }
 
 
@@ -173,6 +192,8 @@ class CalendarHelperImpl2: CalendarHelper2{
             null
         }
     }
+
+
 
 
 }

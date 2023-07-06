@@ -1,5 +1,6 @@
 package com.rubens.applembretemedicamento.utils
 
+import android.content.Context
 import android.text.format.DateFormat
 import android.util.Log
 import java.text.DateFormatSymbols
@@ -9,8 +10,12 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import javax.inject.Inject
 
-class CalendarHelperImpl: CalendarHelper {
+
+class CalendarHelperImpl @Inject constructor(
+    private val context: Context
+): CalendarHelper {
 
     override fun convertStringToDate(dateHour: String?): Date? {
         val format = SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
@@ -22,14 +27,27 @@ class CalendarHelperImpl: CalendarHelper {
         return null
     }
 
-    override fun convertStringToDateSemSegundos(dateHour: String?): Date? {
-        val format = SimpleDateFormat("dd/MM/yyyy HH:mm")
-        try {
-            return format.parse(dateHour)
-        } catch (pe: ParseException) {
-            Log.e("erroparsestringdata", pe.message!!)
+    override fun convertStringToDateSemSegundos(dateHour: String?, is24HourFormat: Boolean): Date? {
+        if(is24HourFormat){
+            val format = SimpleDateFormat("dd/MM/yyyy HH:mm")
+            try {
+                return format.parse(dateHour)
+            } catch (pe: ParseException) {
+                Log.e("erroparsestringdata", pe.message!!)
+            }
+            return null
+        }else{
+            val format = SimpleDateFormat("dd/MM/yyyy h:mm a")
+            try {
+                return format.parse(dateHour)
+            } catch (pe: ParseException) {
+                Log.e("erroparsestringdata", pe.message!!)
+            }
+            return null
+
+
         }
-        return null
+
     }
 
     override fun verificarSeDataJaPassou(dataTerminoTratamento: String): Boolean{
@@ -49,23 +67,50 @@ class CalendarHelperImpl: CalendarHelper {
 
     }
 
-    override fun verificarSeDataHoraJaPassou(horarioPrimeiraDoseTratamento: String): Boolean {
-        val dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+    override fun verificarSeDataHoraJaPassou(horarioPrimeiraDoseTratamento: String, is24HourFormat: Boolean): Boolean {
+        Log.d("testingsetalarm3", "eu to aqui no metodo verificarSeDataHoraJaPassou, com a hora: $horarioPrimeiraDoseTratamento")
 
-        val dateTime1Str = pegarDataHoraAtual()
-        val dateTime2Str = horarioPrimeiraDoseTratamento
+
+
+        var dateTimeFormat: DateTimeFormatter
+
+        var dateTime1Str: String
+
+        if(is24HourFormat){
+            dateTime1Str = pegarDataHoraAtual(DateFormat.is24HourFormat(context))
+            dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+
+            Log.d("pmam2", "formato de 24 $dateTime1Str")
+
+        }else{
+            dateTime1Str = pegarDataHoraAtualIn12HoursFormat() //03/07/2023 14:13
+            dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a")
+
+            Log.d("pmam2", "formato de 12 $dateTime1Str")
+
+
+        }
+
+        val dateTime2Str = horarioPrimeiraDoseTratamento //03/07/2023 05:30
 
         val dateTime1 = LocalDateTime.parse(dateTime1Str, dateTimeFormat)
         val dateTime2 = LocalDateTime.parse(dateTime2Str, dateTimeFormat)
 
-        Log.d("pmam", "dateTime1 = $dateTime1 dateTime2 = $dateTime2  dateTime1 é maior que dateTime2? ${dateTime1 > dateTime2}")
+        Log.d("pmam2", "dateTime1 = $dateTime1 dateTime2 = $dateTime2  dateTime1 é maior que dateTime2? ${dateTime1 > dateTime2}")
 
 
 
-        Log.d("pmam", "dateTime1 = $dateTime1 dateTime2 = $dateTime2  dateTime1 é maior que dateTime2? ${dateTime1 > dateTime2}")
+        Log.d("pmam2", "dateTime1 = $dateTime1 dateTime2 = $dateTime2  dateTime1 é maior que dateTime2? ${dateTime1 > dateTime2}")
 
 
         return dateTime1 > dateTime2
+    }
+
+    private fun pegarDataHoraAtualIn12HoursFormat(): String {
+        val calendar = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault())
+        return dateFormat.format(calendar.time)
+
     }
 
     override fun pegarDataAtual(): String{
@@ -76,11 +121,19 @@ class CalendarHelperImpl: CalendarHelper {
         return dataFormatada
     }
 
-    override fun pegarDataHoraAtual(): String {
-        val dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
-        val currentDateTime = LocalDateTime.now()
+    override fun pegarDataHoraAtual(is24HourFormat: Boolean): String {
+        if(is24HourFormat){
+            val dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+            val currentDateTime = LocalDateTime.now()
 
-        return currentDateTime.format(dateTimeFormat)
+            return currentDateTime.format(dateTimeFormat)
+        }else{
+            val dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a")
+            val currentDateTime = LocalDateTime.now()
+
+            return currentDateTime.format(dateTimeFormat)
+        }
+
     }
 
     fun usaFormatoAMPM(): Boolean{

@@ -25,7 +25,8 @@ class MedicamentoManager @Inject constructor(
     val context: Context,
     private val alarmHelper: AlarmHelper,
     private val calendarHelper: CalendarHelper,
-    private val calendarHelper2: CalendarHelper2
+    private val calendarHelper2: CalendarHelper2,
+    private val is24HourFormat: Boolean
 ) : Parcelable {
     lateinit var fragCtx: FragmentDetalhesMedicamentos
     var nomeMedicamento = ""
@@ -41,7 +42,7 @@ class MedicamentoManager @Inject constructor(
 
     private lateinit var extra: Serializable
 
-    constructor(parcel: Parcel, alarmReceiver: AlarmReceiver, context: Context, alarmHelper: AlarmHelper, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2) : this(context, alarmHelper, calendarHelper, calendarHelper2) {
+    constructor(parcel: Parcel, alarmReceiver: AlarmReceiver, context: Context, alarmHelper: AlarmHelper, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2, is24HourFormat: Boolean) : this(context, alarmHelper, calendarHelper, calendarHelper2, is24HourFormat) {
         nomeMedicamento = parcel.readString().toString()
         horaProxDose = parcel.readString()
         intervaloEntreDoses = parcel.readDouble()
@@ -94,16 +95,52 @@ class MedicamentoManager @Inject constructor(
 
     private fun updateHoraProxDose(str: String) {
         horaProxDose = str
+        Log.d("achandoatrihora", "eu fiz a atribuicao da hora aqui no updateHoraProxDose $horaProxDose")
+
     }
 
     fun startUpdateHoraProxDose(str: String) {
         updateHoraProxDose(str)
+        Log.d("achandoatrihora", "o startUpdateHoraProxDose foi chamado")
+
     }
 
 
     private fun initializeAlarmManager() {
         if(horaProxDose != null){
-            chamarMetodoParaSetarOAlarmNoAlarmReceiver()
+
+            if(is24HourFormat){
+                if(!calendarHelper.verificarSeDataHoraJaPassou(horaProxDose!!, true)){
+                    //seta o alarme com essa hora mesmo
+                    chamarMetodoParaSetarOAlarmNoAlarmReceiver()
+                    Log.d("testingsetalarm3", "o formato é 24 horas e o horario dessa dose ainda nao passou.")
+
+
+                }else{
+                    //pega a proxima dose mais proxima
+                    armarProximoAlarme()
+                    Log.d("testingsetalarm3", "o formato é 24 horas e o horario dessa dose ja passou.")
+
+                }
+            }else{
+                if(!calendarHelper.verificarSeDataHoraJaPassou(horaProxDose!!, false)){
+                    //seta o alarme com essa hora mesmo
+                    chamarMetodoParaSetarOAlarmNoAlarmReceiver()
+                    Log.d("testingsetalarm3", "o formato é 12 horas e o horario dessa dose ainda nao passou.")
+
+
+                }else{
+                    //pega a proxima dose mais proxima
+                    armarProximoAlarme()
+                    Log.d("testingsetalarm3", "o formato é 12 horas e o horario dessa dose ja passou.")
+
+                }
+
+
+            }
+
+
+            Log.d("testingsetalarm3", "hora do proximo alarme nao é nula, proximo alarme pode ser setado.")
 
 
 
@@ -142,6 +179,8 @@ class MedicamentoManager @Inject constructor(
 
 
     fun armarProximoAlarme() {
+        Log.d("testingsetalarm3", "eu passei aqui pelo metodo armarProximoAlarmea")
+
         iterarSobreDosesEAcharProxima()
         initializeAlarmManager()
 
@@ -150,10 +189,12 @@ class MedicamentoManager @Inject constructor(
 
 
     private fun iterarSobreDosesEAcharProxima(){
+        Log.d("testingsetalarm3", "eu passei aqui pelo metodo iterarSobreDosesEAcharProxima")
         (extra as MedicamentoComDoses).listaDoses.forEach {
                 dose->
-            if(calendarHelper.convertStringToDateSemSegundos(calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose))!!.time > System.currentTimeMillis()){
+            if(calendarHelper.convertStringToDateSemSegundos(calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, is24HourFormat), is24HourFormat)!!.time > System.currentTimeMillis()){
                 horaProxDose = dose.horarioDose
+                Log.d("achandoatrihora", "eu fiz a atribuicao da hora aqui no iterarSobreDosesEAcharProxima $horaProxDose")
                 return
             }
         }
@@ -203,7 +244,8 @@ class MedicamentoManager @Inject constructor(
             val alarmHelper = (parcel.readSerializable() as? AlarmHelper) ?: error("Failed to read AlarmHelper from Parcel.")
             val calendarHelper = (parcel.readSerializable() as? CalendarHelper) ?: error("Failed to read CalendarHelper from Parcel.")
             val calendarHelper2 = (parcel.readSerializable() as? CalendarHelper2) ?: error("Failed to read CalendarHelper from Parcel.")
-            return MedicamentoManager(parcel, ar, context, alarmHelper, calendarHelper, calendarHelper2)
+            val is24HourFormat = (parcel.readSerializable() as? Boolean) ?: error("Failed to read CalendarHelper from Parcel.")
+            return MedicamentoManager(parcel, ar, context, alarmHelper, calendarHelper, calendarHelper2, is24HourFormat)
         }
 
         override fun newArray(size: Int): Array<MedicamentoManager?> {

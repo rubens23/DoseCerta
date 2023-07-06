@@ -21,13 +21,14 @@ constructor(
     private val calendarHelper: CalendarHelper,
     private val context: Context,
     private val roomAccess: RoomAccess,
-    private val calendarHelper2: CalendarHelper2
+    private val calendarHelper2: CalendarHelper2,
+    private val is24HourFormat: Boolean
 
 ) : FragmentFactory() {
     override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
         return when(className){
             FragmentListaMedicamentos::class.java.name->{
-                FragmentListaMedicamentos(alarmUtilsInterface, medicamentoManager, funcoesDeTempo, calendarHelper, context)
+                FragmentListaMedicamentos(alarmUtilsInterface, medicamentoManager, funcoesDeTempo, calendarHelper, context, is24HourFormat)
             }
             FragmentDetalhesMedicamentos::class.java.name->{
                 FragmentDetalhesMedicamentos(alarmUtilsInterface, funcoesDeTempo, calendarHelper, calendarHelper2)
@@ -39,7 +40,7 @@ constructor(
                 FragmentConfiguracoes(roomAccess)
             }
             FragmentCadastrarNovoMedicamento::class.java.name->{
-                FragmentCadastrarNovoMedicamento(funcoesDeTempo, calendarHelper)
+                FragmentCadastrarNovoMedicamento()
             }
             else->super.instantiate(classLoader, className)
         }

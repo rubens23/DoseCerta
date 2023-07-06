@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
 import android.net.Uri
+import android.text.format.DateFormat
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -36,7 +37,8 @@ class AlarmHelperImpl @Inject constructor(
     private val funcoesDeTempo: FuncoesDeTempo,
     private val calendarHelper2: CalendarHelper2,
     private val calendarHelper: CalendarHelper,
-    private val context: Context
+    private val context: Context,
+    private val is24HourFormat: Boolean
 ): AlarmHelper, AlarmUtilsInterface {
 
     private var medicamento: MedicamentoComDoses? = null
@@ -73,8 +75,15 @@ class AlarmHelperImpl @Inject constructor(
         nmMedicamento: String
     ) {
 
-        var horaProxDosePadronizada = calendarHelper2.padronizarHoraProxDose(horaProxDose)
-        Log.d("testepattern", "saida $horaProxDosePadronizada")
+        var horaProxDosePadronizada: String? = null
+
+        if(is24HourFormat){
+            horaProxDosePadronizada = calendarHelper2.padronizarHoraProxDose(horaProxDose)
+
+        }else{
+            horaProxDosePadronizada = horaProxDose
+        }
+        Log.d("testingsetalarm", "hora no começo do setAlarm: $horaProxDosePadronizada")
 
 
 
@@ -106,6 +115,8 @@ class AlarmHelperImpl @Inject constructor(
 
 
         horaProxDosePadronizada?.let {
+            Log.d("testingsetalarm2","hora padronizada dentro aqui do bloco lambda: $it")
+
             var localDateTimeHoraProximaDose: LocalDateTime = transformarHoraProximaDoseEmLocalDate(
                 horaProxDosePadronizada!!
             )
@@ -132,8 +143,15 @@ class AlarmHelperImpl @Inject constructor(
                 run lit@{
                     listaDoses.forEach { doses ->
 
-                        horaProxDosePadronizada = calendarHelper2.padronizarHoraProxDose(doses.horarioDose)
+                        if(is24HourFormat){
+                            horaProxDosePadronizada = calendarHelper2.padronizarHoraProxDose(horaProxDose)
+
+                        }else{
+                            horaProxDosePadronizada = horaProxDose
+                        }
                         horaProxDosePadronizada?.let{
+                            Log.d("testingsetalarm2","hora padronizada dentro aqui do bloco lambda do run lit@: $it")
+
                             localDateTimeHoraProximaDose =
                                 transformarHoraProximaDoseEmLocalDate(horaProxDosePadronizada!!)
                             horaProximaDoseInMilliseconds = transformarDateTimeEmMilliseconds(localDateTimeHoraProximaDose)
@@ -163,10 +181,17 @@ class AlarmHelperImpl @Inject constructor(
 
 
         addPendingIntentToIntentList(pendingIntent, mainActivity, ctx)
-        roomAccess.putMedicamentoDataOnRoom(
-            BroadcastReceiverOnReceiveData(idMedicamento = idMedicamento, nomeMedicamento = nomeMedicamento, horaDose = calendarHelper2.formatarDataHoraSemSegundos(horaProxDose))
-        )
-        roomAccess.putNewActiveAlarmOnRoom(AlarmEntity(idMedicamento = idMedicamento,horaProxDose= calendarHelper2.formatarDataHoraComSegundos(horaProxDose),nomeMedicamento = nmMedicamento, alarmActive =  true, intervaloEntreDoses = intervaloEntreDoses, listaDoses =  listaDoses))
+        if(is24HourFormat){
+            roomAccess.putMedicamentoDataOnRoom(
+                BroadcastReceiverOnReceiveData(idMedicamento = idMedicamento, nomeMedicamento = nomeMedicamento, horaDose = calendarHelper2.formatarDataHoraSemSegundos(horaProxDose, is24HourFormat))
+            )
+        }else{
+            roomAccess.putMedicamentoDataOnRoom(
+                BroadcastReceiverOnReceiveData(idMedicamento = idMedicamento, nomeMedicamento = nomeMedicamento, horaDose = horaProxDosePadronizada!!)
+            )
+        }
+
+        roomAccess.putNewActiveAlarmOnRoom(AlarmEntity(idMedicamento = idMedicamento,horaProxDose= horaProxDosePadronizada!!,nomeMedicamento = nmMedicamento, alarmActive =  true, intervaloEntreDoses = intervaloEntreDoses, listaDoses =  listaDoses))
 
     }
 
@@ -243,7 +268,26 @@ class AlarmHelperImpl @Inject constructor(
 
 
     private fun transformarHoraProximaDoseEmLocalDate(horaProximaDose: String): LocalDateTime {
-        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+        Log.d("testingsetalarm2","$horaProximaDose")
+
+        var formatter: DateTimeFormatter
+        if(is24HourFormat){
+            formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+            Log.d("testingsetalarm","entrei aqui no if que indica que o formato de horas é de 24 horas")
+
+        }else{
+            formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy h:mm a")
+            Log.d("testingsetalarm","entrei aqui no else que indica que o formato de horas é de 12 horas")
+
+
+        }
+        /*
+        eu tenho uma data assim: "05/07/2023 11:37 AM"
+
+        e eu preciso transformá-la em um localDateTime aqui: LocalDateTime.parse(horaProximaDose, formatter).
+        como ficara o formatter?
+         */
+
         return LocalDateTime.parse(horaProximaDose, formatter)
 
 
@@ -354,6 +398,7 @@ class AlarmHelperImpl @Inject constructor(
 
     override fun pegarProximaDoseESetarAlarme(medicamento: MedicamentoComDoses) {
         this.horaProxDose = null
+        Log.d("setproxdose", "eu to aqui no metodo pegarProximaDoseESetarAlarme")
         iterarSobreDosesEAcharProxima(medicamento)
         initializeAlarmManager()
     }
@@ -362,14 +407,42 @@ class AlarmHelperImpl @Inject constructor(
         this.medicamento = medicamento
         medicamento.listaDoses.forEach {
                 dose->
-            if(calendarHelper.convertStringToDateSemSegundos(calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose))!!.time > System.currentTimeMillis()){
-                this.horaProxDose = dose.horarioDose
-                return
+            Log.d("setproxdose3", "eu to aqui no metodo iterarSobreDosesEAcharProxima. iteracao da lista de doses. dose: ${dose.horarioDose}")
+            val is24HF = DateFormat.is24HourFormat(context)
+
+
+            if(is24HF){
+                if(calendarHelper.convertStringToDateSemSegundos(calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, is24HF), is24HF)!!.time > System.currentTimeMillis()){
+                    Log.d("setproxdose4", "eu to aqui no if formato 24 horas primeiro opardor maior que segundo. dose: ${dose.horarioDose}")
+
+                    this.horaProxDose = dose.horarioDose
+
+                    Log.d("setproxdose", "eu to aqui no metodo iterarSobreDosesEAcharProxima. system current time in millis ${this.horaProxDose}")
+
+                    Log.d("setproxdose", "eu to aqui no metodo iterarSobreDosesEAcharProxima: ${this.horaProxDose}")
+
+                    return
+                }
+            }else{
+                if(calendarHelper.convertStringToDateSemSegundos(dose.horarioDose, is24HF)!!.time > System.currentTimeMillis()){
+                    Log.d("setproxdose4", "eu to aqui no if formato 12 horas primeiro opardor maior que segundo. dose: ${dose.horarioDose}")
+
+                            this.horaProxDose = dose.horarioDose
+
+                    Log.d("setproxdose", "eu to aqui no metodo iterarSobreDosesEAcharProxima. system current time in millis ${this.horaProxDose}")
+
+                    Log.d("setproxdose", "eu to aqui no metodo iterarSobreDosesEAcharProxima: ${this.horaProxDose}")
+
+                    return
+                }
             }
+
         }
     }
 
     private fun initializeAlarmManager() {
+        Log.d("setproxdose", "eu to aqui no initialize alarmManager: ${this.horaProxDose}")
+
         if(this.horaProxDose != null){
             chamarMetodoParaSetarOAlarmNoAlarmReceiver()
 

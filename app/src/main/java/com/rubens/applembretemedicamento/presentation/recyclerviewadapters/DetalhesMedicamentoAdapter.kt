@@ -20,7 +20,7 @@ import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.CalendarHelper2
 
 
-class DetalhesMedicamentoAdapter(var listaDosagemMedicamento: MedicamentoComDoses, val context: FragmentDetalhesMedicamentos, private val dataAtual: String, private val calendarHelper2: CalendarHelper2): RecyclerView.Adapter<DetalhesMedicamentoAdapter.ViewHolder>(),
+class DetalhesMedicamentoAdapter(var listaDosagemMedicamento: MedicamentoComDoses, val context: FragmentDetalhesMedicamentos, private val dataAtual: String, private val calendarHelper2: CalendarHelper2, private val is24HourFormat: Boolean): RecyclerView.Adapter<DetalhesMedicamentoAdapter.ViewHolder>(),
     AccessAdapterMethodsInterface {
     private var listaDoses: ArrayList<Doses> = ArrayList()
     private lateinit var detalhesMedicamentosAdapterInterface: DetalhesMedicamentosAdapterInterface
@@ -137,7 +137,13 @@ class DetalhesMedicamentoAdapter(var listaDosagemMedicamento: MedicamentoComDose
 
             setNomeMedicamentoOnItemTextView(doses)
 
-            binding.timeDosage.text = calendarHelper2.formatarDataHoraSemSegundos2(doses.horarioDose)
+            if(is24HourFormat){
+                binding.timeDosage.text = calendarHelper2.formatarDataHoraSemSegundos2(doses.horarioDose)
+
+            }else{
+                binding.timeDosage.text = pegarSoParteDaHora(doses.horarioDose)
+
+            }
             //formatarHorarioDoseSeHorarioDoseSize15(doses)
             //formatarHorarioDoseSeHorarioDoseSize16(doses)
 
@@ -148,6 +154,12 @@ class DetalhesMedicamentoAdapter(var listaDosagemMedicamento: MedicamentoComDose
 
 
 
+
+        }
+
+        private fun pegarSoParteDaHora(proxDose: String): String {
+            Log.d("testproxDose", proxDose)
+            return proxDose.substringAfter(" ")
 
         }
 

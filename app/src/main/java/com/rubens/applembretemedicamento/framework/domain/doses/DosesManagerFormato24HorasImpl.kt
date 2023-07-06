@@ -6,6 +6,7 @@ import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
 import java.text.SimpleDateFormat
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 /**
  * input
@@ -18,7 +19,8 @@ import java.util.Calendar
 
  */
 
-class DosesManager: DosesManagerInterface {
+class DosesManagerFormato24HorasImpl: DosesManagerInterface {
+    private var is24HourFormat: Boolean = true
     lateinit var medicamento: MedicamentoTratamento
     private var diaAtual = ""
     private var maiorHoraAteAgora = 0
@@ -112,7 +114,8 @@ class DosesManager: DosesManagerInterface {
         nomeMedicamento: String,
         qntDoses: Int,
         horarioPrimeiraDose: String,
-        repositoryAdicionarMedicamento: AddMedicineRepositoryImpl
+        repositoryAdicionarMedicamento: AddMedicineRepositoryImpl,
+        is24HourFormat: Boolean
     ) {
 
 
@@ -181,8 +184,10 @@ class DosesManager: DosesManagerInterface {
             }
         }
 
+        Log.d("refactdoses", "hora: $hora minutos: $minutos  aqui no metodo gerenciarHorariosDosagem" )
 
-        pegarTodasAsDosesParaONovoMedicamento(nomeMedicamento, hora, qntDoses, minutos)
+
+        pegarTodasAsDosesParaONovoMedicamento(nomeMedicamento, hora, qntDoses, minutos, is24HourFormat)
         Log.d("variaveis", "nomeMedicamento: $nomeMedicamento,hora: $hora,qntDoses: $qntDoses,minutos: $minutos,medicamento: $medicamento")
 
     }
@@ -218,8 +223,11 @@ class DosesManager: DosesManagerInterface {
         nomeMed: String,
         horaIni: Int,
         qntDoses: Int,
-        min: String
+        min: String,
+        is24HourFormat: Boolean
     ) {
+
+        this.is24HourFormat = is24HourFormat
 
 
         //medicamento = MedicamentoTratamento("dipirona",	"20:20",	1,	34,	false,	1,	2,	2,	false,	"02/06/2023",	"04/06/2023",	"toast_already_shown_dipirona",	false, ""	)
@@ -364,9 +372,15 @@ class DosesManager: DosesManagerInterface {
 
     private fun criarDose(hora: LocalTime?, nomeMed: String, intervaloEntreDoses: Double): Doses {
         Log.d("criardose1", "to no primeiro metodo de criar dose")
+        var horarioDoseASerColocado: String
+        if(this.is24HourFormat){
+            horarioDoseASerColocado = diaAtual +" "+ hora.toString()
+        }else{
+            horarioDoseASerColocado = diaAtual +" "+ convertTo12HourFormat(hora.toString())//formatar essa hora para um formato de 12 horas
+        }
         return Doses(
             nomeMedicamento = nomeMed,
-            horarioDose = diaAtual +" "+ hora.toString(),
+            horarioDose = horarioDoseASerColocado,
             jaTomouDose = false,
             intervaloEntreDoses = intervaloEntreDoses
         )
@@ -488,7 +502,6 @@ class DosesManager: DosesManagerInterface {
 
 
     private fun criarDoseComDataCertaDoisParametros(hora: Int, minInicial: String, qntDoses: Int){
-        //dosesTomadasNaHoraAtual = 1    dosesPorTomada = 2
         if(hora < maiorHoraAteAgora){
             diaAtual = somarUmDiaNumaData(diaAtual)
 
@@ -510,60 +523,11 @@ class DosesManager: DosesManagerInterface {
 
             return
 
-
-
         }
 
         if(hora == maiorHoraAteAgora){
             Log.d("addlistafluxo29-2", "to bem fora dos ifs hora $hora maiorHoraAteAgora $maiorHoraAteAgora dosesTomadasNaHoraAtual $dosesTomadasNaHoraAtual")
             diaAtual = somarUmDiaNumaData(diaAtual)
-            /*
-            if(dosesTomadasNaHoraAtual <= dosesPorTomada){
-                //ainda nao fiz todas as doses para esse horario
-                if(qntDosesDia != 1){
-                    dosesTomadasNaHoraAtual++
-
-                }else{
-                    if(dosesTomadasNaHoraAtual == dosesPorTomada){
-                        diaAtual = somarUmDiaNumaData(diaAtual)
-                        dosesTomadasNaHoraAtual = 0
-                    }
-
-                }
-
-                Log.d("addlistafluxo29-2", "if hora $hora maiorHoraAteAgora $maiorHoraAteAgora dosesTomadasNaHoraAtual $dosesTomadasNaHoraAtual")
-
-            }else{
-                if(dosesTomadasNaHoraAtual == dosesPorTomada){
-                    diaAtual = somarUmDiaNumaData(diaAtual)
-                    dosesTomadasNaHoraAtual = 0
-                }
-
-                Log.d("addlistafluxo29-2", "else hora $hora maiorHoraAteAgora $maiorHoraAteAgora dosesTomadasNaHoraAtual $dosesTomadasNaHoraAtual")
-
-                //ja fiz todas as doses nesse horario
-                //pode passar de horario ou passar de dia
-                //como eu vou saber se ainda tem doses no dia para continuar no dia ou acrescentar um ao dia?
-            }
-
-             */
-
-
-//            var jaEntrouEmAlgumaCondicaoEmAlgumIf = false
-//            //jaEntrouEmAlgumaCondicaoEmAlgumIf = intervalIsShorterThanOneHour(hora)
-//            if (jaEntrouEmAlgumaCondicaoEmAlgumIf){
-//                return
-//            }
-//            //jaEntrouEmAlgumaCondicaoEmAlgumIf = dosagesPerTakeGreaterThanOne(hora)
-//            if (jaEntrouEmAlgumaCondicaoEmAlgumIf){
-//                return
-//            }
-//            //jaEntrouEmAlgumaCondicaoEmAlgumIf = dosagesPerTakeGreaterThanOneButAlreadyCreated(hora)
-
-
-
-
-
 
         }
     }
@@ -572,14 +536,56 @@ class DosesManager: DosesManagerInterface {
 
 
     private fun criarDose(hora: Int, minInicial: String, nomeMed: String, intervaloEntreDoses: Double): Doses {
+        var horarioDoseASerColocado: String
+        if(this.is24HourFormat){
+            horarioDoseASerColocado = diaAtual + " "+ hora.toString() + ":" + minInicial
+        }else{
+            horarioDoseASerColocado = diaAtual + " "+ convertTo12HourFormat(hora.toString() + ":" + minInicial)//formatar essa hora para um formato de 12 horas
+        }
 
 
         return Doses(
             nomeMedicamento = nomeMed,
-            horarioDose = diaAtual + " "+ hora.toString() + ":" + minInicial,
+            horarioDose = horarioDoseASerColocado,
             jaTomouDose = false,
             intervaloEntreDoses = intervaloEntreDoses
         )
+    }
+
+
+    private fun convertTo12HourFormat(time: String): String {
+        val timeFormat: LocalTime = try{
+            val time24Format = LocalTime.parse(time, DateTimeFormatter.ofPattern("H:mm"))
+            time24Format
+        }catch (e: Exception){
+            try {
+                val time24Format2 = LocalTime.parse(time, DateTimeFormatter.ofPattern("HH:mm"))
+                time24Format2
+
+            }catch (e: Exception){
+
+                return "erro ao fazer o parse de conversao para hora no formato de 12 horas"
+
+            }
+        }
+
+
+
+        return try{
+            val time12Format = timeFormat.format(DateTimeFormatter.ofPattern("hh:mm"))
+            time12Format
+
+        }catch (e: Exception){
+            try{
+                val time12Format = timeFormat.format(DateTimeFormatter.ofPattern("hh:mm"))
+                time12Format
+
+            }catch (e: Exception){
+                "erro ao fazer o parse de conversao para hora no formato de 12 horas"
+            }
+        }
+
+
     }
 
     private fun checkIfIntervaloEntreDosesIsGreaterThanOne(intervaloEntreDoses: Double): Boolean {
