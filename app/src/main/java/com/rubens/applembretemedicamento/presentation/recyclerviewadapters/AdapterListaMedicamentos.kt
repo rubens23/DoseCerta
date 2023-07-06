@@ -31,7 +31,8 @@ class AdapterListaMedicamentos(
     val fragmentListaInstance: FragmentListaMedicamentos,
     val context: Context,
     val medicamentoManager: MedicamentoManager,
-    private val alarmReceiver: AlarmUtilsInterface
+    private val alarmReceiver: AlarmUtilsInterface,
+    private val is24HourFormat: Boolean
 ) : RecyclerView.Adapter<AdapterListaMedicamentos.ViewHolder>(), AdapterListaMedicamentosInterface {
     private lateinit var alarmUtilsInterface: AlarmUtilsInterface
     private var listaIdMedicamentosTocandoNoMomento: ArrayList<Int> = ArrayList()
@@ -93,6 +94,7 @@ class AdapterListaMedicamentos(
                 intervaloEntreDoses = medicamento.listaDoses.get(i).intervaloEntreDoses
                 val dose = medicamento.listaDoses.get(i)
                 if (!dose.jaTomouDose && !definiuProxDose) {
+                    Log.d("logdoparse2", dose.horarioDose)
                     proxDose = doseMaisProximaNaoTomada(dose, medicamento.listaDoses).horarioDose
                     definiuProxDose = true
                     Log.d("bugcorretion", "proxDoseDifinida == ${proxDose}")
@@ -115,25 +117,43 @@ class AdapterListaMedicamentos(
 
 
 
-            formataStringProximaDoseIfStringSize15(proxDose)
-            formataStringProximaDoseIfStringSize16(proxDose)
+            if (proxDose != null){
+                binding.horaProximaDose.text = pegarSoParteDaHora(proxDose)
+
+            }
+            //formataStringProximaDoseIfStringSize15(proxDose)
+            //formataStringProximaDoseIfStringSize16(proxDose)
             initDb()
             initClickListeners(proxDose, intervaloEntreDoses, medicamento)
+            Log.d("achandoatrihora", "eu to aqui no metodo do adapter da lista de medicamentos 'pegarHorarioProximaDose' $proxDose")
+
             setMedNameOnItem(medicamento)
+
+        }
+
+        private fun pegarSoParteDaHora(proxDose: String): String {
+            Log.d("testproxDose", proxDose)
+            return proxDose.substringAfter(" ")
 
         }
 
         private fun doseMaisProximaNaoTomada(dose: Doses, listaDoses: List<Doses>): Doses{
 
             var doseMaisProximaNaoTomada = dose
+            Log.d("achandoatrihora", "eu to aqui no metodo doseMaisProximaNaoTomada do adapter da lista de medicamentos ${doseMaisProximaNaoTomada}")
+
             for(i in 0..listaDoses.size - 1){
                 if(listaDoses[i] == dose){
                     for(z in i until listaDoses.size){
                         if(isPrimeiraDoseMaisProximoQueSegunda(doseMaisProximaNaoTomada, listaDoses[z])){
+
                             //doseMaisProximaNaoTomada é mais proxima que listaDoses[z]
-                            Log.d("updatemethod", "if: dose que sera passada la para o metodo: ${doseMaisProximaNaoTomada.horarioDose}")
+                            Log.d("achandoatrihora", "eu to aqui no metodo doseMaisProximaNaoTomada do adapter da lista isPrimeiraDoseMaisProximoQueSegunda true")
+
                         }else{
                             //listaDoses[z] é mais proxima que doseMaisProximaNaoTomada
+                            Log.d("achandoatrihora", "eu to aqui no metodo doseMaisProximaNaoTomada do adapter da lista isPrimeiraDoseMaisProximoQueSegunda false")
+
                             if(!listaDoses[z].jaTomouDose){
                                 doseMaisProximaNaoTomada = listaDoses[z]
                                 Log.d("updatemethod", "else -> if: dose que sera passada la para o metodo: ${listaDoses[z].horarioDose}")
@@ -150,9 +170,16 @@ class AdapterListaMedicamentos(
 
         @SuppressLint("SimpleDateFormat")
         private fun isPrimeiraDoseMaisProximoQueSegunda(primeiraDose: Doses, segundaDose: Doses): Boolean{
-            Log.d("updatemethod2", "isPrimeiraDoseMaisProximaQueSegunda? primeiraDose: ${primeiraDose.horarioDose} segundaDose: ${segundaDose.horarioDose}")
+            var formatoDataHora: SimpleDateFormat
 
-            val formatoDataHora = SimpleDateFormat("dd/MM/yyyy HH:mm")
+            if(is24HourFormat){
+                formatoDataHora = SimpleDateFormat("dd/MM/yyyy HH:mm")
+
+            }else{
+                formatoDataHora = SimpleDateFormat("dd/MM/yyyy h:mm a")
+
+            }
+
             val horarioAtual = Calendar.getInstance().time
 
             val primeiraDataHora = formatoDataHora.parse(primeiraDose.horarioDose)
@@ -162,13 +189,23 @@ class AdapterListaMedicamentos(
             val diffPrimeiraDose = Math.abs(primeiraDataHora.time - horarioAtual.time)
             val diffSegundaDose = Math.abs(segundaDataHora.time - horarioAtual.time)
 
-            Log.d("updatemethod2", "isPrimeiraDoseMaisProximaQueSegunda: primeira: ${diffPrimeiraDose} segunda:${diffSegundaDose}? ${diffPrimeiraDose > diffSegundaDose}")
+            Log.d("achandoatrihora", "isPrimeiraDoseMaisProximaQueSegunda: primeira: ${primeiraDose.horarioDose} segunda:${segundaDose.horarioDose}? ${diffPrimeiraDose > diffSegundaDose}")
+            Log.d("achandoatrihora", "horario atual: ${horarioAtual.time}")
             return diffPrimeiraDose < diffSegundaDose
 
 
 
 
+
+
+
+
         }
+
+
+
+
+
         private fun setMedNameOnItem(medicamento: MedicamentoComDoses) {
             binding.medName.text = medicamento.medicamentoTratamento.nomeMedicamento
 

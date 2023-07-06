@@ -58,7 +58,8 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
                                                     private val medicamentoManager: MedicamentoManager,
                                                     private val funcoesDeTempo: FuncoesDeTempo,
                                                     private val calendarHelper: CalendarHelper,
-                                                    private val context: Context
+                                                    private val context: Context,
+                                                    private val is24HourFormat: Boolean
                                                     ): Fragment(), FragmentListaMedicamentosInterface {
 
     private lateinit var binding: FragmentListaMedicamentosBinding
@@ -346,7 +347,7 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
     fun setAdapter(medicamentos: List<MedicamentoComDoses>?){
         Log.d("testeshakingclock", "to dentro do setadapter")
 
-            adapter = AdapterListaMedicamentos(medicamentos as ArrayList<MedicamentoComDoses>, this,context, medicamentoManager, alarmUtilsInterface)
+            adapter = AdapterListaMedicamentos(medicamentos as ArrayList<MedicamentoComDoses>, this,context, medicamentoManager, alarmUtilsInterface, is24HourFormat)
             binding.recyclerView.adapter = adapter
 
         initAdapterInterface()
@@ -369,6 +370,7 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
                     alarmUtilsInterface.initAlarmManager(context)
                     alarmUtilsInterface.initAlarmIntent(context)
                     alarmUtilsInterface.pegarProximaDoseESetarAlarme(it)
+
 
 
             }
@@ -551,6 +553,8 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
                 medicamentoManager
             )
         }
+        Log.d("achandoatrihora", "eu to aqui no onMedicamento click do fragment lista medicamentos $proxDose")
+
 
         if (action != null) {
             view?.findNavController()?.navigate(action)

@@ -1,6 +1,7 @@
 package com.rubens.applembretemedicamento.presentation
 
 import android.app.TimePickerDialog
+import android.content.Context
 import android.os.Bundle
 import android.text.format.DateFormat
 import android.util.Log
@@ -9,40 +10,41 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.FragmentCadastrarNovoMedicamentoBinding
+import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentCadastrarNovoMedicamento
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class FragmentCadastrarNovoMedicamento @Inject constructor(
-    private val funcoesDeTempo: FuncoesDeTempo,
-    private val calendarHelper: CalendarHelper
-) : Fragment(){
+class FragmentCadastrarNovoMedicamento: Fragment(){
 
     lateinit var binding: FragmentCadastrarNovoMedicamentoBinding
-    private lateinit var medicamento: MedicamentoTratamento
     private var tratamentoDuraMeses = false
     lateinit var viewModel: ViewModelFragmentCadastrarNovoMedicamento
-    private lateinit var horarioPrimeiraDose: String
-    private lateinit var nomeRemedio: String
-    private lateinit var qntDosesStr: String
-    private var qntDoses: Int = 0
-    private var medicamentoAdicionadoObserver: MutableLiveData<MedicamentoTratamento> = MutableLiveData()
+
     private lateinit var mainActivityInterface: MainActivityInterface
     private var apertouBotaoCadastrar = false
     private var timeFirstTake = ""
+
 
 
 
@@ -55,17 +57,19 @@ class FragmentCadastrarNovoMedicamento @Inject constructor(
     ): View {
 
         binding = FragmentCadastrarNovoMedicamentoBinding.inflate(inflater, container, false)
-
         initMainActivityInterface()
         setupToolbar()
-
-
-
         return binding.root
     }
 
+
     private fun initMainActivityInterface() {
         mainActivityInterface = requireActivity() as MainActivityInterface
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -74,9 +78,9 @@ class FragmentCadastrarNovoMedicamento @Inject constructor(
 
 
         initAds()
-
         initViewModel()
 
+        viewModel.is24HourFormat = DateFormat.is24HourFormat(requireContext())
         onClickListeners()
 
     }
@@ -98,67 +102,96 @@ class FragmentCadastrarNovoMedicamento @Inject constructor(
     private fun initViewModel() {
         viewModel = ViewModelProvider(requireActivity())[ViewModelFragmentCadastrarNovoMedicamento::class.java]
         initObservers()
+        initCollectors()
+    }
+
+    private fun initCollectors() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.mostrarToastMedicamentoInseridoComSucesso.collectLatest {
+                    msg->
+                    showToastMedicamentoInseridoComSucesso(msg)
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.mostrarToastFalhaNaInsercaoDoMedicamento.collectLatest {
+                    showFailedInsertToast()
+                }
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.podeFecharFragmento.collectLatest {
+                    fecharFragmentAtual()
+                }
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.mostrarToastHoraJaPassou.collectLatest {
+                    mostrarToastJaPassouHora()
+                }
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.mostrarToastErroNoCadastroDoMedicamento.collectLatest {
+                    showErrorCadastratingNewMedicationToast()
+                }
+            }
+        }
     }
 
     private fun initObservers() {
-        Log.d("perseguindofluxo", "entrei aqui no init observers")
         viewModel.medicamentos.observe(viewLifecycleOwner){
             listaMedicamentos->
-            Log.d("perseguindofluxo", "entrei aqui no observer")
+            var existe = false
 
-            if(listaMedicamentos != null){
-                Log.d("perseguindofluxo", "lista nao é nula")
 
-                //verifica se medicamento ja existe
-                listaMedicamentos.forEach {
-                    medicamento->
-                    if(medicamento.medicamentoTratamento.nomeMedicamento == getNomeRemedioFromEditText()){
-                        //medicamento com mesmo nome ja existe
-                        Log.d("perseguindofluxo", "ja tem um medicmaento com esse nome")
-                        Toast.makeText(requireContext(), getString(R.string.medicine_already_registered), Toast.LENGTH_LONG).show()
+            listaMedicamentos?.forEach { medicamento->
+                existe = verificarSeJaExisteEsseMedicamentoNaListaDeMedicamentos(medicamento)
 
-                        return@observe
-                    }
-                }
-                if(apertouBotaoCadastrar){
-                    Log.d("perseguindofluxo", "apertou o botao é true e ntrei aqui no if")
-
-                    getMedicationInfoBeforeSaving()
-                    apertouBotaoCadastrar = false
-
-                }
-
-            }else{
-                Log.d("perseguindofluxo", "a lista é nula")
-
-                if(apertouBotaoCadastrar){
-                    Log.d("perseguindofluxo", "apertou o botao é true e ntrei aqui no if")
-
-                    getMedicationInfoBeforeSaving()
-                    apertouBotaoCadastrar = false
-                }
-                //nenhum medicamento existe entao nao tem como o medicamento existir
-                //continua para cadastrar esse medicamento
             }
+            seMedicamentoNaoExisteProsseguirComCadastro(existe)
+
         }
+
+
+
+
+
         viewModel.insertResponse.observe(viewLifecycleOwner) {
             longInsert->
-            //long > -1 == success insert
-            //long < 0 == failed insert
-            if (longInsert > -1) {
-                if(this::medicamento.isInitialized){
-                    informarQueMedicamentoFoiAdicionado()
-                    startMakingDosageTimes()
-                    showToastMedicamentoInseridoComSucesso()
-                    fecharFragmentAtual()
-                }
-            } else {
-                showFailedInsertToast()
+            viewModel.seInsertBemSucedidoProsseguirComCadastroDasDoses(longInsert)
 
-            }
         }
 
 
+    }
+
+
+
+    private fun seMedicamentoNaoExisteProsseguirComCadastro(existe: Boolean) {
+        if(apertouBotaoCadastrar && !existe){
+
+            getMedicationInfoBeforeSaving()
+            apertouBotaoCadastrar = false
+
+        }
+
+    }
+
+    private fun verificarSeJaExisteEsseMedicamentoNaListaDeMedicamentos(medicamento: MedicamentoComDoses): Boolean {
+        if(medicamento.medicamentoTratamento.nomeMedicamento == getNomeRemedioFromEditText()){
+            //medicamento com mesmo nome ja existe
+            Toast.makeText(requireContext(), getString(R.string.medicine_already_registered), Toast.LENGTH_LONG).show()
+
+            return true
+        }
+        return false
     }
 
     private fun showFailedInsertToast() {
@@ -170,18 +203,14 @@ class FragmentCadastrarNovoMedicamento @Inject constructor(
         findNavController().popBackStack()
     }
 
-    private fun showToastMedicamentoInseridoComSucesso() {
-        Toast.makeText(requireContext(), "$nomeRemedio ${getString(R.string.registered_successfully)}", Toast.LENGTH_LONG)
+    private fun showToastMedicamentoInseridoComSucesso(msg: String) {
+        Toast.makeText(requireContext(), "$msg ${getString(R.string.registered_successfully)}", Toast.LENGTH_LONG)
             .show()
     }
 
-    private fun startMakingDosageTimes() {
-        viewModel.gerenciarHorariosDosagem(medicamento, nomeRemedio, qntDoses, horarioPrimeiraDose)
-    }
 
-    private fun informarQueMedicamentoFoiAdicionado() {
-        medicamentoAdicionadoObserver.postValue(medicamento)
-    }
+
+
 
     private fun initAds() {
         MobileAds.initialize(requireContext()) {}
@@ -224,18 +253,38 @@ class FragmentCadastrarNovoMedicamento @Inject constructor(
         val hour: Int = cal.get(Calendar.HOUR_OF_DAY)
         val minute: Int = cal.get(Calendar.MINUTE)
 
-        val is24HourFormat = DateFormat.is24HourFormat(requireContext())
+        var selectedTime: String
+
+
+
 
         val timePickerDialog = TimePickerDialog(requireContext(),
             TimePickerDialog.OnTimeSetListener { view, hourOfDay, minuteOfDay ->
-                //Manipule o horário selecionado pelo usuário aqui
-                val selectedTime = String.format("%02d:%02d", hourOfDay, minuteOfDay)
+                var timeFormat: SimpleDateFormat
+                val calendar = Calendar.getInstance()
+                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
+                calendar.set(Calendar.MINUTE, minuteOfDay)
+                if(viewModel.is24HourFormat){
+                    //selectedTime = String.format("%02d:%02d", hourOfDay, minuteOfDay)
+                    timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+                    selectedTime = timeFormat.format(calendar.time)
+
+
+
+                }else{
+
+
+
+                    timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+                    selectedTime = timeFormat.format(calendar.time)
+                }
+
                 binding.tilTimeFirstTake.editText!!.setText(selectedTime)
 
                 //editText.setText(selectedTime)
                 timeFirstTake = selectedTime
             },
-            hour, minute, is24HourFormat)
+            hour, minute, viewModel.is24HourFormat)
 
 
 
@@ -249,8 +298,8 @@ class FragmentCadastrarNovoMedicamento @Inject constructor(
     private fun getMedicationInfoBeforeSaving() {
         val qntDiasTrat: Int?
         val diaInicioTratamento: String?
-        nomeRemedio = getNomeRemedioFromEditText()
-        qntDosesStr = getQntDosesFromEditText()
+        viewModel.nomeRemedio = getNomeRemedioFromEditText()
+        viewModel.qntDosesStr = getQntDosesFromEditText()
         timeFirstTake = binding.tilTimeFirstTake.editText?.text.toString()
         val qntDuracaoTratamentoStr = getDuracaoTratamentoFromEditText()
         qntDiasTrat = if (qntDuracaoTratamentoStr.isNotEmpty()) {
@@ -263,54 +312,25 @@ class FragmentCadastrarNovoMedicamento @Inject constructor(
             null
         }
 
-        qntDoses = 0
+        viewModel.qntDoses = 0
 
         diaInicioTratamento = binding.inputDataInicioTratamento.text.toString()
 
-        if (qntDosesStr != "") {
-            qntDoses = transformQntDosesFromStringToInt(qntDosesStr)
+        if (viewModel.qntDosesStr != "") {
+            viewModel.qntDoses = transformQntDosesFromStringToInt(viewModel.qntDosesStr)
         }
-        horarioPrimeiraDose = getTimeFirstTake()
+        viewModel.horarioPrimeiraDose = getTimeFirstTake()
 
 
-        seeIfMedicamentoHasValidInfo(nomeRemedio, qntDoses, horarioPrimeiraDose, qntDiasTrat, diaInicioTratamento)
+        viewModel.seeIfMedicamentoHasValidInfo(viewModel.nomeRemedio, viewModel.qntDoses, viewModel.horarioPrimeiraDose, qntDiasTrat, diaInicioTratamento, binding.inputDataInicioTratamento.isDone, binding.inputDataInicioTratamento.masked)
+
 
 
     }
 
 
 
-    private fun seeIfMedicamentoHasValidInfo(
-        nomeRemedio: String,
-        qntDoses: Int,
-        horarioPrimeiraDose: String,
-        qntDiasTrat: Int?,
-        diaInicioTratamento: String
-    ) {
-        Log.d("pmam", "is 24 hour format ${DateFormat.is24HourFormat(requireContext())}")
 
-
-        if (diaInicioTratamento.length == 10 && diaInicioTratamento.isNotEmpty() && qntDoses > 0 && nomeRemedio.isNotEmpty() && horarioPrimeiraDose.isNotEmpty() && horarioPrimeiraDose.length == 5 && horarioPrimeiraDose[2].toString() == ":" && binding.inputDataInicioTratamento.isDone && qntDiasTrat != null
-            && horarioPrimeiraDose.isNotEmpty() && horarioPrimeiraDose.length == 5 && horarioPrimeiraDose[2].toString() == ":") {
-            if(!calendarHelper.verificarSeDataHoraJaPassou("$diaInicioTratamento $horarioPrimeiraDose")){
-
-                Log.d("pmam", "$horarioPrimeiraDose")
-
-                saveNewMedication(nomeRemedio, qntDoses, horarioPrimeiraDose, qntDiasTrat)
-            }else{
-                Toast.makeText(requireContext(), getString(R.string.dose_time_already_passed), Toast.LENGTH_LONG).show()
-                Log.d("pmam", "$horarioPrimeiraDose")
-
-            }
-
-
-
-        } else {
-            showErrorCadastratingNewMedicationToast()
-
-        }
-
-    }
 
     private fun showErrorCadastratingNewMedicationToast() {
         Toast.makeText(
@@ -321,26 +341,12 @@ class FragmentCadastrarNovoMedicamento @Inject constructor(
 
     }
 
-    private fun saveNewMedication(nomeRemedio: String, qntDoses: Int, horarioPrimeiraDose: String, qntDiasTrat: Int) {
-        medicamento = MedicamentoTratamento(
-            nomeMedicamento = nomeRemedio,
-            totalDiasTratamento = qntDiasTrat,
-            horaPrimeiraDose = horarioPrimeiraDose,
-            qntDoses = qntDoses,
-            tratamentoFinalizado = false,
-            diasRestantesDeTratamento = qntDiasTrat,
-            dataInicioTratamento = binding.inputDataInicioTratamento.masked,
-            dataTerminoTratamento = funcoesDeTempo.pegarDataDeTermino(
-                binding.inputDataInicioTratamento.masked,
-                qntDiasTrat
-            ),
-            stringDataStore = "toast_already_shown"+"_$nomeRemedio"
-        )
-        viewModel.insertMedicamento(
-            medicamento
-        )
+    private fun mostrarToastJaPassouHora(){
+        Toast.makeText(requireContext(), getString(R.string.dose_time_already_passed), Toast.LENGTH_LONG).show()
 
     }
+
+
 
     private fun getTimeFirstTake(): String {
         return timeFirstTake

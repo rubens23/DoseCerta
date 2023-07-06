@@ -11,7 +11,9 @@ import com.rubens.applembretemedicamento.framework.data.managers.RoomAccess
 import com.rubens.applembretemedicamento.framework.data.managers.RoomAccessImpl
 import com.rubens.applembretemedicamento.framework.data.roomdatasourcemanager.DataSourceManager
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
-import com.rubens.applembretemedicamento.framework.domain.doses.DosesManager
+import com.rubens.applembretemedicamento.framework.domain.doses.DosesManagerFormato12Horas
+import com.rubens.applembretemedicamento.framework.domain.doses.DosesManagerFormato12HorasImpl
+import com.rubens.applembretemedicamento.framework.domain.doses.DosesManagerFormato24HorasImpl
 import com.rubens.applembretemedicamento.framework.domain.doses.DosesManagerInterface
 import com.rubens.applembretemedicamento.framework.helpers.AlarmHelper
 import com.rubens.applembretemedicamento.framework.helpers.AlarmHelperImpl
@@ -28,7 +30,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Named
-import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -87,7 +88,13 @@ object TestAppModule {
     @Provides
     @Named("dosesManager")
     fun providesDosesManagerImplementation(): DosesManagerInterface {
-        return DosesManager()
+        return DosesManagerFormato24HorasImpl()
+    }
+
+    @Provides
+    @Named("dosesManager12horas")
+    fun providesDosesManagerFormato12HorasImplementation(): DosesManagerFormato12Horas {
+        return DosesManagerFormato12HorasImpl()
     }
 
     @Provides

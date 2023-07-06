@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.media.AudioFocusRequest
 import android.media.AudioManager
+import android.text.format.DateFormat
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
@@ -21,6 +22,7 @@ import com.rubens.applembretemedicamento.framework.domain.eventbus.AlarmEvent
 import com.rubens.applembretemedicamento.framework.domain.eventbus.AlarmeMedicamentoTocando
 import com.rubens.applembretemedicamento.framework.services.ServiceMediaPlayer
 import com.rubens.applembretemedicamento.presentation.MainActivity
+import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.CalendarHelper2
 import com.rubens.applembretemedicamento.utils.CalendarHelperImpl
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,6 +35,8 @@ class AlarmReceiver: BroadcastReceiver()  {
     lateinit var roomAccess: RoomAccess
     @Inject
     lateinit var calendarHelper2: CalendarHelper2
+    @Inject
+    lateinit var calendarHelper: CalendarHelper
 
 
     private var context: Context? = null
@@ -44,7 +48,7 @@ class AlarmReceiver: BroadcastReceiver()  {
 
     override fun onReceive(p0: Context?, p1: Intent?) {
         context = p0
-        Log.d("controllingplay", "to no inicio do onreceive")
+        Log.d("bugalarme1", "to no inicio do onreceive")
 
 
 
@@ -67,14 +71,27 @@ class AlarmReceiver: BroadcastReceiver()  {
 
         val listaMedicamentos = roomAccess.getAllActiveAlarms()
         listaMedicamentos.forEach {
-            Log.d("monitorandofor", "it: ${it.horaProxDose} calendar: ${CalendarHelperImpl().pegarDataHoraAtual()}")
-            if(it.horaProxDose == CalendarHelperImpl().pegarDataHoraAtual()+":00"){
-                Log.d("inspectinglistadd", "horario adicionado a lista de alarmes: ${it.horaProxDose} ${it.nomeMedicamento}")
-                listaDeAlarmesTocando.add(it)
-            }else{
-                Log.d("inspectinglistadd", "horario NÃO adicionado a lista de alarmes: ${it.horaProxDose} ${it.nomeMedicamento}")
 
+            if(DateFormat.is24HourFormat(context)){
+                if(it.horaProxDose == calendarHelper.pegarDataHoraAtual(DateFormat.is24HourFormat(context))){
+
+                    Log.d("bugalarme1", "horario adicionado a lista de alarmes: ${it.horaProxDose} ${it.nomeMedicamento}")
+                    listaDeAlarmesTocando.add(it)
+                }else{
+                    Log.d("bugalarme1", "horario NÃO adicionado a lista de alarmes: ${it.horaProxDose} ${it.nomeMedicamento}")
+
+                }
+            }else{
+                if(it.horaProxDose == calendarHelper.pegarDataHoraAtual(DateFormat.is24HourFormat(context))){
+                    Log.d("bugalarme1", "horario adicionado a lista de alarmes: ${it.horaProxDose}| ${calendarHelper.pegarDataHoraAtual(DateFormat.is24HourFormat(context))}")
+                    listaDeAlarmesTocando.add(it)
+                }else{
+                    Log.d("bugalarme1", "horario NÃO adicionado a lista de alarmes: ${it.horaProxDose}| ${calendarHelper.pegarDataHoraAtual(DateFormat.is24HourFormat(context))}")
+
+
+                }
             }
+
         }
 
         Log.d("controletoast", "passei pelo metodo de procediemnto do alarme. Quer dizer que eu ja passei pelo on receive")
@@ -99,9 +116,9 @@ class AlarmReceiver: BroadcastReceiver()  {
                 Log.d("inspectinglistadd", "to aqui no segundo for each")
 
                 val alarmeDoMedicamentoAtivado = roomAccess.verSeMedicamentoEstaComAlarmeAtivado(medicamentoNoAlarme.idMedicamento)
-                Log.d("testingdose", "dose.horarioDose ${calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose)} medicamentoNoAlarme.horaProxDose ${calendarHelper2.formatarDataHoraSemSegundos(medicamentoNoAlarme.horaProxDose)}")
-                if(calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose) == calendarHelper2.formatarDataHoraSemSegundos(medicamentoNoAlarme.horaProxDose)){
-                    Log.d("inspectinglistadd", "as horas sao iguais: ${calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose)} ${dose.nomeMedicamento}")
+                Log.d("testingdose", "dose.horarioDose ${calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, DateFormat.is24HourFormat(context))} medicamentoNoAlarme.horaProxDose ${calendarHelper2.formatarDataHoraSemSegundos(medicamentoNoAlarme.horaProxDose, DateFormat.is24HourFormat(context))}")
+                if(calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, DateFormat.is24HourFormat(context)) == calendarHelper2.formatarDataHoraSemSegundos(medicamentoNoAlarme.horaProxDose, DateFormat.is24HourFormat(context))){
+                    Log.d("inspectinglistadd", "as horas sao iguais: ${calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, DateFormat.is24HourFormat(context))} ${dose.nomeMedicamento}")
 
 
                     if(!dose.jaMostrouToast){
@@ -160,7 +177,7 @@ class AlarmReceiver: BroadcastReceiver()  {
                     }
                 }else{
                     listaDoses.add(dose)
-                    Log.d("inspectinglistadd", "as horas sao iguais: ${calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose)} ${dose.nomeMedicamento}")
+                    Log.d("inspectinglistadd", "as horas sao iguais: ${calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, DateFormat.is24HourFormat(context))} ${dose.nomeMedicamento}")
 
 
 

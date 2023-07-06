@@ -8,6 +8,7 @@ import android.content.res.ColorStateList
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
+import android.text.format.DateFormat
 import android.util.Log
 import android.util.TypedValue
 import androidx.fragment.app.Fragment
@@ -383,11 +384,13 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
     }
 
     private fun initDetalhesMedicamentosAdapter() {
-        adapter = DetalhesMedicamentoAdapter(extra as MedicamentoComDoses, this, diaAtualSelecionado, calendarHelper2)
+        adapter = DetalhesMedicamentoAdapter(extra as MedicamentoComDoses, this, diaAtualSelecionado, calendarHelper2, DateFormat.is24HourFormat(requireContext()))
     }
 
     private fun getHorarioStringFromExtraAndInitMedicamentoManagerMethods() {
         val extraStringHorario = args.horaproximadose
+        Log.d("achandoatrihora", "eu to aqui no getHorarioStringFromExtraAndInitMedicamentoManagerMethods do fragment detalhes $extraStringHorario")
+
         Log.d("extrastring", args.horaproximadose)
         medicamentoManager.startUpdateHoraProxDose(extraStringHorario)
         medicamentoManager.startUpdateIntervaloEntreDoses(args.intervaloentredoses.toDouble())

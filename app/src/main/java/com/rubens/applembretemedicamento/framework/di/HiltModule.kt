@@ -2,10 +2,9 @@ package com.rubens.applembretemedicamento.framework.di
 
 import android.content.Context
 import android.os.Parcel
-import android.os.Parcelable
+import android.text.format.DateFormat
 import com.example.appmedicamentos.data.repository.AddMedicineRepositoryImpl
 import com.example.appmedicamentos.data.repository.MedicationRepositoryImpl
-import com.rubens.applembretemedicamento.framework.ApplicationContextProvider
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiver
 import com.rubens.applembretemedicamento.framework.data.AppDatabase
 import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
@@ -13,13 +12,12 @@ import com.rubens.applembretemedicamento.framework.data.managers.RoomAccess
 import com.rubens.applembretemedicamento.framework.data.managers.RoomAccessImpl
 import com.rubens.applembretemedicamento.framework.data.roomdatasourcemanager.DataSourceManager
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
-import com.rubens.applembretemedicamento.framework.domain.doses.DosesManager
+import com.rubens.applembretemedicamento.framework.domain.doses.DosesManagerFormato12Horas
+import com.rubens.applembretemedicamento.framework.domain.doses.DosesManagerFormato12HorasImpl
+import com.rubens.applembretemedicamento.framework.domain.doses.DosesManagerFormato24HorasImpl
 import com.rubens.applembretemedicamento.framework.domain.doses.DosesManagerInterface
 import com.rubens.applembretemedicamento.framework.helpers.AlarmHelper
 import com.rubens.applembretemedicamento.framework.helpers.AlarmHelperImpl
-import com.rubens.applembretemedicamento.presentation.FragmentListaMedicamentos
-import com.rubens.applembretemedicamento.presentation.MainActivity
-import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import com.rubens.applembretemedicamento.utils.AlarmUtilsInterface
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.CalendarHelper2
@@ -30,7 +28,6 @@ import com.rubens.applembretemedicamento.utils.FuncoesDeTempoImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
@@ -74,6 +71,18 @@ object HiltModule {
 
     @Provides
     @Singleton
+    fun providesDosesManagerFormato12HorasImplementation(addMedicineRepository: AddMedicineRepositoryImpl): DosesManagerFormato12Horas{
+        return DosesManagerFormato12HorasImpl(addMedicineRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun providesIs24HourFormat(@ApplicationContext context: Context): Boolean{
+        return DateFormat.is24HourFormat(context)
+    }
+
+    @Provides
+    @Singleton
     fun providesRoomAccess(dao: MedicamentoDao): RoomAccess{
         return RoomAccessImpl(dao)
     }
@@ -90,8 +99,10 @@ object HiltModule {
 
     @Provides
     fun providesDosesManagerImplementation(): DosesManagerInterface{
-        return DosesManager()
+        return DosesManagerFormato24HorasImpl()
     }
+
+
 
     @Provides
     @Singleton
@@ -101,8 +112,8 @@ object HiltModule {
 
     @Provides
     @Singleton
-    fun providesCalendarHelper(): CalendarHelper{
-        return CalendarHelperImpl()
+    fun providesCalendarHelper(@ApplicationContext context: Context): CalendarHelper{
+        return CalendarHelperImpl(context)
     }
 
 
@@ -122,14 +133,14 @@ object HiltModule {
 
     @Provides
     @Singleton
-    fun providesAlarmHelper(roomAccess: RoomAccess, funcoesDeTempo: FuncoesDeTempo, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2, @ApplicationContext context: Context): AlarmHelper{
-        return AlarmHelperImpl(roomAccess, funcoesDeTempo, calendarHelper2, calendarHelper, context)
+    fun providesAlarmHelper(roomAccess: RoomAccess, funcoesDeTempo: FuncoesDeTempo, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2, @ApplicationContext context: Context, is24HourFormat: Boolean): AlarmHelper{
+        return AlarmHelperImpl(roomAccess, funcoesDeTempo, calendarHelper2, calendarHelper, context, is24HourFormat)
     }
 
     @Provides
     @Singleton
-    fun provideAlarmUtilsInterface(roomAccess: RoomAccess, funcoesDeTempo: FuncoesDeTempo, calendarHelper2: CalendarHelper2, calendarHelper: CalendarHelper, @ApplicationContext context: Context): AlarmUtilsInterface {
-        return AlarmHelperImpl(roomAccess, funcoesDeTempo, calendarHelper2, calendarHelper, context)
+    fun provideAlarmUtilsInterface(roomAccess: RoomAccess, funcoesDeTempo: FuncoesDeTempo, calendarHelper2: CalendarHelper2, calendarHelper: CalendarHelper, @ApplicationContext context: Context, is24HourFormat: Boolean): AlarmUtilsInterface {
+        return AlarmHelperImpl(roomAccess, funcoesDeTempo, calendarHelper2, calendarHelper, context, is24HourFormat)
     }
 
     @Provides
@@ -141,9 +152,9 @@ object HiltModule {
 
     @Provides
     @Singleton
-    fun providesMedicamentoManager(alarmReceiver: AlarmReceiver, @ApplicationContext context: Context, alarmHelper: AlarmHelper, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2): MedicamentoManager{
+    fun providesMedicamentoManager(alarmReceiver: AlarmReceiver, @ApplicationContext context: Context, alarmHelper: AlarmHelper, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2, is24HourFormat: Boolean): MedicamentoManager{
         val parcel = Parcel.obtain()
-        return MedicamentoManager(parcel, alarmReceiver, context, alarmHelper, calendarHelper, calendarHelper2)
+        return MedicamentoManager(parcel, alarmReceiver, context, alarmHelper, calendarHelper, calendarHelper2, is24HourFormat)
     }
 
 
