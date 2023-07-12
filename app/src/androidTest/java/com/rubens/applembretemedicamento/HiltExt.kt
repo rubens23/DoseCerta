@@ -27,7 +27,7 @@ import org.junit.Rule
 inline fun <reified T : Fragment> launchFragmentInHiltContainer(
     fragmentArgs: Bundle? = null,
     themeResId: Int = androidx.fragment.testing.R.style.FragmentScenarioEmptyFragmentActivityTheme,
-    fragmentFactory: FragmentFactory? = null,
+    fragmentFactory: MainFragmentFactory? = null,
     crossinline action: T.() -> Unit = {}
 ){
 

@@ -3,6 +3,7 @@ package com.rubens.applembretemedicamento.framework.domain
 import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
+import android.text.format.DateFormat
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.rubens.applembretemedicamento.framework.ApplicationContextProvider
@@ -26,7 +27,8 @@ class MedicamentoManager @Inject constructor(
     private val alarmHelper: AlarmHelper,
     private val calendarHelper: CalendarHelper,
     private val calendarHelper2: CalendarHelper2,
-    private val is24HourFormat: Boolean
+    private val is24HourFormat: Boolean,
+    private val defaultDeviceDateFormat: String
 ) : Parcelable {
     lateinit var fragCtx: FragmentDetalhesMedicamentos
     var nomeMedicamento = ""
@@ -42,7 +44,7 @@ class MedicamentoManager @Inject constructor(
 
     private lateinit var extra: Serializable
 
-    constructor(parcel: Parcel, alarmReceiver: AlarmReceiver, context: Context, alarmHelper: AlarmHelper, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2, is24HourFormat: Boolean) : this(context, alarmHelper, calendarHelper, calendarHelper2, is24HourFormat) {
+    constructor(parcel: Parcel, alarmReceiver: AlarmReceiver, context: Context, alarmHelper: AlarmHelper, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2, is24HourFormat: Boolean, defaultDeviceDateFormat: String) : this(context, alarmHelper, calendarHelper, calendarHelper2, is24HourFormat, defaultDeviceDateFormat) {
         nomeMedicamento = parcel.readString().toString()
         horaProxDose = parcel.readString()
         intervaloEntreDoses = parcel.readDouble()
@@ -110,8 +112,10 @@ class MedicamentoManager @Inject constructor(
         if(horaProxDose != null){
 
             if(is24HourFormat){
-                if(!calendarHelper.verificarSeDataHoraJaPassou(horaProxDose!!, true)){
+                if(!calendarHelper.verificarSeDataHoraJaPassou(horaProxDose!!, true, calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(context))){
                     //seta o alarme com essa hora mesmo
+                    Log.d("fluxo0907", "chamei o metodo para armar o broadcastreceiver aqui no medicamento manager ")
+
                     chamarMetodoParaSetarOAlarmNoAlarmReceiver()
                     Log.d("testingsetalarm3", "o formato é 24 horas e o horario dessa dose ainda nao passou.")
 
@@ -123,8 +127,10 @@ class MedicamentoManager @Inject constructor(
 
                 }
             }else{
-                if(!calendarHelper.verificarSeDataHoraJaPassou(horaProxDose!!, false)){
+                if(!calendarHelper.verificarSeDataHoraJaPassou(horaProxDose!!, false, calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(context))){
                     //seta o alarme com essa hora mesmo
+                    Log.d("fluxo0907", "chamei o metodo para armar o broadcastreceiver aqui no medicamento manager ")
+
                     chamarMetodoParaSetarOAlarmNoAlarmReceiver()
                     Log.d("testingsetalarm3", "o formato é 12 horas e o horario dessa dose ainda nao passou.")
 
@@ -192,7 +198,9 @@ class MedicamentoManager @Inject constructor(
         Log.d("testingsetalarm3", "eu passei aqui pelo metodo iterarSobreDosesEAcharProxima")
         (extra as MedicamentoComDoses).listaDoses.forEach {
                 dose->
-            if(calendarHelper.convertStringToDateSemSegundos(calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, is24HourFormat), is24HourFormat)!!.time > System.currentTimeMillis()){
+            val dataHoraSemSegundos = calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, is24HourFormat, defaultDeviceDateFormat)
+
+            if(calendarHelper.convertStringToDateSemSegundos(dataHoraSemSegundos, is24HourFormat, defaultDeviceDateFormat)!!.time > System.currentTimeMillis()){
                 horaProxDose = dose.horarioDose
                 Log.d("achandoatrihora", "eu fiz a atribuicao da hora aqui no iterarSobreDosesEAcharProxima $horaProxDose")
                 return
@@ -245,7 +253,8 @@ class MedicamentoManager @Inject constructor(
             val calendarHelper = (parcel.readSerializable() as? CalendarHelper) ?: error("Failed to read CalendarHelper from Parcel.")
             val calendarHelper2 = (parcel.readSerializable() as? CalendarHelper2) ?: error("Failed to read CalendarHelper from Parcel.")
             val is24HourFormat = (parcel.readSerializable() as? Boolean) ?: error("Failed to read CalendarHelper from Parcel.")
-            return MedicamentoManager(parcel, ar, context, alarmHelper, calendarHelper, calendarHelper2, is24HourFormat)
+            val defaultDeviceDateFormat = (parcel.readSerializable() as? String) ?: error("Failed to read CalendarHelper from Parcel.")
+            return MedicamentoManager(parcel, ar, context, alarmHelper, calendarHelper, calendarHelper2, is24HourFormat, defaultDeviceDateFormat)
         }
 
         override fun newArray(size: Int): Array<MedicamentoManager?> {

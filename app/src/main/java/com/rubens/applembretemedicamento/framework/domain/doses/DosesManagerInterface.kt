@@ -15,7 +15,8 @@ interface DosesManagerInterface {
         qntDoses: Int,
         horarioPrimeiraDose: String,
         repositoryAdicionarMedicamento: AddMedicineRepositoryImpl,
-        is24HourFormat: Boolean
+        is24HourFormat: Boolean,
+        defaultDateFormat: String
     )
 
 }

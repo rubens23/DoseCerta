@@ -38,7 +38,9 @@ class AlarmHelperImpl @Inject constructor(
     private val calendarHelper2: CalendarHelper2,
     private val calendarHelper: CalendarHelper,
     private val context: Context,
-    private val is24HourFormat: Boolean
+    private val is24HourFormat: Boolean,
+    private val deviceDefaultDateFormat: String
+
 ): AlarmHelper, AlarmUtilsInterface {
 
     private var medicamento: MedicamentoComDoses? = null
@@ -88,8 +90,6 @@ class AlarmHelperImpl @Inject constructor(
 
 
 
-
-
         preencherListaDeDoses(listaDoses)
         if (fragCtx != null) {
             showBtnCancelarAlarme(fragCtx)
@@ -106,9 +106,13 @@ class AlarmHelperImpl @Inject constructor(
 
         if (mainActivity != null) {
             initAlarmManager(mainActivity)
+        }else{
+            initAlarmManager(context)
         }
         if (mainActivity != null) {
             initAlarmIntent(mainActivity)
+        }else{
+            initAlarmIntent(context)
         }
 
 
@@ -118,12 +122,16 @@ class AlarmHelperImpl @Inject constructor(
             Log.d("testingsetalarm2","hora padronizada dentro aqui do bloco lambda: $it")
 
             var localDateTimeHoraProximaDose: LocalDateTime = transformarHoraProximaDoseEmLocalDate(
-                horaProxDosePadronizada!!
+                horaProxDosePadronizada!!,
+                deviceDefaultDateFormat
             )
+
+            //todo testar o get da hora atual
+
             var horaProximaDoseInMilliseconds = transformarDateTimeEmMilliseconds(localDateTimeHoraProximaDose)
 
             val horaAtual = pegarDataEHoraAtualFormatada()
-            val localDateHoraAtual = pegarLocalDateTimeDaHoraAtual(horaAtual)
+            val localDateHoraAtual = pegarLocalDateTimeDaHoraAtual(horaAtual, deviceDefaultDateFormat, is24HourFormat)
             val horaAtualEmMillisegundos = pegarDateTimeAtualEmMillisegundos(localDateHoraAtual)
 
             if (horaProximaDoseInMilliseconds > horaAtualEmMillisegundos) {
@@ -132,7 +140,11 @@ class AlarmHelperImpl @Inject constructor(
 
                 //faz configurações finais na intent e inicializa o alarme
                 pendingIntent = makePendingIntent(ctx, idMedicamento, alarmIntent, 0)
-                Log.d("testepattern", "setei o alarme para $horaProxDosePadronizada")
+
+                Log.d("fluxo0907", "to aqui antes de armar o alarme para o horario $horaProxDosePadronizada")
+                val currentTimeInMillis = System.currentTimeMillis()
+                val printMillisegundosAteProximaDose = millisegundosAteProximaDose
+
 
                 alarmManager.setExactAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
@@ -153,7 +165,7 @@ class AlarmHelperImpl @Inject constructor(
                             Log.d("testingsetalarm2","hora padronizada dentro aqui do bloco lambda do run lit@: $it")
 
                             localDateTimeHoraProximaDose =
-                                transformarHoraProximaDoseEmLocalDate(horaProxDosePadronizada!!)
+                                transformarHoraProximaDoseEmLocalDate(horaProxDosePadronizada!!, deviceDefaultDateFormat)
                             horaProximaDoseInMilliseconds = transformarDateTimeEmMilliseconds(localDateTimeHoraProximaDose)
                             if (horaProximaDoseInMilliseconds > horaAtualEmMillisegundos) {
                                 return@lit
@@ -166,7 +178,11 @@ class AlarmHelperImpl @Inject constructor(
                 pendingIntent = makePendingIntent(ctx, idMedicamento, alarmIntent, 0)
                 val millisegundosAteProximaDose =
                     horaProximaDoseMenosHoraAtual(horaProximaDoseInMilliseconds, horaAtualEmMillisegundos)
-                Log.d("testepattern", "setei o alarme para $horaProxDosePadronizada")
+
+                Log.d("fluxo0907", "to aqui antes de armar o alarme para o horario $horaProxDosePadronizada")
+
+                val currentTimeInMillis = System.currentTimeMillis()
+                val printMillisegundosAteProximaDose = millisegundosAteProximaDose
 
                 alarmManager.setExactAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
@@ -183,7 +199,7 @@ class AlarmHelperImpl @Inject constructor(
         addPendingIntentToIntentList(pendingIntent, mainActivity, ctx)
         if(is24HourFormat){
             roomAccess.putMedicamentoDataOnRoom(
-                BroadcastReceiverOnReceiveData(idMedicamento = idMedicamento, nomeMedicamento = nomeMedicamento, horaDose = calendarHelper2.formatarDataHoraSemSegundos(horaProxDose, is24HourFormat))
+                BroadcastReceiverOnReceiveData(idMedicamento = idMedicamento, nomeMedicamento = nomeMedicamento, horaDose = calendarHelper2.formatarDataHoraSemSegundos(horaProxDose, is24HourFormat, deviceDefaultDateFormat))
             )
         }else{
             roomAccess.putMedicamentoDataOnRoom(
@@ -267,16 +283,28 @@ class AlarmHelperImpl @Inject constructor(
 
 
 
-    private fun transformarHoraProximaDoseEmLocalDate(horaProximaDose: String): LocalDateTime {
-        Log.d("testingsetalarm2","$horaProximaDose")
+    private fun transformarHoraProximaDoseEmLocalDate(horaProximaDose: String, deviceDefaultDateFormat: String): LocalDateTime {
 
         var formatter: DateTimeFormatter
         if(is24HourFormat){
-            formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+            if(deviceDefaultDateFormat == "dd/MM/yyyy"){
+                formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+
+            }else{
+                formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm")
+
+            }
+
             Log.d("testingsetalarm","entrei aqui no if que indica que o formato de horas é de 24 horas")
 
         }else{
-            formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy h:mm a")
+            if(deviceDefaultDateFormat == "dd/MM/yyyy"){
+                formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy h:mm a")
+
+            }else{
+                formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy h:mm a")
+
+            }
             Log.d("testingsetalarm","entrei aqui no else que indica que o formato de horas é de 12 horas")
 
 
@@ -296,8 +324,29 @@ class AlarmHelperImpl @Inject constructor(
 
 
 
-    private fun pegarLocalDateTimeDaHoraAtual(horaAtual: CharSequence): LocalDateTime {
-        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+
+
+    private fun pegarLocalDateTimeDaHoraAtual(horaAtual: CharSequence, deviceDefaultDateFormat: String, is24HourFormat: Boolean): LocalDateTime {
+        val formatter: DateTimeFormatter
+        if(is24HourFormat){
+            if(deviceDefaultDateFormat == "dd/MM/yyyy"){
+                formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+            }else{
+                formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm")
+
+
+            }
+        }else{
+            if (deviceDefaultDateFormat == "dd/MM/yyyy"){
+                formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy h:mm a")
+
+            }else{
+                formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy h:mm a")
+
+            }
+        }
+
+
 
         return LocalDateTime.parse(horaAtual, formatter)
 
@@ -305,12 +354,19 @@ class AlarmHelperImpl @Inject constructor(
     }
 
     private fun pegarDataEHoraAtualFormatada(): CharSequence {
-        return calendarHelper.pegarDataAtual() + " " + funcoesDeTempo.pegarHoraAtual()
+        val dataAtual = calendarHelper.pegarDataAtual(deviceDefaultDateFormat)
+        val horaAtual = funcoesDeTempo.pegarHoraAtual(is24HourFormat)
+        return dataAtual + " " + horaAtual
 
     }
 
     private fun transformarDateTimeEmMilliseconds(localDateTimeHoraProximaDose: LocalDateTime): Long {
-        return localDateTimeHoraProximaDose.atOffset(ZoneOffset.UTC).toInstant().toEpochMilli()
+        Log.d("fluxo0907", "transformarDateTimeEmMilliseconds localdatetime $localDateTimeHoraProximaDose")
+
+        val dateInMilliseconds = localDateTimeHoraProximaDose.atOffset(ZoneOffset.UTC).toInstant().toEpochMilli()
+        Log.d("fluxo0907", "transformarDateTimeEmMilliseconds $dateInMilliseconds")
+        return dateInMilliseconds
+
 
 
     }
@@ -409,10 +465,11 @@ class AlarmHelperImpl @Inject constructor(
                 dose->
             Log.d("setproxdose3", "eu to aqui no metodo iterarSobreDosesEAcharProxima. iteracao da lista de doses. dose: ${dose.horarioDose}")
             val is24HF = DateFormat.is24HourFormat(context)
+            val defaultDeviceDateFormat = calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(context)
 
 
             if(is24HF){
-                if(calendarHelper.convertStringToDateSemSegundos(calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, is24HF), is24HF)!!.time > System.currentTimeMillis()){
+                if(calendarHelper.convertStringToDateSemSegundos(calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, is24HF, defaultDeviceDateFormat), is24HF, defaultDeviceDateFormat)!!.time > System.currentTimeMillis()){
                     Log.d("setproxdose4", "eu to aqui no if formato 24 horas primeiro opardor maior que segundo. dose: ${dose.horarioDose}")
 
                     this.horaProxDose = dose.horarioDose
@@ -424,7 +481,7 @@ class AlarmHelperImpl @Inject constructor(
                     return
                 }
             }else{
-                if(calendarHelper.convertStringToDateSemSegundos(dose.horarioDose, is24HF)!!.time > System.currentTimeMillis()){
+                if(calendarHelper.convertStringToDateSemSegundos(dose.horarioDose, is24HF, defaultDeviceDateFormat)!!.time > System.currentTimeMillis()){
                     Log.d("setproxdose4", "eu to aqui no if formato 12 horas primeiro opardor maior que segundo. dose: ${dose.horarioDose}")
 
                             this.horaProxDose = dose.horarioDose
@@ -444,6 +501,7 @@ class AlarmHelperImpl @Inject constructor(
         Log.d("setproxdose", "eu to aqui no initialize alarmManager: ${this.horaProxDose}")
 
         if(this.horaProxDose != null){
+            Log.d("fluxo0907", "chamei o metodo para armar o broadcastreceiver aqui no alarmHelper")
             chamarMetodoParaSetarOAlarmNoAlarmReceiver()
 
 

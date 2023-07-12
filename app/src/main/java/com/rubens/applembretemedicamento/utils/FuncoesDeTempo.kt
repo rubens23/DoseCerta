@@ -6,10 +6,10 @@ import java.util.concurrent.TimeUnit
 
 interface FuncoesDeTempo {
 
-    fun pegarDataDeTermino(data: String, diasAteTermino: Int): String
+    fun pegarDataDeTermino(data: String, diasAteTermino: Int, defaultDeviceDateFormat: String): String
 
 
-    fun pegarHoraAtual(): String
+    fun pegarHoraAtual(is24HourFormat: Boolean): String
 
     fun horasParaMillisegundos(hour:String): Long
 

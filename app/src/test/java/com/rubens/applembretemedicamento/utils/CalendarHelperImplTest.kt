@@ -1,23 +1,37 @@
 package com.rubens.applembretemedicamento.utils
 
+import android.app.Application
+import android.content.Context
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.Mockito.mock
+import org.mockito.MockitoAnnotations
+import org.mockito.junit.MockitoJUnitRunner
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.format.DateTimeParseException
 import java.util.*
 
+@RunWith(MockitoJUnitRunner::class)
 class CalendarHelperImplTest{
 
     private lateinit var calendarHelper: CalendarHelperImpl
+    private val defaultDateFormat = "dd/MM/yyyy"
+
+    @Mock
+    private lateinit var mockContext: Context
+
 
     @Before
     fun setUp(){
-        calendarHelper = CalendarHelperImpl()
+        MockitoAnnotations.initMocks(this)
+        calendarHelper = CalendarHelperImpl(mockContext)
     }
 
     @Test
@@ -119,7 +133,7 @@ class CalendarHelperImplTest{
         val dataInput = "28/04/2023"
         val expectedResult = "29/04/2023"
 
-        val resultDate = calendarHelper.somarUmDiaNumaData(dataInput)
+        val resultDate = calendarHelper.somarUmDiaNumaData(dataInput, defaultDateFormat)
 
         assertThat(resultDate, `is`(expectedResult))
 
@@ -132,7 +146,7 @@ class CalendarHelperImplTest{
 
 
         assertThrows(ParseException::class.java){
-            calendarHelper.somarUmDiaNumaData(dataInput)
+            calendarHelper.somarUmDiaNumaData(dataInput, defaultDateFormat)
         }
 
     }
@@ -143,7 +157,7 @@ class CalendarHelperImplTest{
 
         val expectedResult = "02/04/2023"
 
-        val resultDate = calendarHelper.somarUmDiaNumaData(dataInput)
+        val resultDate = calendarHelper.somarUmDiaNumaData(dataInput, defaultDateFormat)
 
         assertThat(resultDate, `is`(expectedResult))
 
@@ -155,7 +169,7 @@ class CalendarHelperImplTest{
 
         val expectedResult = "02/04/0023"
 
-        val resultDate = calendarHelper.somarUmDiaNumaData(dataInput)
+        val resultDate = calendarHelper.somarUmDiaNumaData(dataInput, defaultDateFormat)
 
         assertThat(resultDate, `is`(expectedResult))
 

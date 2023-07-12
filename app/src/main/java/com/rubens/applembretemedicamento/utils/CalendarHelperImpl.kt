@@ -9,7 +9,9 @@ import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 
@@ -27,9 +29,18 @@ class CalendarHelperImpl @Inject constructor(
         return null
     }
 
-    override fun convertStringToDateSemSegundos(dateHour: String?, is24HourFormat: Boolean): Date? {
+
+
+    override fun convertStringToDateSemSegundos(dateHour: String?, is24HourFormat: Boolean, defaultDeviceDateFormat: String): Date? {
         if(is24HourFormat){
-            val format = SimpleDateFormat("dd/MM/yyyy HH:mm")
+            var format: SimpleDateFormat
+            if(defaultDeviceDateFormat == "dd/MM/yyyy"){
+                format = SimpleDateFormat("dd/MM/yyyy HH:mm")
+
+            }else{
+                format = SimpleDateFormat("MM/dd/yyyy HH:mm")
+
+            }
             try {
                 return format.parse(dateHour)
             } catch (pe: ParseException) {
@@ -37,7 +48,14 @@ class CalendarHelperImpl @Inject constructor(
             }
             return null
         }else{
-            val format = SimpleDateFormat("dd/MM/yyyy h:mm a")
+            var format: SimpleDateFormat
+            if(defaultDeviceDateFormat == "dd/MM/yyyy"){
+                format = SimpleDateFormat("dd/MM/yyyy h:mm a")
+
+            }else{
+                format = SimpleDateFormat("MM/dd/yyyy h:mm a")
+
+            }
             try {
                 return format.parse(dateHour)
             } catch (pe: ParseException) {
@@ -50,11 +68,12 @@ class CalendarHelperImpl @Inject constructor(
 
     }
 
-    override fun verificarSeDataJaPassou(dataTerminoTratamento: String): Boolean{
+
+    override fun verificarSeDataJaPassou(dataTerminoTratamento: String, defaultDeviceDateFormat: String): Boolean{
         val dateFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
 
-        val date1Str = pegarDataAtual()
+        val date1Str = pegarDataAtual(defaultDeviceDateFormat)
         val date2Str = dataTerminoTratamento
 
         val date1 = LocalDate.parse(date1Str, dateFormat)
@@ -67,72 +86,150 @@ class CalendarHelperImpl @Inject constructor(
 
     }
 
-    override fun verificarSeDataHoraJaPassou(horarioPrimeiraDoseTratamento: String, is24HourFormat: Boolean): Boolean {
+    override fun verificarSeDataHoraJaPassou(horarioPrimeiraDoseTratamento: String, is24HourFormat: Boolean, defaultDeviceDateFormat: String): Boolean {
         Log.d("testingsetalarm3", "eu to aqui no metodo verificarSeDataHoraJaPassou, com a hora: $horarioPrimeiraDoseTratamento")
 
+               //todo java.time.format.DateTimeParseException: Text '07/07/2023 3:00' could not be parsed at index 11
 
 
-        var dateTimeFormat: DateTimeFormatter
+
+
+            var dateTimeFormat: DateTimeFormatter
 
         var dateTime1Str: String
 
         if(is24HourFormat){
-            dateTime1Str = pegarDataHoraAtual(DateFormat.is24HourFormat(context))
-            dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+            dateTime1Str = pegarDataHoraAtual(DateFormat.is24HourFormat(context), defaultDeviceDateFormat)
+            if (defaultDeviceDateFormat == "dd/MM/yyyy"){
+                dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
 
-            Log.d("pmam2", "formato de 24 $dateTime1Str")
+            }else{
+                dateTimeFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm")
+
+            }
+
 
         }else{
-            dateTime1Str = pegarDataHoraAtualIn12HoursFormat() //03/07/2023 14:13
-            dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a")
+            dateTime1Str = pegarDataHoraAtualIn12HoursFormat(defaultDeviceDateFormat)
+            if (defaultDeviceDateFormat == "dd/MM/yyyy"){
+                dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a")
 
-            Log.d("pmam2", "formato de 12 $dateTime1Str")
+            }else{
+                dateTimeFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm a")
+
+
+            }
+
 
 
         }
 
-        val dateTime2Str = horarioPrimeiraDoseTratamento //03/07/2023 05:30
+        val dateTime2Str = horarioPrimeiraDoseTratamento
 
         val dateTime1 = LocalDateTime.parse(dateTime1Str, dateTimeFormat)
-        val dateTime2 = LocalDateTime.parse(dateTime2Str, dateTimeFormat)
+        var dateTime2: LocalDateTime
+        try{
+            dateTime2 = LocalDateTime.parse(dateTime2Str, dateTimeFormat)
+        }catch (e: Exception){
+            dateTime2 = LocalDateTime.parse(dateTime2Str, DateTimeFormatter.ofPattern("dd/MM/yyyy H:mm"))
 
-        Log.d("pmam2", "dateTime1 = $dateTime1 dateTime2 = $dateTime2  dateTime1 é maior que dateTime2? ${dateTime1 > dateTime2}")
+        }
 
-
-
-        Log.d("pmam2", "dateTime1 = $dateTime1 dateTime2 = $dateTime2  dateTime1 é maior que dateTime2? ${dateTime1 > dateTime2}")
 
 
         return dateTime1 > dateTime2
     }
 
-    private fun pegarDataHoraAtualIn12HoursFormat(): String {
+    private fun pegarDataHoraAtualIn12HoursFormat(defaultDeviceDateFormat: String): String {
         val calendar = Calendar.getInstance()
-        val dateFormat = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault())
+        var dateFormat: SimpleDateFormat
+        if(defaultDeviceDateFormat == "dd/MM/yyyy"){
+            dateFormat = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault())
+
+        }else{
+            dateFormat = SimpleDateFormat("MM/dd/yyyy hh:mm a", Locale.getDefault())
+
+        }
         return dateFormat.format(calendar.time)
 
     }
 
-    override fun pegarDataAtual(): String{
-        val formatarData = SimpleDateFormat("dd/MM/yyyy")
+    override fun pegarDataAtual(deviceDefaultDateFormat: String): String{
+        var formatarData: SimpleDateFormat
+        if(deviceDefaultDateFormat == "dd/MM/yyyy"){
+            formatarData = SimpleDateFormat("dd/MM/yyyy")
+
+        }else{
+            formatarData = SimpleDateFormat("MM/dd/yyyy")
+
+        }
+
         val data = Date()
         val dataFormatada = formatarData.format(data)
 
         return dataFormatada
     }
 
-    override fun pegarDataHoraAtual(is24HourFormat: Boolean): String {
+    override fun pegarDataAtualConsiderandoFormatacaoDaDataDoDevice(defaultDeviceDateFormat: String): String{
+        var formatarData: SimpleDateFormat
+
+        if (defaultDeviceDateFormat == "dd/MM/yyyy"){
+            formatarData = SimpleDateFormat("dd/MM/yyyy")
+        }else{
+            formatarData = SimpleDateFormat("MM/dd/yyyy")
+        }
+        val data = Date()
+        val dataFormatada = formatarData.format(data)
+
+        return dataFormatada
+    }
+
+    override fun pegarDataHoraAtual(is24HourFormat: Boolean, defaultDeviceDateFormat: String): String {
+        var dateTimeFormat: DateTimeFormatter
+
         if(is24HourFormat){
-            val dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+            if(defaultDeviceDateFormat == "dd/MM/yyyy"){
+                dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+
+            }else{
+                dateTimeFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm")
+
+            }
             val currentDateTime = LocalDateTime.now()
 
             return currentDateTime.format(dateTimeFormat)
         }else{
-            val dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a")
+            if(defaultDeviceDateFormat == "dd/MM/yyyy"){
+                dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a")
+
+            }else{
+                dateTimeFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm a")
+
+            }
             val currentDateTime = LocalDateTime.now()
 
             return currentDateTime.format(dateTimeFormat)
         }
+
+    }
+
+    override fun pegarFormatoDeDataPadraoDoDispositivoDoUsuario(context: Context): String{
+        val currentDate = Date()
+
+        val dateFormat = DateFormat.getDateFormatOrder(context)
+        val formattedDate: String
+
+        if (dateFormat[0] == 'd') {
+            // Day comes before month
+            formattedDate = "dd/MM/yyyy"
+        } else {
+            // Month comes before day
+            formattedDate = "MM/dd/yyyy"
+        }
+
+        return formattedDate
+
+
 
     }
 
@@ -148,10 +245,16 @@ class CalendarHelperImpl @Inject constructor(
         return amPmPattern.isNotBlank()
     }
 
-    override fun somarUmDiaNumaData(data: String): String{
+    override fun somarUmDiaNumaData(data: String, defaultDeviceDateFormat: String): String{
         var data = data
         val calendar = Calendar.getInstance()
-        val formatter = SimpleDateFormat("dd/MM/yyyy")
+
+        var formatter: SimpleDateFormat
+        if (defaultDeviceDateFormat == "dd/MM/yyyy"){
+            formatter = SimpleDateFormat("dd/MM/yyyy")
+        }else{
+            formatter = SimpleDateFormat("MM/dd/yyyy")
+        }
 
 
         val dt = formatter.parse(data)
@@ -168,10 +271,15 @@ class CalendarHelperImpl @Inject constructor(
         return data
     }
 
-    override fun subtrairUmDiaNumaData(data: String): String{
+    override fun subtrairUmDiaNumaData(data: String, defaultDeviceDateFormat: String): String{
         var data = data
         val calendar = Calendar.getInstance()
-        val formatter = SimpleDateFormat("dd/MM/yyyy")
+        var formatter: SimpleDateFormat
+        if (defaultDeviceDateFormat == "dd/MM/yyyy"){
+            formatter = SimpleDateFormat("dd/MM/yyyy")
+        }else{
+            formatter = SimpleDateFormat("MM/dd/yyyy")
+        }
 
 
         val dt = formatter.parse(data)

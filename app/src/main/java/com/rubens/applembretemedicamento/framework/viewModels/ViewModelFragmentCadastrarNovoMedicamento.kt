@@ -1,7 +1,7 @@
 package com.rubens.applembretemedicamento.framework.viewModels
 
+import android.content.Context
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appmedicamentos.data.repository.AddMedicineRepositoryImpl
@@ -28,9 +28,15 @@ class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
     private val funcoesDeTempo: FuncoesDeTempo
 ): ViewModel() {
 
+    fun pegarFormatoDeHoraPadraoDoDispositivoDoUsuario(context: Context): String{
+        return calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(context)
+    }
 
-    var insertResponse: MutableLiveData<Long> = MutableLiveData()
-    var medicamentos: MutableLiveData<List<MedicamentoComDoses>?> = MutableLiveData()
+
+    private val _insertResponse: MutableSharedFlow<Long> = MutableSharedFlow(replay = 0)
+    val insertResponse: SharedFlow<Long> = _insertResponse
+    private val _medicamentos: MutableSharedFlow<List<MedicamentoComDoses>?> = MutableSharedFlow(replay = 0)
+    val medicamentosResponse: SharedFlow<List<MedicamentoComDoses>?> = _medicamentos
 
     private val _mostrarToastMedicamentoInseridoComSucesso: MutableSharedFlow<String> = MutableSharedFlow(replay = 0)
     val mostrarToastMedicamentoInseridoComSucesso: SharedFlow<String> = _mostrarToastMedicamentoInseridoComSucesso
@@ -71,14 +77,15 @@ class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
         nomeMedicamento: String,
         qntDoses: Int,
         horarioPrimeiraDose: String,
-        is24HourFormat: Boolean
+        is24HourFormat: Boolean,
+        defaultDeviceDateFormat: String
     ) {
 
         if(is24HourFormat){
-            dosesManagerInterface.gerenciarHorariosDosagem(medicamento, nomeMedicamento, qntDoses, horarioPrimeiraDose, repositoryAdicionarMedicamento, is24HourFormat)
+            dosesManagerInterface.gerenciarHorariosDosagem(medicamento, nomeMedicamento, qntDoses, horarioPrimeiraDose, repositoryAdicionarMedicamento, is24HourFormat, defaultDeviceDateFormat)
 
         }else{
-            dosesManagerFormato12Horas.pegarTodasAsDosesParaOMedicamento(medicamento.nomeMedicamento, medicamento.horaPrimeiraDose, medicamento.qntDoses, medicamento.totalDiasTratamento, medicamento.dataInicioTratamento)
+            dosesManagerFormato12Horas.pegarTodasAsDosesParaOMedicamento(medicamento.nomeMedicamento, medicamento.horaPrimeiraDose, medicamento.qntDoses, medicamento.totalDiasTratamento, medicamento.dataInicioTratamento, defaultDeviceDateFormat)
         }
 
         //initInsertDosesListener()
@@ -102,11 +109,11 @@ class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
 
     }
 
-    fun seInsertBemSucedidoProsseguirComCadastroDasDoses(insertResponse: Long?) {
+    fun seInsertBemSucedidoProsseguirComCadastroDasDoses(insertResponse: Long?, defaultDeviceDateFormat: String, is24HourFormatt: Boolean) {
         if (insertResponse != null) {
             if (insertResponse > -1) {
                 if(this::medicamento.isInitialized){
-                    startMakingDosageTimes()
+                    startMakingDosageTimes(defaultDeviceDateFormat, is24HourFormatt)
                     showToastMedicamentoInseridoComSucesso()
                     fecharFragmentAtual()
                 }
@@ -137,8 +144,8 @@ class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
         }
     }
 
-    private fun startMakingDosageTimes() {
-        gerenciarHorariosDosagem(medicamento, nomeRemedio, qntDoses, horarioPrimeiraDose, is24HourFormat)
+    private fun startMakingDosageTimes(defaultDeviceDateFormat: String, is24HourFormatt: Boolean) {
+        gerenciarHorariosDosagem(medicamento, nomeRemedio, qntDoses, horarioPrimeiraDose, is24HourFormatt, defaultDeviceDateFormat)
     }
 
 
@@ -147,7 +154,10 @@ class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
     fun loadMedications(){
         val list = medicationRepository.getMedicamentos()
 
-        medicamentos.postValue(list)
+        viewModelScope.launch {
+            _medicamentos.emit(list)
+
+        }
     }
 
 
@@ -155,7 +165,11 @@ class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
     fun insertMedicamento(medicamento: MedicamentoTratamento){
         val insertResponseLong = repositoryAdicionarMedicamento.insertMedicamento(medicamento)
 
-        insertResponse.postValue(insertResponseLong)
+        viewModelScope.launch {
+            _insertResponse.emit(insertResponseLong)
+
+        }
+
     }
 
 
@@ -175,11 +189,13 @@ class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
         qntDiasTrat: Int?,
         diaInicioTratamento: String,
         inputDataInicioTratamentoIsDone: Boolean,
-        dataInicioTratamentoMasked: String
+        dataInicioTratamentoMasked: String,
+        defaultDeviceDateFormat: String,
+        is24HourFormatt: Boolean
     ) {
         var horaPrimeiraDoseLength = 0
 
-        if(is24HourFormat){
+        if(is24HourFormatt){
             horaPrimeiraDoseLength = 5
         }else{
             horaPrimeiraDoseLength = 8
@@ -189,11 +205,12 @@ class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
         Log.d("colocandosuf", "${horarioPrimeiraDose.length}")
         if (diaInicioTratamento.length == 10 && diaInicioTratamento.isNotEmpty() && qntDoses > 0 && nomeRemedio.isNotEmpty() && horarioPrimeiraDose.isNotEmpty() && horarioPrimeiraDose.length == horaPrimeiraDoseLength && horarioPrimeiraDose[2].toString() == ":" && inputDataInicioTratamentoIsDone && qntDiasTrat != null
             && horarioPrimeiraDose.isNotEmpty() && horarioPrimeiraDose[2].toString() == ":") {
-            if(!calendarHelper.verificarSeDataHoraJaPassou("$diaInicioTratamento $horarioPrimeiraDose", is24HourFormat)){
+            if(!calendarHelper.verificarSeDataHoraJaPassou("$diaInicioTratamento $horarioPrimeiraDose",
+                    is24HourFormatt, defaultDeviceDateFormat)){
 
 
 
-                saveNewMedication(nomeRemedio, qntDoses, horarioPrimeiraDose, qntDiasTrat, dataInicioTratamentoMasked)
+                saveNewMedication(nomeRemedio, qntDoses, horarioPrimeiraDose, qntDiasTrat, dataInicioTratamentoMasked, defaultDeviceDateFormat)
             }else{
                 mostraToastJaPassouHora()
 
@@ -216,7 +233,7 @@ class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
 
     private fun mostraToastJaPassouHora() {
         viewModelScope.launch {
-            _mostrarToastFalhaNaInsercaoDoMedicamento.emit(true)
+            _mostrarToastHoraJaPassou.emit(true)
 
         }
     }
@@ -226,7 +243,8 @@ class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
         qntDoses: Int,
         horarioPrimeiraDose: String,
         qntDiasTrat: Int,
-        dataInicioTratamentoMasked: String
+        dataInicioTratamentoMasked: String,
+        defaultDeviceDateFormat: String
     ) {
         medicamento = MedicamentoTratamento(
             nomeMedicamento = nomeRemedio,
@@ -238,7 +256,8 @@ class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
             dataInicioTratamento = dataInicioTratamentoMasked,
             dataTerminoTratamento = funcoesDeTempo.pegarDataDeTermino(
                 dataInicioTratamentoMasked,
-                qntDiasTrat
+                qntDiasTrat,
+                defaultDeviceDateFormat
             ),
             stringDataStore = "toast_already_shown"+"_$nomeRemedio"
         )

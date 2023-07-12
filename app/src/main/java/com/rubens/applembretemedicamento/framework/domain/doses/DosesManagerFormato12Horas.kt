@@ -15,6 +15,7 @@ interface DosesManagerFormato12Horas {
         horaPrimeiraDose: String,
         qntDosesPorDia: Int,
         totalDeDiasDeTratamento: Int,
-        diaInicioTratamento: String
+        diaInicioTratamento: String,
+        defaultDateFormat: String
     )
 }

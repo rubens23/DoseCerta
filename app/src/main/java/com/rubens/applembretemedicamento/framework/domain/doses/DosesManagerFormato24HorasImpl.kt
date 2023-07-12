@@ -8,6 +8,8 @@ import java.text.SimpleDateFormat
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
+import java.util.Locale
+
 /**
  * input
  *
@@ -115,7 +117,8 @@ class DosesManagerFormato24HorasImpl: DosesManagerInterface {
         qntDoses: Int,
         horarioPrimeiraDose: String,
         repositoryAdicionarMedicamento: AddMedicineRepositoryImpl,
-        is24HourFormat: Boolean
+        is24HourFormat: Boolean,
+        defaultDateFormat: String
     ) {
 
 
@@ -187,7 +190,7 @@ class DosesManagerFormato24HorasImpl: DosesManagerInterface {
         Log.d("refactdoses", "hora: $hora minutos: $minutos  aqui no metodo gerenciarHorariosDosagem" )
 
 
-        pegarTodasAsDosesParaONovoMedicamento(nomeMedicamento, hora, qntDoses, minutos, is24HourFormat)
+        pegarTodasAsDosesParaONovoMedicamento(nomeMedicamento, hora, qntDoses, minutos, is24HourFormat, defaultDateFormat)
         Log.d("variaveis", "nomeMedicamento: $nomeMedicamento,hora: $hora,qntDoses: $qntDoses,minutos: $minutos,medicamento: $medicamento")
 
     }
@@ -224,8 +227,12 @@ class DosesManagerFormato24HorasImpl: DosesManagerInterface {
         horaIni: Int,
         qntDoses: Int,
         min: String,
-        is24HourFormat: Boolean
+        is24HourFormat: Boolean,
+        defaultDateFormat: String
     ) {
+
+        //clearListaHorarioDoses()
+        Log.d("testlist24", "$listaHorarioDoses")
 
         this.is24HourFormat = is24HourFormat
 
@@ -250,7 +257,7 @@ class DosesManagerFormato24HorasImpl: DosesManagerInterface {
 
 
         // faz todas as doses de uma unica tomada
-        criarDosesNovasUnicoHorarioIntervaloEmHoras(numDosesNumUnicoHorario, hora, minInicial, qntDoses, nomeMed, intervalo)
+        criarDosesNovasUnicoHorarioIntervaloEmHoras(numDosesNumUnicoHorario, hora, minInicial, qntDoses, nomeMed, intervalo, defaultDateFormat)
 
 
 
@@ -265,7 +272,7 @@ class DosesManagerFormato24HorasImpl: DosesManagerInterface {
                     //pega o horario da proxima dose e atualiza a variavel hora
                     hora = hora + intervaloEntreDoses - 24
 
-                    criarDosesNovasUnicoHorarioIntervaloEmHoras(numDosesNumUnicoHorario, hora, minInicial, qntDoses, nomeMed, intervalo)
+                    criarDosesNovasUnicoHorarioIntervaloEmHoras(numDosesNumUnicoHorario, hora, minInicial, qntDoses, nomeMed, intervalo, defaultDateFormat)
 
                 }else {
 
@@ -279,7 +286,7 @@ class DosesManagerFormato24HorasImpl: DosesManagerInterface {
                     hora = time.hour
                     minInicial = time.minute.toString()
 
-                    criasDosesNovasUnicoHorarioIntervaloEmMinutos(numDosesNumUnicoHorario, time, nomeMed, intervalo, qntDoses)
+                    criasDosesNovasUnicoHorarioIntervaloEmMinutos(numDosesNumUnicoHorario, time, nomeMed, intervalo, qntDoses, defaultDateFormat)
 
                 }
             }
@@ -287,7 +294,7 @@ class DosesManagerFormato24HorasImpl: DosesManagerInterface {
                 //pega o horario da proxima dose e atualiza a variavel hora
                 hora += intervaloEntreDoses
                 if (intervaloEntreDosesIsGreaterThanOne) {
-                    criarDosesNovasUnicoHorarioIntervaloEmHoras(numDosesNumUnicoHorario, hora, minInicial, qntDoses, nomeMed, intervalo)
+                    criarDosesNovasUnicoHorarioIntervaloEmHoras(numDosesNumUnicoHorario, hora, minInicial, qntDoses, nomeMed, intervalo, defaultDateFormat)
                 }else{
                     //o intervalo é menor que uma hora(intervalo em minutos)
                     val minutosSoma = intervalo * 60
@@ -299,7 +306,7 @@ class DosesManagerFormato24HorasImpl: DosesManagerInterface {
                     hora = time.hour
                     minInicial = time.minute.toString()
 
-                    criasDosesNovasUnicoHorarioIntervaloEmMinutos(numDosesNumUnicoHorario, time, nomeMed, intervalo, qntDoses)
+                    criasDosesNovasUnicoHorarioIntervaloEmMinutos(numDosesNumUnicoHorario, time, nomeMed, intervalo, qntDoses, defaultDateFormat)
 
                 }
 
@@ -308,7 +315,7 @@ class DosesManagerFormato24HorasImpl: DosesManagerInterface {
                 //hora da proxima dose é meia noite
                 hora = 0
                 if (intervaloEntreDosesIsGreaterThanOne) {
-                    criarDosesNovasUnicoHorarioIntervaloEmHoras(numDosesNumUnicoHorario, hora, minInicial, qntDoses, nomeMed, intervalo)
+                    criarDosesNovasUnicoHorarioIntervaloEmHoras(numDosesNumUnicoHorario, hora, minInicial, qntDoses, nomeMed, intervalo, defaultDateFormat)
 
                 }else{
                     //o intervalo é menor que uma hora(intervalo em minutos)
@@ -322,7 +329,7 @@ class DosesManagerFormato24HorasImpl: DosesManagerInterface {
                     hora = time.hour
                     minInicial = time.minute.toString()
 
-                    criasDosesNovasUnicoHorarioIntervaloEmMinutos(numDosesNumUnicoHorario, time, nomeMed, intervalo, qntDoses)
+                    criasDosesNovasUnicoHorarioIntervaloEmMinutos(numDosesNumUnicoHorario, time, nomeMed, intervalo, qntDoses, defaultDateFormat)
 
 
 
@@ -357,11 +364,12 @@ class DosesManagerFormato24HorasImpl: DosesManagerInterface {
         time: LocalTime?,
         nomeMed: String,
         intervalo: Double,
-        qntDoses: Int
+        qntDoses: Int,
+        defaultDateFormat: String
     ) {
         for (i in 1..numDosesNumUnicoHorario) {
 
-            criarDoseComDataCerta(time.toString(), qntDoses)
+            criarDoseComDataCerta(time.toString(), qntDoses, defaultDateFormat)
             val medicamentoDose = criarDose(time, nomeMed, intervalo)
             colocarDoseNaLista(medicamentoDose)
         }
@@ -393,10 +401,11 @@ class DosesManagerFormato24HorasImpl: DosesManagerInterface {
         minInicial: String,
         qntDoses: Int,
         nomeMed: String,
-        intervalo: Double
+        intervalo: Double,
+        defaultDateFormat: String
     ) {
         for (i in 1..numDosesNumUnicoHorario) {
-            criarDoseComDataCertaDoisParametros(hora, minInicial, qntDoses)
+            criarDoseComDataCertaDoisParametros(hora, minInicial, qntDoses, defaultDateFormat)
             val medicamentoDose = criarDose(hora, minInicial, nomeMed, intervalo)
             colocarDoseNaLista(medicamentoDose)
         }
@@ -413,11 +422,11 @@ class DosesManagerFormato24HorasImpl: DosesManagerInterface {
     }
 
 
-    private fun criarDoseComDataCerta(hora: String, qntDoses: Int){
+    private fun criarDoseComDataCerta(hora: String, qntDoses: Int, defaultDateFormat: String){
         //dosesTomadasNaHoraAtual = 2                      dosesPorTomada = 2
         val horaFormatada = (hora.get(0).toString() + hora.get(1).toString()).toInt()
         if(horaFormatada < maiorHoraAteAgora){
-            diaAtual = somarUmDiaNumaData(diaAtual)
+            diaAtual = somarUmDiaNumaData(diaAtual, defaultDateFormat)
             maiorHoraAteAgora = horaFormatada
             adicionarUmADosesTomadasNaHoraAtual()
 
@@ -446,7 +455,7 @@ class DosesManagerFormato24HorasImpl: DosesManagerInterface {
         if(horaFormatada == maiorHoraAteAgora){
             Log.d("addlistafluxo29-2", "to bem fora dos ifs(inter em horas) hora $hora maiorHoraAteAgora $maiorHoraAteAgora dosesTomadasNaHoraAtual $dosesTomadasNaHoraAtual")
 
-            diaAtual = somarUmDiaNumaData(diaAtual)
+            diaAtual = somarUmDiaNumaData(diaAtual, defaultDateFormat)
 
 
             /*
@@ -501,9 +510,9 @@ class DosesManagerFormato24HorasImpl: DosesManagerInterface {
     }
 
 
-    private fun criarDoseComDataCertaDoisParametros(hora: Int, minInicial: String, qntDoses: Int){
+    private fun criarDoseComDataCertaDoisParametros(hora: Int, minInicial: String, qntDoses: Int, defaultDateFormat: String){
         if(hora < maiorHoraAteAgora){
-            diaAtual = somarUmDiaNumaData(diaAtual)
+            diaAtual = somarUmDiaNumaData(diaAtual, defaultDateFormat)
 
             maiorHoraAteAgora = hora
 
@@ -527,7 +536,7 @@ class DosesManagerFormato24HorasImpl: DosesManagerInterface {
 
         if(hora == maiorHoraAteAgora){
             Log.d("addlistafluxo29-2", "to bem fora dos ifs hora $hora maiorHoraAteAgora $maiorHoraAteAgora dosesTomadasNaHoraAtual $dosesTomadasNaHoraAtual")
-            diaAtual = somarUmDiaNumaData(diaAtual)
+            diaAtual = somarUmDiaNumaData(diaAtual, defaultDateFormat)
 
         }
     }
@@ -610,10 +619,17 @@ class DosesManagerFormato24HorasImpl: DosesManagerInterface {
         listaHorarioDoses.add(medicamentoDose)
     }
 
-    fun somarUmDiaNumaData(data: String): String{
+    fun somarUmDiaNumaData(data: String, defaultDateFormat: String): String{
         var data = data
         val calendar = Calendar.getInstance()
-        val formatter = SimpleDateFormat("dd/MM/yyyy")
+        var formatter: SimpleDateFormat
+        if(defaultDateFormat == "dd/MM/yyyy"){
+            formatter = SimpleDateFormat("dd/MM/yyyy")
+        }else{
+            formatter = SimpleDateFormat("MM/dd/yyyy")
+
+        }
+
 
 
         val dt = formatter.parse(data)

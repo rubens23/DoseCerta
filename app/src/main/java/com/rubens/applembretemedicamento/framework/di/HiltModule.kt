@@ -18,6 +18,9 @@ import com.rubens.applembretemedicamento.framework.domain.doses.DosesManagerForm
 import com.rubens.applembretemedicamento.framework.domain.doses.DosesManagerInterface
 import com.rubens.applembretemedicamento.framework.helpers.AlarmHelper
 import com.rubens.applembretemedicamento.framework.helpers.AlarmHelperImpl
+import com.rubens.applembretemedicamento.presentation.HiltTestActivity
+import com.rubens.applembretemedicamento.presentation.MainActivity
+import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import com.rubens.applembretemedicamento.utils.AlarmUtilsInterface
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.CalendarHelper2
@@ -30,6 +33,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -125,23 +129,18 @@ object HiltModule {
 
 
 
+
+
+
     @Provides
     @Singleton
     fun provideAlarmReceiver(): AlarmReceiver{
         return AlarmReceiver()
     }
 
-    @Provides
-    @Singleton
-    fun providesAlarmHelper(roomAccess: RoomAccess, funcoesDeTempo: FuncoesDeTempo, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2, @ApplicationContext context: Context, is24HourFormat: Boolean): AlarmHelper{
-        return AlarmHelperImpl(roomAccess, funcoesDeTempo, calendarHelper2, calendarHelper, context, is24HourFormat)
-    }
 
-    @Provides
-    @Singleton
-    fun provideAlarmUtilsInterface(roomAccess: RoomAccess, funcoesDeTempo: FuncoesDeTempo, calendarHelper2: CalendarHelper2, calendarHelper: CalendarHelper, @ApplicationContext context: Context, is24HourFormat: Boolean): AlarmUtilsInterface {
-        return AlarmHelperImpl(roomAccess, funcoesDeTempo, calendarHelper2, calendarHelper, context, is24HourFormat)
-    }
+
+
 
     @Provides
     @Singleton
@@ -151,10 +150,44 @@ object HiltModule {
 
 
     @Provides
+    fun providesDeviceDefaultDateFormat(@ApplicationContext context: Context, calendarHelper: CalendarHelper): String{
+        return calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(context)
+    }
+
+    @Provides
     @Singleton
-    fun providesMedicamentoManager(alarmReceiver: AlarmReceiver, @ApplicationContext context: Context, alarmHelper: AlarmHelper, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2, is24HourFormat: Boolean): MedicamentoManager{
+    fun providesAlarmHelper(roomAccess: RoomAccess, funcoesDeTempo: FuncoesDeTempo, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2, @ApplicationContext context: Context, is24HourFormat: Boolean, deviceDefaultDateFormat: String): AlarmHelper{
+        return AlarmHelperImpl(roomAccess, funcoesDeTempo, calendarHelper2, calendarHelper, context, is24HourFormat, deviceDefaultDateFormat)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAlarmUtilsInterface(roomAccess: RoomAccess, funcoesDeTempo: FuncoesDeTempo, calendarHelper2: CalendarHelper2, calendarHelper: CalendarHelper, @ApplicationContext context: Context, is24HourFormat: Boolean, deviceDefaultDateFormat: String): AlarmUtilsInterface {
+        return AlarmHelperImpl(roomAccess, funcoesDeTempo, calendarHelper2, calendarHelper, context, is24HourFormat, deviceDefaultDateFormat)
+    }
+
+    @Provides
+    @Singleton
+    fun providesMedicamentoManager(alarmReceiver: AlarmReceiver, @ApplicationContext context: Context, alarmHelper: AlarmHelper, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2, is24HourFormat: Boolean, defaultDeviceDateFormat: String): MedicamentoManager{
         val parcel = Parcel.obtain()
-        return MedicamentoManager(parcel, alarmReceiver, context, alarmHelper, calendarHelper, calendarHelper2, is24HourFormat)
+        return MedicamentoManager(parcel, alarmReceiver, context, alarmHelper, calendarHelper, calendarHelper2, is24HourFormat, defaultDeviceDateFormat)
+    }
+
+
+
+    @Provides
+    fun providesMainActivityInstance(): MainActivity{
+        return MainActivity()
+    }
+
+    @Provides
+    fun providesHiltTestActivityInstance(): HiltTestActivity {
+        return HiltTestActivity()
+    }
+
+    @Provides
+    fun provideMainActivityInterface(activity: MainActivity): MainActivityInterface{
+        return activity
     }
 
 

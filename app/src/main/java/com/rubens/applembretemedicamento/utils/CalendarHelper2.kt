@@ -6,7 +6,7 @@ import java.util.Date
 interface CalendarHelper2 {
     fun pegarDataHoraAtual(): String
     fun formatarDataHoraComSegundos(dataString: String): String
-    fun formatarDataHoraSemSegundos(dataString: String, is24HourFormat: Boolean): String
+    fun formatarDataHoraSemSegundos(dataString: String, is24HourFormat: Boolean, deviceDefaultDateFormat: String): String
     fun calculateHoursDifference(d2: Date): Long
     fun somarUmDiaNumaData(data: String): String
     fun pegarDataAtual(): String

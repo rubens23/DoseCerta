@@ -4,14 +4,12 @@ import android.app.TimePickerDialog
 import android.content.Context
 import android.os.Bundle
 import android.text.format.DateFormat
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -21,25 +19,23 @@ import com.google.android.gms.ads.MobileAds
 import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.databinding.FragmentCadastrarNovoMedicamentoBinding
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
-import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentCadastrarNovoMedicamento
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
-import com.rubens.applembretemedicamento.utils.CalendarHelper
-import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class FragmentCadastrarNovoMedicamento: Fragment(){
 
+    private lateinit var defaultDeviceDateFormat: String
     lateinit var binding: FragmentCadastrarNovoMedicamentoBinding
     private var tratamentoDuraMeses = false
     lateinit var viewModel: ViewModelFragmentCadastrarNovoMedicamento
+
 
     private lateinit var mainActivityInterface: MainActivityInterface
     private var apertouBotaoCadastrar = false
@@ -79,12 +75,16 @@ class FragmentCadastrarNovoMedicamento: Fragment(){
 
         initAds()
         initViewModel()
+        getDefaultDateFormat()
 
-        viewModel.is24HourFormat = DateFormat.is24HourFormat(requireContext())
         onClickListeners()
 
     }
 
+    private fun getDefaultDateFormat() {
+        defaultDeviceDateFormat = viewModel.pegarFormatoDeHoraPadraoDoDispositivoDoUsuario(requireContext())
+
+    }
 
 
     private fun setupToolbar() {
@@ -101,7 +101,6 @@ class FragmentCadastrarNovoMedicamento: Fragment(){
 
     private fun initViewModel() {
         viewModel = ViewModelProvider(requireActivity())[ViewModelFragmentCadastrarNovoMedicamento::class.java]
-        initObservers()
         initCollectors()
     }
 
@@ -143,34 +142,34 @@ class FragmentCadastrarNovoMedicamento: Fragment(){
                 }
             }
         }
-    }
 
-    private fun initObservers() {
-        viewModel.medicamentos.observe(viewLifecycleOwner){
-            listaMedicamentos->
-            var existe = false
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.medicamentosResponse.collectLatest {
+                        listaMedicamentos->
+                    var existe = false
 
 
-            listaMedicamentos?.forEach { medicamento->
-                existe = verificarSeJaExisteEsseMedicamentoNaListaDeMedicamentos(medicamento)
+                    listaMedicamentos?.forEach { medicamento->
+                        existe = verificarSeJaExisteEsseMedicamentoNaListaDeMedicamentos(medicamento)
 
+                    }
+                    seMedicamentoNaoExisteProsseguirComCadastro(existe)
+                }
             }
-            seMedicamentoNaoExisteProsseguirComCadastro(existe)
-
         }
 
-
-
-
-
-        viewModel.insertResponse.observe(viewLifecycleOwner) {
-            longInsert->
-            viewModel.seInsertBemSucedidoProsseguirComCadastroDasDoses(longInsert)
-
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.insertResponse.collectLatest {
+                        longInsert->
+                    viewModel.seInsertBemSucedidoProsseguirComCadastroDasDoses(longInsert, viewModel.pegarFormatoDeHoraPadraoDoDispositivoDoUsuario(requireContext()), DateFormat.is24HourFormat(requireContext()))
+                }
+            }
         }
-
 
     }
+
 
 
 
@@ -254,6 +253,7 @@ class FragmentCadastrarNovoMedicamento: Fragment(){
         val minute: Int = cal.get(Calendar.MINUTE)
 
         var selectedTime: String
+        val is24HourFormatt = DateFormat.is24HourFormat(requireContext())
 
 
 
@@ -264,7 +264,7 @@ class FragmentCadastrarNovoMedicamento: Fragment(){
                 val calendar = Calendar.getInstance()
                 calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
                 calendar.set(Calendar.MINUTE, minuteOfDay)
-                if(viewModel.is24HourFormat){
+                if(is24HourFormatt){
                     //selectedTime = String.format("%02d:%02d", hourOfDay, minuteOfDay)
                     timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
                     selectedTime = timeFormat.format(calendar.time)
@@ -284,13 +284,14 @@ class FragmentCadastrarNovoMedicamento: Fragment(){
                 //editText.setText(selectedTime)
                 timeFirstTake = selectedTime
             },
-            hour, minute, viewModel.is24HourFormat)
+            hour, minute, is24HourFormatt)
 
 
 
         timePickerDialog.show()
 
         //editText.setOnClickListener { view -> timePickerDialog.show() }
+
     }
 
 
@@ -322,7 +323,8 @@ class FragmentCadastrarNovoMedicamento: Fragment(){
         viewModel.horarioPrimeiraDose = getTimeFirstTake()
 
 
-        viewModel.seeIfMedicamentoHasValidInfo(viewModel.nomeRemedio, viewModel.qntDoses, viewModel.horarioPrimeiraDose, qntDiasTrat, diaInicioTratamento, binding.inputDataInicioTratamento.isDone, binding.inputDataInicioTratamento.masked)
+
+        viewModel.seeIfMedicamentoHasValidInfo(viewModel.nomeRemedio, viewModel.qntDoses, viewModel.horarioPrimeiraDose, qntDiasTrat, diaInicioTratamento, binding.inputDataInicioTratamento.isDone, binding.inputDataInicioTratamento.masked, defaultDeviceDateFormat, DateFormat.is24HourFormat(requireContext()))
 
 
 

@@ -1,11 +1,13 @@
 package com.rubens.applembretemedicamento.framework.viewModels
 
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appmedicamentos.data.repository.MedicationRepositoryImpl
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTratamento
+import com.rubens.applembretemedicamento.utils.CalendarHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -14,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ViewModelFragmentLista @Inject constructor(
-    private val medicationRepository: MedicationRepositoryImpl
+    private val medicationRepository: MedicationRepositoryImpl,
+    private val calendarHelper: CalendarHelper
 ): ViewModel(){
 
     var medicamentos: MutableLiveData<List<MedicamentoComDoses>?> = MutableLiveData()
@@ -25,6 +28,10 @@ class ViewModelFragmentLista @Inject constructor(
 
     init{
         loadMedications()
+    }
+
+    fun pegarFormatoDeHoraPadraoDoDispositivoDoUsuario(context: Context): String{
+        return calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(context)
     }
 
     fun onRecyclerViewScrolled(position: Int){

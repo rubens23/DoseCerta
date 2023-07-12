@@ -32,7 +32,8 @@ class AdapterListaMedicamentos(
     val context: Context,
     val medicamentoManager: MedicamentoManager,
     private val alarmReceiver: AlarmUtilsInterface,
-    private val is24HourFormat: Boolean
+    private val is24HourFormat: Boolean,
+    private val defaultDeviceDateFormat: String
 ) : RecyclerView.Adapter<AdapterListaMedicamentos.ViewHolder>(), AdapterListaMedicamentosInterface {
     private lateinit var alarmUtilsInterface: AlarmUtilsInterface
     private var listaIdMedicamentosTocandoNoMomento: ArrayList<Int> = ArrayList()
@@ -173,10 +174,22 @@ class AdapterListaMedicamentos(
             var formatoDataHora: SimpleDateFormat
 
             if(is24HourFormat){
-                formatoDataHora = SimpleDateFormat("dd/MM/yyyy HH:mm")
+                if(defaultDeviceDateFormat == "dd/MM/yyyy"){
+                    formatoDataHora = SimpleDateFormat("dd/MM/yyyy HH:mm")
+
+                }else{
+                    formatoDataHora = SimpleDateFormat("MM/dd/yyyy HH:mm")
+
+                }
 
             }else{
-                formatoDataHora = SimpleDateFormat("dd/MM/yyyy h:mm a")
+                if(defaultDeviceDateFormat == "dd/MM/yyyy"){
+                    formatoDataHora = SimpleDateFormat("dd/MM/yyyy h:mm a")
+
+                }else{
+                    formatoDataHora = SimpleDateFormat("MM/dd/yyyy h:mm a")
+
+                }
 
             }
 

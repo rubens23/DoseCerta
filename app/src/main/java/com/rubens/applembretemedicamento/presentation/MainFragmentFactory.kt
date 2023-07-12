@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentFactory
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiver
 import com.rubens.applembretemedicamento.framework.data.managers.RoomAccess
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
+import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import com.rubens.applembretemedicamento.utils.AlarmUtilsInterface
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.CalendarHelper2
@@ -22,13 +23,14 @@ constructor(
     private val context: Context,
     private val roomAccess: RoomAccess,
     private val calendarHelper2: CalendarHelper2,
-    private val is24HourFormat: Boolean
+    private val is24HourFormat: Boolean,
+    private val deviceDefaultDateFormat: String
 
 ) : FragmentFactory() {
     override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
         return when(className){
             FragmentListaMedicamentos::class.java.name->{
-                FragmentListaMedicamentos(alarmUtilsInterface, medicamentoManager, funcoesDeTempo, calendarHelper, context, is24HourFormat)
+                FragmentListaMedicamentos(alarmUtilsInterface, medicamentoManager, funcoesDeTempo, calendarHelper, context, is24HourFormat, deviceDefaultDateFormat)
             }
             FragmentDetalhesMedicamentos::class.java.name->{
                 FragmentDetalhesMedicamentos(alarmUtilsInterface, funcoesDeTempo, calendarHelper, calendarHelper2)

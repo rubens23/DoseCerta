@@ -95,11 +95,22 @@ class CalendarHelperImpl2: CalendarHelper2{
 
      */
 
-    override fun formatarDataHoraSemSegundos(dataString: String, is24HourFormat: Boolean): String {
+    override fun formatarDataHoraSemSegundos(dataString: String, is24HourFormat: Boolean, deviceDefaultDateFormat: String): String {
+        var formatoAtual: SimpleDateFormat
+        var formatoAtual2: SimpleDateFormat
+        var formatoDesejado: SimpleDateFormat
         if(is24HourFormat){
-            val formatoAtual = SimpleDateFormat("dd/MM/yyyy H:mm:ss", Locale.getDefault())
-            val formatoAtual2 = SimpleDateFormat("dd/MM/yyyy H:mm", Locale.getDefault())
-            val formatoDesejado = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+
+            if(deviceDefaultDateFormat == "dd/MM/yyyy"){
+                formatoAtual = SimpleDateFormat("dd/MM/yyyy H:mm:ss", Locale.getDefault())
+                formatoAtual2 = SimpleDateFormat("dd/MM/yyyy H:mm", Locale.getDefault())
+                formatoDesejado = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+            }else{
+                formatoAtual = SimpleDateFormat("MM/dd/yyyy H:mm:ss", Locale.getDefault())
+                formatoAtual2 = SimpleDateFormat("MM/dd/yyyy H:mm", Locale.getDefault())
+                formatoDesejado = SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault())
+            }
+
 
             try {
                 val data = formatoAtual.parse(dataString)
@@ -115,9 +126,16 @@ class CalendarHelperImpl2: CalendarHelper2{
                 // A string não está no formato desejado, retorna a mesma string
             }
         }else {
-            val formatoAtual = SimpleDateFormat("dd/MM/yyyy h:mm a", Locale.getDefault())
-            val formatoAtual2 = SimpleDateFormat("dd/MM/yyyy h:mm", Locale.getDefault())
-            val formatoDesejado = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault())
+            if(deviceDefaultDateFormat == "dd/MM/yyyy"){
+                formatoAtual = SimpleDateFormat("dd/MM/yyyy h:mm a", Locale.getDefault())
+                formatoAtual2 = SimpleDateFormat("dd/MM/yyyy h:mm", Locale.getDefault())
+                formatoDesejado = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault())
+            }else{
+                formatoAtual = SimpleDateFormat("MM/dd/yyyy h:mm a", Locale.getDefault())
+                formatoAtual2 = SimpleDateFormat("MM/dd/yyyy h:mm", Locale.getDefault())
+                formatoDesejado = SimpleDateFormat("MM/dd/yyyy hh:mm a", Locale.getDefault())
+            }
+
 
             try {
                 val data = formatoAtual.parse(dataString)
@@ -133,6 +151,8 @@ class CalendarHelperImpl2: CalendarHelper2{
         }
 
     }
+
+
 
 
 

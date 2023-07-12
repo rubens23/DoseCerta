@@ -3,12 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/layout_cadastrar_medicamento"
     android:overScrollMode="never"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".presentation.FragmentCadastrarNovoMedicamento">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
+        android:id="@+id/container_cl"
         android:layout_height="wrap_content">
 
         <TextView
@@ -43,6 +45,7 @@
             app:layout_constraintTop_toBottomOf="@id/label_title_activity_add_medicine">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/til_medicine_name_child"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:textSize="28sp"
@@ -64,6 +67,7 @@
             app:layout_constraintTop_toBottomOf="@id/til_medicine_name">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/til_medicine_qnt_per_day_child"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:textSize="28sp"
@@ -142,6 +146,7 @@
             app:layout_constraintTop_toBottomOf="@id/label_duracao_tratamento">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/til_medicine_time_treatment_child"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:textSize="28sp"

@@ -2,6 +2,7 @@ package com.rubens.applembretemedicamento.di
 
 import android.content.Context
 import android.os.Parcel
+import android.text.format.DateFormat
 import com.example.appmedicamentos.data.repository.AddMedicineRepositoryImpl
 import com.example.appmedicamentos.data.repository.MedicationRepositoryImpl
 import com.rubens.applembretemedicamento.framework.broadcastreceivers.AlarmReceiver
@@ -17,6 +18,9 @@ import com.rubens.applembretemedicamento.framework.domain.doses.DosesManagerForm
 import com.rubens.applembretemedicamento.framework.domain.doses.DosesManagerInterface
 import com.rubens.applembretemedicamento.framework.helpers.AlarmHelper
 import com.rubens.applembretemedicamento.framework.helpers.AlarmHelperImpl
+import com.rubens.applembretemedicamento.presentation.HiltTestActivity
+import com.rubens.applembretemedicamento.presentation.MainActivity
+import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import com.rubens.applembretemedicamento.utils.AlarmUtilsInterface
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.CalendarHelper2
@@ -30,6 +34,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Named
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -64,10 +69,29 @@ object TestAppModule {
     }
 
     @Provides
-    @Named("addMedicamentoRepository")
-    fun providesAddMedicamentosRepository(dao: MedicamentoDao): AddMedicineRepositoryImpl {
+    @Named("addmedicamentosrepository")
+    fun providesAddMedicamentosRepository(dao: MedicamentoDao): AddMedicineRepositoryImpl{
         return AddMedicineRepositoryImpl(dao)
     }
+
+    @Provides
+    @Named("dosesManager12horas")
+    fun providesDosesManagerFormato12HorasImplementation(addMedicamentosRepositoryImpl: AddMedicineRepositoryImpl): DosesManagerFormato12Horas {
+        return DosesManagerFormato12HorasImpl(addMedicamentosRepositoryImpl)
+    }
+
+
+
+    @Provides
+    @Named("is24hour")
+    fun providesIs24HourFormat(@ApplicationContext context: Context): Boolean{
+        return DateFormat.is24HourFormat(context)
+    }
+
+
+
+
+
 
     @Provides
     @Named("roomAccess")
@@ -85,17 +109,18 @@ object TestAppModule {
         return DataSourceManager()
     }
 
+
     @Provides
     @Named("dosesManager")
     fun providesDosesManagerImplementation(): DosesManagerInterface {
         return DosesManagerFormato24HorasImpl()
     }
 
-    @Provides
-    @Named("dosesManager12horas")
-    fun providesDosesManagerFormato12HorasImplementation(): DosesManagerFormato12Horas {
-        return DosesManagerFormato12HorasImpl()
-    }
+
+
+
+
+
 
     @Provides
     @Named("funcoesTempo")
@@ -103,10 +128,12 @@ object TestAppModule {
         return FuncoesDeTempoImpl()
     }
 
+
+
     @Provides
     @Named("calendarHelper")
-    fun providesCalendarHelper(): CalendarHelper {
-        return CalendarHelperImpl()
+    fun providesCalendarHelper(@ApplicationContext context: Context): CalendarHelper {
+        return CalendarHelperImpl(context)
     }
 
 
@@ -126,18 +153,18 @@ object TestAppModule {
 
     @Provides
     @Named("alarmHelper")
-    fun providesAlarmHelper(roomAccess: RoomAccess, funcoesDeTempo: FuncoesDeTempo, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2, @ApplicationContext context: Context): AlarmHelper {
-        return AlarmHelperImpl(roomAccess, funcoesDeTempo, calendarHelper2, calendarHelper, context)
+    fun providesAlarmHelper(roomAccess: RoomAccess, funcoesDeTempo: FuncoesDeTempo, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2, @ApplicationContext context: Context, is24HourFormat: Boolean): AlarmHelper {
+        return AlarmHelperImpl(roomAccess, funcoesDeTempo, calendarHelper2, calendarHelper, context, is24HourFormat)
     }
 
     @Provides
     @Named("alarmUtils")
-    fun provideAlarmUtilsInterface(roomAccess: RoomAccess, funcoesDeTempo: FuncoesDeTempo, calendarHelper2: CalendarHelper2, calendarHelper: CalendarHelper, @ApplicationContext context: Context): AlarmUtilsInterface {
-        return AlarmHelperImpl(roomAccess, funcoesDeTempo, calendarHelper2, calendarHelper, context)
+    fun provideAlarmUtilsInterface(roomAccess: RoomAccess, funcoesDeTempo: FuncoesDeTempo, calendarHelper2: CalendarHelper2, calendarHelper: CalendarHelper, @ApplicationContext context: Context, is24HourFormat: Boolean): AlarmUtilsInterface {
+        return AlarmHelperImpl(roomAccess, funcoesDeTempo, calendarHelper2, calendarHelper, context, is24HourFormat)
     }
 
     @Provides
-    @Named("calendarHelper")
+    @Named("calendarHelper2")
     fun providesCalendarHelper2(): CalendarHelper2 {
         return CalendarHelperImpl2()
     }
@@ -145,10 +172,19 @@ object TestAppModule {
 
     @Provides
     @Named("medicamentoManager")
-    fun providesMedicamentoManager(alarmReceiver: AlarmReceiver, @ApplicationContext context: Context, alarmHelper: AlarmHelper, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2): MedicamentoManager {
+    fun providesMedicamentoManager(alarmReceiver: AlarmReceiver, @ApplicationContext context: Context, alarmHelper: AlarmHelper, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2, is24HourFormat: Boolean): MedicamentoManager {
         val parcel = Parcel.obtain()
-        return MedicamentoManager(parcel, alarmReceiver, context, alarmHelper, calendarHelper, calendarHelper2)
+        return MedicamentoManager(parcel, alarmReceiver, context, alarmHelper, calendarHelper, calendarHelper2, is24HourFormat)
     }
+
+    @Provides
+    @Named("hilttestactivity")
+    fun providesHiltTestActivityInstance(): HiltTestActivity{
+        return HiltTestActivity()
+    }
+
+
+
 
 
 }

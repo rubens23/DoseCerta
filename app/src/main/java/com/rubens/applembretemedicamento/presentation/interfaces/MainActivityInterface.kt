@@ -13,7 +13,7 @@ interface MainActivityInterface {
     fun hideToolbarTitle()
     fun showBtnDeleteMedicamento()
 
-    fun getPendingIntentsList(): ArrayList<PendingIntent>
+    fun getPendingIntentsList(): ArrayList<PendingIntent>?
 
     fun clearPendingIntentsList()
 

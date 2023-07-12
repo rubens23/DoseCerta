@@ -48,14 +48,16 @@ class AlarmReceiver: BroadcastReceiver()  {
 
     override fun onReceive(p0: Context?, p1: Intent?) {
         context = p0
-        Log.d("bugalarme1", "to no inicio do onreceive")
+        Log.d("bugalarme3", "eu to aqui no alarmReceiver")
 
 
 
 
 
 
-            procedimentosAoChegarAHoraDoAlarme(p0)
+
+
+        procedimentosAoChegarAHoraDoAlarme(p0)
 
 
 
@@ -73,26 +75,31 @@ class AlarmReceiver: BroadcastReceiver()  {
         listaMedicamentos.forEach {
 
             if(DateFormat.is24HourFormat(context)){
-                if(it.horaProxDose == calendarHelper.pegarDataHoraAtual(DateFormat.is24HourFormat(context))){
+                if(it.horaProxDose == calendarHelper.pegarDataHoraAtual(DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0!!))){
 
-                    Log.d("bugalarme1", "horario adicionado a lista de alarmes: ${it.horaProxDose} ${it.nomeMedicamento}")
+                    Log.d("bugalarme2", "horario adicionado a lista de alarmes: ${it.horaProxDose} ${it.nomeMedicamento}")
                     listaDeAlarmesTocando.add(it)
                 }else{
                     Log.d("bugalarme1", "horario NÃO adicionado a lista de alarmes: ${it.horaProxDose} ${it.nomeMedicamento}")
 
                 }
             }else{
-                if(it.horaProxDose == calendarHelper.pegarDataHoraAtual(DateFormat.is24HourFormat(context))){
-                    Log.d("bugalarme1", "horario adicionado a lista de alarmes: ${it.horaProxDose}| ${calendarHelper.pegarDataHoraAtual(DateFormat.is24HourFormat(context))}")
+                val dataHoraAtual = calendarHelper.pegarDataHoraAtual(DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0!!))
+
+                if(it.horaProxDose == dataHoraAtual){
+                    val dataHoraAtual = calendarHelper.pegarDataHoraAtual(DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0))
+                    Log.d("bugalarme2", "horario adicionado a lista de alarmes: ${it.horaProxDose}| ${calendarHelper.pegarDataHoraAtual(DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0))}")
                     listaDeAlarmesTocando.add(it)
                 }else{
-                    Log.d("bugalarme1", "horario NÃO adicionado a lista de alarmes: ${it.horaProxDose}| ${calendarHelper.pegarDataHoraAtual(DateFormat.is24HourFormat(context))}")
+                    Log.d("bugalarme1", "horario NÃO adicionado a lista de alarmes: ${it.horaProxDose}| ${calendarHelper.pegarDataHoraAtual(DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0))}")
 
 
                 }
             }
 
         }
+
+
 
         Log.d("controletoast", "passei pelo metodo de procediemnto do alarme. Quer dizer que eu ja passei pelo on receive")
 
@@ -116,9 +123,9 @@ class AlarmReceiver: BroadcastReceiver()  {
                 Log.d("inspectinglistadd", "to aqui no segundo for each")
 
                 val alarmeDoMedicamentoAtivado = roomAccess.verSeMedicamentoEstaComAlarmeAtivado(medicamentoNoAlarme.idMedicamento)
-                Log.d("testingdose", "dose.horarioDose ${calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, DateFormat.is24HourFormat(context))} medicamentoNoAlarme.horaProxDose ${calendarHelper2.formatarDataHoraSemSegundos(medicamentoNoAlarme.horaProxDose, DateFormat.is24HourFormat(context))}")
-                if(calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, DateFormat.is24HourFormat(context)) == calendarHelper2.formatarDataHoraSemSegundos(medicamentoNoAlarme.horaProxDose, DateFormat.is24HourFormat(context))){
-                    Log.d("inspectinglistadd", "as horas sao iguais: ${calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, DateFormat.is24HourFormat(context))} ${dose.nomeMedicamento}")
+                Log.d("testingdose", "dose.horarioDose ${calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0!!))} medicamentoNoAlarme.horaProxDose ${calendarHelper2.formatarDataHoraSemSegundos(medicamentoNoAlarme.horaProxDose, DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0))}")
+                if(calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0)) == calendarHelper2.formatarDataHoraSemSegundos(medicamentoNoAlarme.horaProxDose, DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0))){
+                    Log.d("inspectinglistadd", "as horas sao iguais: ${calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0))} ${dose.nomeMedicamento}")
 
 
                     if(!dose.jaMostrouToast){
@@ -177,7 +184,7 @@ class AlarmReceiver: BroadcastReceiver()  {
                     }
                 }else{
                     listaDoses.add(dose)
-                    Log.d("inspectinglistadd", "as horas sao iguais: ${calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, DateFormat.is24HourFormat(context))} ${dose.nomeMedicamento}")
+                    Log.d("inspectinglistadd", "as horas sao iguais: ${calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0))} ${dose.nomeMedicamento}")
 
 
 

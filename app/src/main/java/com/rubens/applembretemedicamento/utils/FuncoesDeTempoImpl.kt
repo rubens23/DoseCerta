@@ -7,9 +7,16 @@ import java.util.concurrent.TimeUnit
 
 class FuncoesDeTempoImpl: FuncoesDeTempo {
 
-    override fun pegarDataDeTermino(data: String, diasAteTermino: Int): String {
+    override fun pegarDataDeTermino(data: String, diasAteTermino: Int, defaultDeviceDateFormat: String): String {
         val calendar = Calendar.getInstance()
-        val sdf = SimpleDateFormat("dd/MM/yyyy")
+        var sdf: SimpleDateFormat
+        if(defaultDeviceDateFormat == "dd/MM/yyyy"){
+            sdf = SimpleDateFormat("dd/MM/yyyy")
+
+        }else{
+            sdf = SimpleDateFormat("MM/dd/yyyy")
+
+        }
         calendar.time = sdf.parse(data)
 
         calendar.add(Calendar.DATE, diasAteTermino)
@@ -19,8 +26,16 @@ class FuncoesDeTempoImpl: FuncoesDeTempo {
     }
 
 
-    override fun pegarHoraAtual(): String{
-        val formatarHora = SimpleDateFormat("HH:mm")
+    override fun pegarHoraAtual(is24HourFormat: Boolean): String{
+        var formatarHora: SimpleDateFormat
+
+        if(is24HourFormat){
+            formatarHora = SimpleDateFormat("HH:mm")
+
+        }else{
+            formatarHora = SimpleDateFormat("h:mm a")
+
+        }
         val hora = Calendar.getInstance().time
 
         val horaFormatada = formatarHora.format(hora)

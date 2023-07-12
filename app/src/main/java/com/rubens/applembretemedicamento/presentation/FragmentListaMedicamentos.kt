@@ -31,6 +31,7 @@ import com.rubens.applembretemedicamento.framework.data.AppDatabase
 import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.HistoricoMedicamentos
+import com.rubens.applembretemedicamento.framework.di.HiltModule_ProvidesDeviceDefaultDateFormatFactory
 import com.rubens.applembretemedicamento.framework.domain.eventbus.AlarmeMedicamentoTocando
 import com.rubens.applembretemedicamento.framework.domain.eventbus.MediaPlayerTocando
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
@@ -59,7 +60,8 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
                                                     private val funcoesDeTempo: FuncoesDeTempo,
                                                     private val calendarHelper: CalendarHelper,
                                                     private val context: Context,
-                                                    private val is24HourFormat: Boolean
+                                                    private val is24HourFormat: Boolean,
+                                                    private val deviceDefaultDateFormat: String
                                                     ): Fragment(), FragmentListaMedicamentosInterface {
 
     private lateinit var binding: FragmentListaMedicamentosBinding
@@ -157,7 +159,7 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
     }
 
     private fun colocarDataAtualNaTextViewDaData() {
-        binding.dataAtual.text = calendarHelper.pegarDataAtual()
+        binding.dataAtual.text = calendarHelper.pegarDataAtualConsiderandoFormatacaoDaDataDoDevice(viewModel.pegarFormatoDeHoraPadraoDoDispositivoDoUsuario(requireContext()))
 
     }
 
@@ -347,7 +349,7 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
     fun setAdapter(medicamentos: List<MedicamentoComDoses>?){
         Log.d("testeshakingclock", "to dentro do setadapter")
 
-            adapter = AdapterListaMedicamentos(medicamentos as ArrayList<MedicamentoComDoses>, this,context, medicamentoManager, alarmUtilsInterface, is24HourFormat)
+            adapter = AdapterListaMedicamentos(medicamentos as ArrayList<MedicamentoComDoses>, this,context, medicamentoManager, alarmUtilsInterface, is24HourFormat, viewModel.pegarFormatoDeHoraPadraoDoDispositivoDoUsuario(requireContext()))
             binding.recyclerView.adapter = adapter
 
         initAdapterInterface()
@@ -512,9 +514,10 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
                 Log.d("testeinserthistorico", "eu to dentro do if do coroutine scope")
 
             }else{
-                val sdf = getSimpleDateFormat()
-                val c = Calendar.getInstance()
-                val date = sdf.format(c.time)
+                val date = calendarHelper.pegarDataAtual(deviceDefaultDateFormat)
+//                val sdf = getSimpleDateFormat()
+//                val c = Calendar.getInstance()
+//                val date = sdf.format(c.time)
 
 
                 medicamentoDao.insertNaTabelaHistoricoMedicamentos(

@@ -26,9 +26,10 @@ class DosesManagerFormato12HorasImpl @Inject constructor(
         horaPrimeiraDose: String,
         qntDosesPorDia: Int,
         totalDeDiasDeTratamento: Int,
-        diaInicioTratamento: String
+        diaInicioTratamento: String,
+        defaultDateFormat: String
     ) {
-        fazerTodasAsDoses(nomeMedicamento, horaPrimeiraDose, qntDosesPorDia, totalDeDiasDeTratamento, diaInicioTratamento)
+        fazerTodasAsDoses(nomeMedicamento, horaPrimeiraDose, qntDosesPorDia, totalDeDiasDeTratamento, diaInicioTratamento, defaultDateFormat)
 
 
 
@@ -39,14 +40,24 @@ class DosesManagerFormato12HorasImpl @Inject constructor(
         horaPrimeiraDose: String,
         qntDosesPorDia: Int,
         totalDeDiasDeTratamento: Int,
-        diaInicioTratamento: String
+        diaInicioTratamento: String,
+        defaultDateFormat: String
     ) {
+        clearListaHorarioDoses()
+        Log.d("testlist", "$listaHorarioDoses")
         val horaDose = horaPrimeiraDose.split(":")
         val hora = horaDose[0].trim().toInt()
         val minuto = horaDose[1].split(" ")[0].trim().toInt()
         val periodo = horaDose[1].split(" ")[1].trim()
 
-        val format = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault())
+        var format: SimpleDateFormat
+        if(defaultDateFormat == "dd/MM/yyyy"){
+            format = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault())
+        }else{
+            format = SimpleDateFormat("MM/dd/yyyy hh:mm a", Locale.getDefault())
+
+        }
+
         val calendar = Calendar.getInstance()
 
         for (dia in 0 until totalDeDiasDeTratamento) {
@@ -54,6 +65,7 @@ class DosesManagerFormato12HorasImpl @Inject constructor(
                 calendar.time = format.parse("$diaInicioTratamento $hora:$minuto $periodo")
                 calendar.add(Calendar.DAY_OF_MONTH, dia)
                 calendar.add(Calendar.HOUR_OF_DAY, dose * (24 / qntDosesPorDia))
+
 
                 val horaDoseFormatada = format.format(calendar.time)
 
@@ -65,6 +77,10 @@ class DosesManagerFormato12HorasImpl @Inject constructor(
         }
 
         insertListaDeDosesInTable()
+    }
+
+    private fun clearListaHorarioDoses() {
+        listaHorarioDoses.clear()
     }
 
     private fun adicionarNaListaDeDoses(dose: Doses) {

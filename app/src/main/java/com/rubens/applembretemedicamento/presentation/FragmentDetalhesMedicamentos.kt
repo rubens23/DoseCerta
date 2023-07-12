@@ -227,7 +227,7 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
     }
 
     private fun initTextViewWithCurrentDate() {
-        diaAtualSelecionado = calendarHelper.pegarDataAtual()
+        diaAtualSelecionado = calendarHelper.pegarDataAtualConsiderandoFormatacaoDaDataDoDevice(calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(requireContext()))
         binding.dataAtualSelecionada.text = diaAtualSelecionado
     }
 
@@ -688,7 +688,7 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
     }
 
     private fun subtrairUmDiaDaDataAtual() {
-        diaAtualSelecionado = calendarHelper.subtrairUmDiaNumaData(diaAtualSelecionado)
+        diaAtualSelecionado = calendarHelper.subtrairUmDiaNumaData(diaAtualSelecionado, calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(requireContext()))
     }
 
     private fun atualizarTextViewDaDataAtual() {
@@ -696,7 +696,7 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
     }
 
     private fun somarUmDiaADataAtual() {
-        diaAtualSelecionado = calendarHelper.somarUmDiaNumaData(diaAtualSelecionado)
+        diaAtualSelecionado = calendarHelper.somarUmDiaNumaData(diaAtualSelecionado, calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(requireContext()))
     }
 
     private fun createDeleteAlertDialog(medicamento: MedicamentoTratamento) {
@@ -761,7 +761,8 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
     }
 
     private fun armarProximoAlarme() {
-        medicamentoManager.startArmarProximoAlarme()
+        //medicamentoManager.startArmarProximoAlarme()
+        alarmUtilsInterface.pegarProximaDoseESetarAlarme(extra as MedicamentoComDoses)
     }
 
 
