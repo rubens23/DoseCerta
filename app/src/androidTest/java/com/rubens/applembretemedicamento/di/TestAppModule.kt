@@ -152,15 +152,21 @@ object TestAppModule {
     }
 
     @Provides
+    @Named("defaultdate")
+    fun providesDeviceDefaultDateFormat(@ApplicationContext context: Context, calendarHelper: CalendarHelper): String{
+        return calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(context)
+    }
+
+    @Provides
     @Named("alarmHelper")
-    fun providesAlarmHelper(roomAccess: RoomAccess, funcoesDeTempo: FuncoesDeTempo, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2, @ApplicationContext context: Context, is24HourFormat: Boolean): AlarmHelper {
-        return AlarmHelperImpl(roomAccess, funcoesDeTempo, calendarHelper2, calendarHelper, context, is24HourFormat)
+    fun providesAlarmHelper(roomAccess: RoomAccess, funcoesDeTempo: FuncoesDeTempo, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2, @ApplicationContext context: Context, is24HourFormat: Boolean, deviceDefaultDateFormat: String): AlarmHelper {
+        return AlarmHelperImpl(roomAccess, funcoesDeTempo, calendarHelper2, calendarHelper, context, is24HourFormat, deviceDefaultDateFormat)
     }
 
     @Provides
     @Named("alarmUtils")
-    fun provideAlarmUtilsInterface(roomAccess: RoomAccess, funcoesDeTempo: FuncoesDeTempo, calendarHelper2: CalendarHelper2, calendarHelper: CalendarHelper, @ApplicationContext context: Context, is24HourFormat: Boolean): AlarmUtilsInterface {
-        return AlarmHelperImpl(roomAccess, funcoesDeTempo, calendarHelper2, calendarHelper, context, is24HourFormat)
+    fun provideAlarmUtilsInterface(roomAccess: RoomAccess, funcoesDeTempo: FuncoesDeTempo, calendarHelper2: CalendarHelper2, calendarHelper: CalendarHelper, @ApplicationContext context: Context, is24HourFormat: Boolean, deviceDefaultDateFormat: String): AlarmUtilsInterface {
+        return AlarmHelperImpl(roomAccess, funcoesDeTempo, calendarHelper2, calendarHelper, context, is24HourFormat, deviceDefaultDateFormat)
     }
 
     @Provides
@@ -172,9 +178,9 @@ object TestAppModule {
 
     @Provides
     @Named("medicamentoManager")
-    fun providesMedicamentoManager(alarmReceiver: AlarmReceiver, @ApplicationContext context: Context, alarmHelper: AlarmHelper, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2, is24HourFormat: Boolean): MedicamentoManager {
+    fun providesMedicamentoManager(alarmReceiver: AlarmReceiver, @ApplicationContext context: Context, alarmHelper: AlarmHelper, calendarHelper: CalendarHelper, calendarHelper2: CalendarHelper2, is24HourFormat: Boolean, deviceDefaultDateFormat: String): MedicamentoManager {
         val parcel = Parcel.obtain()
-        return MedicamentoManager(parcel, alarmReceiver, context, alarmHelper, calendarHelper, calendarHelper2, is24HourFormat)
+        return MedicamentoManager(parcel, alarmReceiver, context, alarmHelper, calendarHelper, calendarHelper2, is24HourFormat, deviceDefaultDateFormat)
     }
 
     @Provides

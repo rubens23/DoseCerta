@@ -84,6 +84,11 @@ class FragmentDetalhesMedicamentosTest {
     @Named("addmedicamentosrepository")
     lateinit var addMedicineRepositoryImpl: AddMedicineRepositoryImpl
 
+    @Inject
+    @Named("defaultdate")
+    lateinit var defaultDeviceDateFormat: String
+
+
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
@@ -103,7 +108,8 @@ class FragmentDetalhesMedicamentosTest {
                 context,
                 roomAccess,
                 calendarHelper2,
-                is24HourFormat
+                is24HourFormat,
+                defaultDeviceDateFormat
             )
 
         ) {

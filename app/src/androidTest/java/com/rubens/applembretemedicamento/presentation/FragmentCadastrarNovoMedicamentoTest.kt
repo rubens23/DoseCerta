@@ -85,6 +85,10 @@ class FragmentCadastrarNovoMedicamentoTest{
     @Named("calendarHelper2")
     lateinit var calendarHelper2: CalendarHelper2
 
+    @Inject
+    @Named("defaultdate")
+    lateinit var defaultDeviceDateFormat: String
+
 
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -106,7 +110,8 @@ class FragmentCadastrarNovoMedicamentoTest{
                 context,
                 roomAccess,
                 calendarHelper2,
-                is24HourFormat
+                is24HourFormat,
+                defaultDeviceDateFormat
             )
 
         ) {

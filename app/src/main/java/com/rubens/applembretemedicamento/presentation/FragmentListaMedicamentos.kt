@@ -2,10 +2,12 @@ package com.rubens.applembretemedicamento.presentation
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -226,29 +228,31 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
     }
 
     private fun initIntentToOpenPlayStore() {
-        /*
-    }
-        val packageName = packageName // Substitua pelo nome do pacote do seu aplicativo
-        val playStoreAppUri = "market://details?id=$packageName"
-        val playStoreWebUri = "https://play.google.com/store/apps/details?id=$packageName"
 
-        try {
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse(playStoreAppUri)
-            intent.setPackage("com.android.vending") // Pacote do aplicativo da Play Store
 
-            // Verifica se o aplicativo da Play Store está instalado
-            if (intent.resolveActivity(packageManager) != null) {
-                startActivity(intent)
-            } else {
-                // Caso o aplicativo da Play Store não esteja instalado, abre a página na web
+            val packageName = "com.rubens.applembretemedicamento" // Substitua pelo nome do pacote do seu aplicativo
+            val playStoreAppUri = "market://details?id=$packageName"
+            val playStoreWebUri = "https://play.google.com/store/apps/details?id=$packageName"
+
+            try {
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.data = Uri.parse(playStoreAppUri)
+                intent.setPackage("com.android.vending") // Pacote do aplicativo da Play Store
+
+                // Verifica se o aplicativo da Play Store está instalado
+                if (intent.resolveActivity(requireActivity().packageManager) != null) {
+                    startActivity(intent)
+                } else {
+                    // Caso o aplicativo da Play Store não esteja instalado, abre a página na web
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(playStoreWebUri)))
+                }
+            } catch (e: ActivityNotFoundException) {
+                // Lidar com o caso de a Play Store não estar disponível no dispositivo
                 startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(playStoreWebUri)))
             }
-        } catch (e: ActivityNotFoundException) {
-            // Lidar com o caso de a Play Store não estar disponível no dispositivo
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(playStoreWebUri)))
 
-         */
+
+
     }
 
     private fun initFragmentInstance() {
