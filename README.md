@@ -74,27 +74,25 @@ Faça o download da <a href="apk/app-debug.apk?raw=true">APK diretamente</a>. Vo
 
 ## Arquitetura
 **DoseCerta** utiliza a arquitetura [MVVM]
-todo
 (https://developer.android.com/topic/architecture).
 </br></br>
-<img width="60%" src="https://github.com/rubens23/appDenuncia/raw/master/app/src/main/appscreenshots/arquitetura app denuncia.png">
+<img width="60%" src="https://github.com/rubens23/appDenuncia/raw/master/app/src/main/appscreenshots/arquiteturadosecerta.png">
 <br>
 
 
 ## Features
 
 ### Usuários podem ver os medicamentos do dia de hoje e ver o horário da próxima dose.
-<img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230622_163545.png"/>
+<img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230701-171334_RightDose_google-pixel4-ohsoorange-portrait.png"/>
 
 
 
 ### Usuários conseguem adicionar novos medicamentos e informar sobre o horario e dia que vai começar a tomar o medicamento para que os horários das doses sejam calculados automaticamente.
-  <img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230622_163640.png"/>
-  <img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230622_163658.png"/>
+  <img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230701-171255_RightDose_google-pixel4-ohsoorange-portrait.png"/>
 
 
 ### Uma tela de configurações com mudança de cor do tema do app e switches para a pessoa ter um controle melhor sobre o comportamento do alarme no app
-<img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230622_163722.png"/>
+<img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230714-182920_RightDose_google-pixel4-clearlywhite-portrait.png"/>
 
 
 
