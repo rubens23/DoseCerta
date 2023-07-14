@@ -1,5 +1,5 @@
 
-<h1 align="center">App Lembrete Medicamento</h1>
+<h1 align="center">DoseCerta</h1>
 
 <p align="center">
   <a href="https://opensource.org/licenses/Apache-2.0"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"/></a>
@@ -22,10 +22,10 @@
 
 <p float="left" align="center">
 
-<img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230622_163545.png"/>
-  <img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230622_163640.png"/>
-  <img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230622_163658.png"/>
-  <img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230622_163722.png"/>
+<img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230701-171255_RightDose_google-pixel4-ohsoorange-portrait.png"/>
+  <img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230701-171334_RightDose_google-pixel4-ohsoorange-portrait.png"/>
+  <img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230701-171357_RightDose_google-pixel4-ohsoorange-portrait.png"/>
+  <img alt="screenshot" width="30%" src="https://github.com/rubens23/App-Lembrete-Medicamento/raw/main/app/src/main/appscreenshots/Screenshot_20230701-171529_RightDose_google-pixel4-ohsoorange-portrait.png"/>
 
   
 
@@ -33,6 +33,9 @@
 </p>
 
 ## Download
+
+Faça o download na loja:
+<a href="https://play.google.com/store/apps/details?id=com.rubens.applembretemedicamento&hl=pt_BR&gl=BR"><img alt="Linkedin" src="https://img.shields.io/badge/Google_Play-414141?style=for-the-badge&logo=google-play&logoColor=white"/></a>
 
 Faça o download da <a href="apk/app-debug.apk?raw=true">APK diretamente</a>. Você pode ver <a href="https://www.google.com/search?q=como+instalar+um+apk+no+android">aqui</a> como instalar uma APK no seu aparelho android.
 
@@ -70,7 +73,7 @@ Faça o download da <a href="apk/app-debug.apk?raw=true">APK diretamente</a>. Vo
 
 
 ## Arquitetura
-**App Denúncia** utiliza a arquitetura [MVVM]
+**DoseCerta** utiliza a arquitetura [MVVM]
 todo
 (https://developer.android.com/topic/architecture).
 </br></br>
