@@ -18,7 +18,6 @@ import com.rubens.applembretemedicamento.framework.domain.doses.DosesManagerForm
 import com.rubens.applembretemedicamento.framework.domain.doses.DosesManagerInterface
 import com.rubens.applembretemedicamento.framework.helpers.AlarmHelper
 import com.rubens.applembretemedicamento.framework.helpers.AlarmHelperImpl
-import com.rubens.applembretemedicamento.presentation.HiltTestActivity
 import com.rubens.applembretemedicamento.presentation.MainActivity
 import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import com.rubens.applembretemedicamento.utils.AlarmUtilsInterface
@@ -180,10 +179,7 @@ object HiltModule {
         return MainActivity()
     }
 
-    @Provides
-    fun providesHiltTestActivityInstance(): HiltTestActivity {
-        return HiltTestActivity()
-    }
+
 
     @Provides
     fun provideMainActivityInterface(activity: MainActivity): MainActivityInterface{

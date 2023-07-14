@@ -214,6 +214,7 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
         alertDialog.setMessage(getString(R.string.if_you_are_enjoying_our_app_please_consider_leaving_a_review_this_helps_us_to_improve_and_offer_you_an_even_better_service))
         alertDialog.setPositiveButton(getString(R.string.rate_now)) { dialog, which ->
             // Aqui você pode direcionar o usuário para a página de avaliação do aplicativo na loja
+
             initIntentToOpenPlayStore()
         }
         alertDialog.setNegativeButton(getString(R.string.rate_later)) { dialog, which ->
