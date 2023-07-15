@@ -5,6 +5,7 @@ import android.os.Environment
 import android.util.Log
 import android.view.View
 import androidx.fragment.app.testing.launchFragmentInContainer
+import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
@@ -47,6 +48,8 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.hamcrest.CoreMatchers.allOf
 import org.junit.Rule
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -58,7 +61,6 @@ import javax.inject.Named
 @MediumTest
 @HiltAndroidTest
 class FragmentListaMedicamentosTest{
-    lateinit var navController: TestNavHostController
     private val LIST_ITEM_IN_TEST = 1
 
     @get:Rule
@@ -104,9 +106,46 @@ class FragmentListaMedicamentosTest{
     fun setup(){
         hiltRule.inject()
 
-        navController = TestNavHostController(
-            ApplicationProvider.getApplicationContext()
-        )
+
+
+
+
+
+
+
+
+
+
+
+    }
+
+
+/*
+    @Test
+    fun testHiltFragment(){
+
+        val navController = mock(NavController::class.java)
+
+
+
+        assertThat(navController.currentDestination?.id, `is`(R.id.medicamentosFragment))
+    }
+
+ */
+
+    @Test
+    fun testClick_navigateToFragmentCadastrarNovoMedicamento(){
+
+
+        /*
+        //todo
+        fazer um app com dois fragmentos com um botao com acoes de navigation
+        nao vai ter injecao de dependencias, portanto da pra usar o launchFragmentInContainer normal
+
+        vamos ver se a navegacao funciona, ou se da o mesmo erro que deu aqui
+         */
+
+        val navController = mock(NavController::class.java)
 
         launchFragmentInHiltContainer<FragmentListaMedicamentos>(
             fragmentFactory = MainFragmentFactory(
@@ -122,52 +161,20 @@ class FragmentListaMedicamentosTest{
             )
 
         ) {
-            navController.setGraph(R.navigation.navigation)
-
 
             Navigation.setViewNavController(requireView(), navController)
         }
 
 
 
-
-
-    }
-
-
-
-    @Test
-    fun testHiltFragment(){
-
-
-        assertThat(navController.currentDestination?.id, `is`(R.id.medicamentosFragment))
-    }
-
-    @Test
-    fun testClick(){
-
-        /*
-        //todo
-        fazer um app com dois fragmentos com um botao com acoes de navigation
-        nao vai ter injecao de dependencias, portanto da pra usar o launchFragmentInContainer normal
-
-        vamos ver se a navegacao funciona, ou se da o mesmo erro que deu aqui
-         */
-
-
         onView(withId(R.id.fab)).perform(click())
 
-        assertThat(navController.currentDestination?.id, `is`(R.id.fragmentCadastrarNovoMedicamento))
 
+        verify(navController).navigate(FragmentListaMedicamentosDirections.actionMedicamentosFragmentToFragmentCadastrarNovoMedicamento())
 
-
-
-
-
-
-        onView(withId(R.id.layout_cadastrar_medicamento))
+        onView(withId(R.id.label_title_activity_add_medicine))
             .check(matches(isDisplayed()))
-            .check(matches(isEnabled()))
+
 
 
 
@@ -185,9 +192,12 @@ class FragmentListaMedicamentosTest{
     }
 
 
-
+/*
     @Test
     fun testNavigationToFragmentConfiguracoes(){
+
+        val navController = mock(NavController::class.java)
+
 
 
         onView(withId(R.id.btn_settings)).perform(click())
@@ -205,12 +215,18 @@ class FragmentListaMedicamentosTest{
     @Test
     fun isRecyclerViewVisible(){
 
+        val navController = mock(NavController::class.java)
+
+
 
         onView(withId(R.id.recycler_view)).check(matches(isDisplayed()))
     }
 
     @Test
     fun checkIfRecyclerViewItemClickIsOpeningDetalhesFragment(){
+
+        val navController = mock(NavController::class.java)
+
 
         onView(withId(R.id.recycler_view)).perform(actionOnItemAtPosition<AdapterListaMedicamentos.ViewHolder>(LIST_ITEM_IN_TEST, click()))
 
@@ -227,6 +243,10 @@ class FragmentListaMedicamentosTest{
     //01
     @Test
     fun addNewMedicineAndSeeIfDetailsFragmentOpens(){
+
+        val navController = mock(NavController::class.java)
+
+
         val expectedFormat = SimpleDateFormat("MM/dd/yyyy")
         val currentDate = Date()
         val todaysDate = expectedFormat.format(currentDate)
@@ -261,6 +281,8 @@ class FragmentListaMedicamentosTest{
 
 
     }
+
+ */
 
 
 

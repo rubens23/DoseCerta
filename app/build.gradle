@@ -117,6 +117,9 @@ dependencies {
     testImplementation "org.hamcrest:hamcrest:2.2"
 
     testImplementation 'org.mockito:mockito-core:3.9.0'
+    androidTestImplementation 'org.mockito:mockito-android:3.9.0'
+    androidTestImplementation "org.mockito.kotlin:mockito-kotlin:3.2.0"
+
 
     implementation 'org.greenrobot:eventbus:3.2.0'
 

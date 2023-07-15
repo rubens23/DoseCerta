@@ -487,7 +487,7 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
     private fun onClickListeners() {
         binding.fab.setOnClickListener {
 
-            findNavController().navigate(R.id.action_medicamentosFragment_to_fragmentCadastrarNovoMedicamento)
+            findNavController().navigate(FragmentListaMedicamentosDirections.actionMedicamentosFragmentToFragmentCadastrarNovoMedicamento())
         }
         binding.btnSettings.setOnClickListener {
             findNavController().navigate(R.id.action_medicamentosFragment_to_fragmentConfiguracoes)
