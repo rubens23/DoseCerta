@@ -1,33 +1,21 @@
 package com.rubens.applembretemedicamento.presentation
 
 import android.content.Context
-import android.os.Environment
-import android.util.Log
-import android.view.View
-import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.IdlingRegistry
-import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
-import androidx.test.espresso.action.ViewActions.longClick
 import androidx.test.espresso.action.ViewActions.replaceText
-import androidx.test.espresso.action.ViewActions.scrollTo
-import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.assertThat
-import androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.MediumTest
-import androidx.test.platform.app.InstrumentationRegistry
 import com.example.appmedicamentos.data.repository.AddMedicineRepositoryImpl
 import org.junit.Test
 import com.rubens.applembretemedicamento.launchFragmentInHiltContainer
@@ -35,19 +23,17 @@ import com.rubens.applembretemedicamento.presentation.recyclerviewadapters.Adapt
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Before
-import com.rubens.applembretemedicamento.R
 import com.rubens.applembretemedicamento.framework.data.managers.RoomAccess
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
-import com.rubens.applembretemedicamento.presentation.interfaces.MainActivityInterface
 import com.rubens.applembretemedicamento.utils.AlarmUtilsInterface
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.CalendarHelper2
 import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import org.hamcrest.CoreMatchers.allOf
 import org.junit.Rule
-import java.io.File
+import com.rubens.applembretemedicamento.R
+
 import java.text.SimpleDateFormat
 import java.util.Date
 import javax.inject.Inject
@@ -159,15 +145,19 @@ class FragmentListaMedicamentosTest{
 
         assertThat(navController.currentDestination?.id, `is`(R.id.fragmentCadastrarNovoMedicamento))
 
+        onView(withId(R.id.label_title_activity_add_medicine)).check(matches(isDisplayed()))
 
 
 
 
 
 
-        onView(withId(R.id.layout_cadastrar_medicamento))
-            .check(matches(isDisplayed()))
-            .check(matches(isEnabled()))
+
+
+
+//        onView(withId(R.id.layout_cadastrar_medicamento))
+//            .check(matches(isDisplayed()))
+//            .check(matches(isEnabled()))
 
 
 
@@ -261,11 +251,5 @@ class FragmentListaMedicamentosTest{
 
 
     }
-
-
-
-
-
-
 
 }

@@ -4,6 +4,7 @@ import android.app.TimePickerDialog
 import android.content.Context
 import android.os.Bundle
 import android.text.format.DateFormat
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -40,6 +41,11 @@ class FragmentCadastrarNovoMedicamento: Fragment(){
     private lateinit var mainActivityInterface: MainActivityInterface
     private var apertouBotaoCadastrar = false
     private var timeFirstTake = ""
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d("testingfragment", "esse fragmento esta começando a ser criado")
+    }
 
 
 
