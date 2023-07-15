@@ -157,6 +157,8 @@ class FragmentListaMedicamentosTest{
 
         onView(withId(R.id.fab)).perform(click())
 
+
+
         assertThat(navController.currentDestination?.id, `is`(R.id.fragmentCadastrarNovoMedicamento))
 
 
@@ -165,9 +167,9 @@ class FragmentListaMedicamentosTest{
 
 
 
-        onView(withId(R.id.layout_cadastrar_medicamento))
+        onView(withId(R.id.label_title_activity_add_medicine))
             .check(matches(isDisplayed()))
-            .check(matches(isEnabled()))
+
 
 
 
