@@ -55,6 +55,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import javax.inject.Inject
 import javax.inject.Named
+import org.mockito.Mockito.verify
+
+
 
 
 
@@ -111,12 +114,6 @@ class FragmentListaMedicamentosTest{
 
 
 
-
-
-
-
-
-
     }
 
 
@@ -133,17 +130,9 @@ class FragmentListaMedicamentosTest{
 
  */
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun testClick_navigateToFragmentCadastrarNovoMedicamento(){
-
-
-        /*
-        //todo
-        fazer um app com dois fragmentos com um botao com acoes de navigation
-        nao vai ter injecao de dependencias, portanto da pra usar o launchFragmentInContainer normal
-
-        vamos ver se a navegacao funciona, ou se da o mesmo erro que deu aqui
-         */
 
         val navController = mock(NavController::class.java)
 
@@ -161,6 +150,7 @@ class FragmentListaMedicamentosTest{
             )
 
         ) {
+            navController.setGraph(R.navigation.navigation)
 
             Navigation.setViewNavController(requireView(), navController)
         }
@@ -168,24 +158,21 @@ class FragmentListaMedicamentosTest{
 
 
         onView(withId(R.id.fab)).perform(click())
+        //navController.navigate(FragmentListaMedicamentosDirections.actionMedicamentosFragmentToFragmentCadastrarNovoMedicamento())
+
 
 
         verify(navController).navigate(FragmentListaMedicamentosDirections.actionMedicamentosFragmentToFragmentCadastrarNovoMedicamento())
 
-        onView(withId(R.id.label_title_activity_add_medicine))
-            .check(matches(isDisplayed()))
+
+
+
+     onView(withId(R.id.label_title_activity_add_medicine))
+          .check(matches(isDisplayed()))
 
 
 
 
-
-        //onView(withId(R.id.btn_open_time_picker)).perform(click())
-
-//        onView(allOf(withId(R.id.layout_cadastrar_medicamento),
-//        isDescendantOfA(allOf(withId(R.id.container_cl),
-//        isDescendantOfA(withId(R.id.btn_open_time_picker))
-//        ))
-//        )).perform(click())
 
 
 
