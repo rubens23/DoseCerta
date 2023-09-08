@@ -162,6 +162,7 @@
         app:layout_constraintTop_toBottomOf="@id/data_atual_selecionada"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        tools:itemCount="1"
         tools:listitem="@layout/item_detalhes_medicamentos"
         app:layout_constraintBottom_toTopOf="@id/btn_armar_alarme"/>
 
@@ -183,24 +184,53 @@
         android:layout_height="wrap_content"
         android:id="@+id/dica_tomar_dose"
         app:strokeColor="?attr/colorPrimary"
-        android:layout_margin="16dp"
+        android:layout_marginHorizontal="16dp"
         app:strokeWidth="2dp"
-        android:clickable="true"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:focusable="true">
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+
+        <ImageView
+            android:id="@+id/close_tip_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/baseline_close_24"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            app:tint="?android:textColorPrimary"
+            android:background="?selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+
 
         <TextView
 
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
             android:text="@string/res_dica_confirmar_dose"
             android:textSize="22sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/close_tip_btn"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             android:textColor="?android:textColorPrimary"
             />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     </com.google.android.material.card.MaterialCardView>
 

@@ -18,6 +18,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.lifecycle.Lifecycle
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -27,6 +28,7 @@ import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.gms.ads.MobileAds
@@ -166,11 +168,28 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
         initDao()
         registerAlarmEventBus()
         observers()
+        podeMostrarDica()
         onClickListeners()
 
 
         Log.d("ciclodevida19", "to no onviewcreated view do fragment detalhes")
 
+    }
+
+    private fun podeMostrarDica() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                val pode = viewModel.podeMostrarDica(requireContext())
+                if(!pode){
+                    hideTip()
+                }
+
+            }
+        }
+    }
+
+    private fun hideTip() {
+        binding.dicaTomarDose.visibility = View.GONE
     }
 
     private fun checarSeAlarmeEstaAtivado() {
@@ -607,7 +626,16 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
 
         }
 
+        binding.closeTipBtn?.setOnClickListener {
+            binding.dicaTomarDose.visibility = View.GONE
+            nuncaMaisMostrarDica()
+        }
 
+
+    }
+
+    private fun nuncaMaisMostrarDica() {
+        viewModel.nuncaMaisMostrarDica(requireContext())
     }
 
     private fun pararSomSeMediaPlayerEstiverTocando(){

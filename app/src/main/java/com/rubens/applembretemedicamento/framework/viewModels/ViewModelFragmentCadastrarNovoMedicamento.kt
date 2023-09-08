@@ -2,6 +2,11 @@ package com.rubens.applembretemedicamento.framework.viewModels
 
 import android.content.Context
 import android.util.Log
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appmedicamentos.data.repository.AddMedicineRepositoryImpl
@@ -15,8 +20,10 @@ import com.rubens.applembretemedicamento.utils.FuncoesDeTempo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 
 @HiltViewModel
 class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
@@ -27,6 +34,9 @@ class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
     private val calendarHelper: CalendarHelper,
     private val funcoesDeTempo: FuncoesDeTempo
 ): ViewModel() {
+
+    val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "tips_settings")
+    val TIP_TELA_DETALHES = booleanPreferencesKey("mostrar_dica_tela_principal")
 
     fun pegarFormatoDeHoraPadraoDoDispositivoDoUsuario(context: Context): String{
         return calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(context)
@@ -264,6 +274,23 @@ class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
         insertMedicamento(
             medicamento
         )
+
+    }
+
+    fun nuncaMaisMostrarDica(context: Context) {
+        viewModelScope.launch {
+            context.dataStore.edit {
+                preferences->
+                preferences[TIP_TELA_DETALHES] = false
+            }
+        }
+
+    }
+
+    suspend fun podeMostrarDica(context: Context): Boolean{
+        val preferences = context.dataStore.data.first()
+
+        return preferences[TIP_TELA_DETALHES] ?: true
 
     }
 
