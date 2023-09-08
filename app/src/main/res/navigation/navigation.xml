@@ -27,7 +27,6 @@
     <fragment
         android:id="@+id/fragmentDetalhesMedicamentos"
         android:name="com.rubens.applembretemedicamento.presentation.FragmentDetalhesMedicamentos"
-        android:label="fragment_detalhes_medicamentos"
         tools:layout="@layout/fragment_detalhes_medicamentos" >
         <argument
             android:name="medicamento"

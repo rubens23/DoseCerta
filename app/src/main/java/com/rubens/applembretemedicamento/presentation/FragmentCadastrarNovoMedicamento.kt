@@ -53,7 +53,7 @@ class FragmentCadastrarNovoMedicamento: Fragment(){
     ): View {
 
         binding = FragmentCadastrarNovoMedicamentoBinding.inflate(inflater, container, false)
-        initMainActivityInterface()
+        //initMainActivityInterface()
         setupToolbar()
         return binding.root
     }
@@ -88,9 +88,9 @@ class FragmentCadastrarNovoMedicamento: Fragment(){
 
 
     private fun setupToolbar() {
-        mainActivityInterface.showToolbar()
-        mainActivityInterface.hideToolbarTitle()
-        mainActivityInterface.hideBtnDeleteMedicamento()
+//        mainActivityInterface.showToolbar()
+//        mainActivityInterface.hideToolbarTitle()
+//        mainActivityInterface.hideBtnDeleteMedicamento()
 
     }
 
