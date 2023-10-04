@@ -663,8 +663,6 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
 
     private fun avisarQueMedicamentoNaoEstaTocando() {
         viewLifecycleOwner.lifecycleScope.launch {
-            //todo talvez o bug esteja aqui, talvez ele esteja mandando o id errado para o metodo de acesso ao banco, verificar isso
-            Log.d("correctingidbug", "aqui antes de atualizar o db: medicamento adicionado a o extra agora: ${(extra as MedicamentoComDoses).medicamentoTratamento.nomeMedicamento}, id: ${(extra as MedicamentoComDoses).medicamentoTratamento.idMedicamento}")
 
             medicamentoDoseDao.alarmeMedicamentoTocando(initExtraMedicamentoId, false)
 

@@ -470,25 +470,18 @@ class AlarmHelperImpl @Inject constructor(
 
             if(is24HF){
                 if(calendarHelper.convertStringToDateSemSegundos(calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, is24HF, defaultDeviceDateFormat), is24HF, defaultDeviceDateFormat)!!.time > System.currentTimeMillis()){
-                    Log.d("setproxdose4", "eu to aqui no if formato 24 horas primeiro opardor maior que segundo. dose: ${dose.horarioDose}")
 
                     this.horaProxDose = dose.horarioDose
 
-                    Log.d("setproxdose", "eu to aqui no metodo iterarSobreDosesEAcharProxima. system current time in millis ${this.horaProxDose}")
-
-                    Log.d("setproxdose", "eu to aqui no metodo iterarSobreDosesEAcharProxima: ${this.horaProxDose}")
 
                     return
                 }
             }else{
                 if(calendarHelper.convertStringToDateSemSegundos(dose.horarioDose, is24HF, defaultDeviceDateFormat)!!.time > System.currentTimeMillis()){
-                    Log.d("setproxdose4", "eu to aqui no if formato 12 horas primeiro opardor maior que segundo. dose: ${dose.horarioDose}")
 
                             this.horaProxDose = dose.horarioDose
 
-                    Log.d("setproxdose", "eu to aqui no metodo iterarSobreDosesEAcharProxima. system current time in millis ${this.horaProxDose}")
 
-                    Log.d("setproxdose", "eu to aqui no metodo iterarSobreDosesEAcharProxima: ${this.horaProxDose}")
 
                     return
                 }

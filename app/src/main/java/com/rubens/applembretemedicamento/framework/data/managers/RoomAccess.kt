@@ -1,5 +1,6 @@
 package com.rubens.applembretemedicamento.framework.data.managers
 
+import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.AlarmEntity
 import com.rubens.applembretemedicamento.framework.data.entities.BroadcastReceiverOnReceiveData
 import com.rubens.applembretemedicamento.framework.data.entities.ConfiguracoesEntity
@@ -16,4 +17,6 @@ interface RoomAccess {
     fun atualizarDoseNaTabelaAlarms(listaDoses: ArrayList<Doses>, idAlarme: Int)
     fun verSeMedicamentoEstaComAlarmeAtivado(idMedicamento: Int): Boolean
     fun getColorResource(): Int
+
+    fun getMedicamentoComDoses(idMedicamento: Int): MedicamentoComDoses
 }

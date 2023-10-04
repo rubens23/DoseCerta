@@ -78,5 +78,6 @@
     <string name="never_show_again">Never show again</string>
     <string name="how_many_months">How many months?</string>
     <string name="how_many_days">How many days?</string>
+    <string name="play_alarm_without_sound">Play alarm with sound</string>
 
 </resources>

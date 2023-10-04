@@ -1,6 +1,7 @@
 package com.rubens.applembretemedicamento.framework.data.managers
 
 import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
+import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.AlarmEntity
 import com.rubens.applembretemedicamento.framework.data.entities.BroadcastReceiverOnReceiveData
 import com.rubens.applembretemedicamento.framework.data.entities.ConfiguracoesEntity
@@ -53,6 +54,10 @@ class RoomAccessImpl @Inject constructor(
 
     override fun getColorResource(): Int {
         return dao.pegarConfiguracoes().colorResource
+    }
+
+    override fun getMedicamentoComDoses(idMedicamento: Int): MedicamentoComDoses {
+        return dao.getMedicamentoDosesById(idMedicamento)
     }
 
 

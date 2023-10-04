@@ -10,5 +10,6 @@ data class ConfiguracoesEntity(
     val idConfiguracao: Int = 1,
     val podeTocarDepoisDeReiniciar: Boolean = true,
     var podeMostrarDialogAvaliacao: Boolean = true,
-    val colorResource: Int = R.color.rosa_salmao
+    val colorResource: Int = R.color.rosa_salmao,
+    val podeTocarSom: Boolean = true
 )

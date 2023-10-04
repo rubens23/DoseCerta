@@ -43,7 +43,7 @@ class FragmentConfiguracoes @Inject constructor(
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         binding = FragmentConfiguracoesBinding.inflate(inflater)
         Log.d("bugconfig", "to aqui antes de chamar a toolbar")
@@ -65,6 +65,7 @@ class FragmentConfiguracoes @Inject constructor(
         val configuracoes = viewModel.getSwitchersState()
         if (configuracoes != null){
             binding.toggleAtivadoDepoisDeDesligar.isChecked = configuracoes.podeTocarDepoisDeReiniciar
+            binding.toggleTocarAlarmeSemSom.isChecked = configuracoes.podeTocarSom
         }else{
             viewModel.mudarConfiguracoes(ConfiguracoesEntity())
         }
@@ -119,6 +120,15 @@ class FragmentConfiguracoes @Inject constructor(
 
             }
 
+        }
+
+        binding.toggleTocarAlarmeSemSom.setOnCheckedChangeListener { _, isChecked ->
+            if(isChecked){
+                viewModel.mudarConfiguracoes(ConfiguracoesEntity(podeTocarSom = true))
+            }else{
+                viewModel.mudarConfiguracoes(ConfiguracoesEntity(podeTocarSom = false))
+
+            }
         }
     }
 

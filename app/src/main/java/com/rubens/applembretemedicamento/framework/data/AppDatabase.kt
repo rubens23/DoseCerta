@@ -23,7 +23,7 @@ import com.rubens.applembretemedicamento.framework.data.roommigrations.Migration
         BroadcastReceiverOnReceiveData::class,
         AlarmEntity::class,
         ConfiguracoesEntity::class],
-    version = 1
+    version = 2
 )
 @TypeConverters(DosesConverter::class)
 abstract class AppDatabase : RoomDatabase() {

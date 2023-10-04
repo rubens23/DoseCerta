@@ -15,6 +15,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.example.appmedicamentos.utils.WakeLocker
 import com.rubens.applembretemedicamento.R
+import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.data.entities.AlarmEntity
 import com.rubens.applembretemedicamento.framework.data.entities.Doses
 import com.rubens.applembretemedicamento.framework.data.managers.RoomAccess
@@ -24,7 +25,6 @@ import com.rubens.applembretemedicamento.framework.services.ServiceMediaPlayer
 import com.rubens.applembretemedicamento.presentation.MainActivity
 import com.rubens.applembretemedicamento.utils.CalendarHelper
 import com.rubens.applembretemedicamento.utils.CalendarHelper2
-import com.rubens.applembretemedicamento.utils.CalendarHelperImpl
 import dagger.hilt.android.AndroidEntryPoint
 import org.greenrobot.eventbus.EventBus
 import javax.inject.Inject
@@ -123,13 +123,10 @@ class AlarmReceiver: BroadcastReceiver()  {
                 Log.d("inspectinglistadd", "to aqui no segundo for each")
 
                 val alarmeDoMedicamentoAtivado = roomAccess.verSeMedicamentoEstaComAlarmeAtivado(medicamentoNoAlarme.idMedicamento)
-                Log.d("testingdose", "dose.horarioDose ${calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0!!))} medicamentoNoAlarme.horaProxDose ${calendarHelper2.formatarDataHoraSemSegundos(medicamentoNoAlarme.horaProxDose, DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0))}")
-                if(calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0)) == calendarHelper2.formatarDataHoraSemSegundos(medicamentoNoAlarme.horaProxDose, DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0))){
-                    Log.d("inspectinglistadd", "as horas sao iguais: ${calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0))} ${dose.nomeMedicamento}")
+                if(calendarHelper2.formatarDataHoraSemSegundos(dose.horarioDose, DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0!!)) == calendarHelper2.formatarDataHoraSemSegundos(medicamentoNoAlarme.horaProxDose, DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0))){
 
 
                     if(!dose.jaMostrouToast){
-                        Log.d("controllingplay", "ainda nao mostrou toast para esse medicamento")
 
                         if(alarmeDoMedicamentoAtivado && horarioDoseAnterior != dose.horarioDose){
                             var idMedicamento = medicamentoNoAlarme.idMedicamento
@@ -160,13 +157,16 @@ class AlarmReceiver: BroadcastReceiver()  {
 
 
                             val pendingIntent = criarPendingIntentComIdDoMedicamento(p0, idMedicamento)
+                            val medicamentoComDoses = roomAccess.getMedicamentoComDoses(idMedicamento)
+
 
                             createNotificationForMedicationAlarmThatIsRinging(
                                 nomeMedicamento,
                                 p0,
                                 horaDose,
                                 pendingIntent,
-                                idMedicamento
+                                idMedicamento,
+                                medicamentoComDoses
                             )
 
                             var doseAuxiliar = Doses(idDose = dose.idDose, nomeMedicamento = dose.nomeMedicamento, horarioDose = dose.horarioDose, intervaloEntreDoses = dose.intervaloEntreDoses, dataHora = dose.dataHora, qntDosesPorHorario = dose.qntDosesPorHorario, jaTomouDose = dose.jaTomouDose, jaMostrouToast = true)
@@ -219,7 +219,8 @@ class AlarmReceiver: BroadcastReceiver()  {
         p0: Context?,
         horaDose: String?,
         pi: PendingIntent?,
-        idMedicamento: Int?
+        idMedicamento: Int?,
+        medicamentoComDoses: MedicamentoComDoses
     ) {
 
 
@@ -245,6 +246,7 @@ class AlarmReceiver: BroadcastReceiver()  {
             val foregroundIntent = Intent(p0, ServiceMediaPlayer::class.java)
             foregroundIntent.putExtra("notification", notification)
             foregroundIntent.putExtra("medicamentoId", idMedicamento)
+            foregroundIntent.putExtra("medicamentoComDoses", medicamentoComDoses)
             foregroundIntent.action = "PLAY_ALARM"
 
             p0.startForegroundService(foregroundIntent)

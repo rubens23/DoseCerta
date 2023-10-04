@@ -1,27 +1,36 @@
 package com.rubens.applembretemedicamento.framework.services
 
 import android.app.Notification
+import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
 import android.media.RingtoneManager
 import android.os.IBinder
-import android.provider.Settings
 import android.util.Log
+import androidx.lifecycle.lifecycleScope
 import com.rubens.applembretemedicamento.framework.data.AppDatabase
 import com.rubens.applembretemedicamento.framework.data.daos.MedicamentoDao
 import com.rubens.applembretemedicamento.framework.data.dbrelations.MedicamentoComDoses
 import com.rubens.applembretemedicamento.framework.domain.eventbus.AlarmEvent
 import com.rubens.applembretemedicamento.framework.domain.eventbus.MediaPlayerTocando
+import com.rubens.applembretemedicamento.utils.AlarmUtilsInterface
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
+import javax.inject.Inject
 
 
+@AndroidEntryPoint
 class ServiceMediaPlayer: Service() {
     private lateinit var mp: MediaPlayer
     private var db: AppDatabase? = null
     private lateinit var medicamentoDoseDao: MedicamentoDao
     private var mediaPlayerJaCriado = false
+
+    @Inject
+    lateinit var alarmUtilsInterface: AlarmUtilsInterface
 
 
 
@@ -67,8 +76,8 @@ class ServiceMediaPlayer: Service() {
             if(!algumMedicamentoTocando && listaMedicamentosTocando.isEmpty()){
                 Log.d("controlcancel", "nao tem nenhum medicamento tocando e a lista de medicamentos tocando esta vazia")
 
-                    stopForeground(true)
-                    stopSelf()
+                    stopForeground(false)
+                    //stopSelf()
                     Log.d("stoptag", "nao tem nenhum medicamento tocando")
 
 
@@ -82,32 +91,75 @@ class ServiceMediaPlayer: Service() {
 
         if (intent?.action == "PLAY_ALARM"){
 
+            val configuracoes = medicamentoDoseDao.pegarConfiguracoes()
+            if(configuracoes.podeTocarSom){
+                val mediaPlayerJaEstaTocando = checkIfMediaPlayerIsInitiatedAndPlaying()
+                val medicationId = intent.getIntExtra("medicamentoId", -1)
 
-            val mediaPlayerJaEstaTocando = checkIfMediaPlayerIsInitiatedAndPlaying()
-            val medicationId = intent.getIntExtra("medicamentoId", -1)
 
 
 
-            if (mediaPlayerJaEstaTocando){
-                Log.d("entendendoshowstop", "to aqui dentro do media player ja esta tocando")
-                setNotificationId(medicationId)
-                initNotification(intent)
-                showBtnPararSomEventBus(medicationId)
-                enviarInstanciaAtualDoMediaPlayerParaListFragment(mp)
+                if (mediaPlayerJaEstaTocando){
+                    Log.d("entendendoshowstop", "to aqui dentro do media player ja esta tocando")
+                    setNotificationId(medicationId)
+                    //aqui nesse metodo o foreground service é iniciado
+                    initNotification(intent)
+                    showBtnPararSomEventBus(medicationId)
+                    enviarInstanciaAtualDoMediaPlayerParaListFragment(mp)
+
+                }else{
+                    Log.d("entendendoshowstop", "to aqui dentro do else no service")
+
+                    setNotificationId(medicationId)
+                    initNotification(intent)
+                    instatiateMediaPlayer()
+                    playMediaPlayer()
+                    showBtnPararSomEventBus(medicationId)
+                    enviarInstanciaAtualDoMediaPlayerParaListFragment(mp)
+
+                }
+
+                setAlarmeTocandoForMedicamento(medicationId, true)
 
             }else{
-                Log.d("entendendoshowstop", "to aqui dentro do else no service")
+                //som nao pode tocar
+                //só notificação pode aparecer
+                val mediaPlayerJaEstaTocando = checkIfMediaPlayerIsInitiatedAndPlaying()
+                val medicationId = intent.getIntExtra("medicamentoId", -1)
+                val medicamentoComDoses =
+                    intent.getSerializableExtra("medicamentoComDoses") as MedicamentoComDoses?
 
-                setNotificationId(medicationId)
-                initNotification(intent)
-                instatiateMediaPlayer()
-                playMediaPlayer()
-                showBtnPararSomEventBus(medicationId)
-                enviarInstanciaAtualDoMediaPlayerParaListFragment(mp)
+                if (medicamentoComDoses != null) {
+                    armarProximoAlarme(medicamentoComDoses)
+                    //esse alarme acabou de tocar portanto, ele nao esta mais tocando
+                    avisarQueMedicamentoNaoEstaTocando(medicationId)
+                }
 
+
+
+
+                if (mediaPlayerJaEstaTocando){
+                    setNotificationId(medicationId)
+                    initNotificationWithoutInitializingForegroundService(intent)
+                    showBtnPararSomEventBus(medicationId)
+                    //enviarInstanciaAtualDoMediaPlayerParaListFragment(mp)
+
+                }else{
+
+                    setNotificationId(medicationId)
+                    initNotificationWithoutInitializingForegroundService(intent)
+                    //instatiateMediaPlayer()
+                    //playMediaPlayer()
+                    //showBtnPararSomEventBus(medicationId)
+                    //enviarInstanciaAtualDoMediaPlayerParaListFragment(mp)
+
+                }
+
+                setAlarmeTocandoForMedicamento(medicationId, true)
             }
 
-            setAlarmeTocandoForMedicamento(medicationId, true)
+
+
 
         }
 
@@ -118,6 +170,19 @@ class ServiceMediaPlayer: Service() {
 
 
         return START_STICKY
+    }
+
+    private fun armarProximoAlarme(medicamentoComDoses: MedicamentoComDoses) {
+        //medicamentoManager.startArmarProximoAlarme()
+        alarmUtilsInterface.pegarProximaDoseESetarAlarme(medicamentoComDoses)
+    }
+
+    private fun avisarQueMedicamentoNaoEstaTocando(idMedicamento: Int) {
+
+
+            medicamentoDoseDao.alarmeMedicamentoTocando(idMedicamento, false)
+
+
     }
 
     private fun checkIfMediaPlayerIsInitiatedAndPlaying(): Boolean {
@@ -168,9 +233,7 @@ class ServiceMediaPlayer: Service() {
 
         val notification = intent?.getParcelableExtra<Notification>("notification")
         if (notification != null) {
-            // Iniciar o serviço em primeiro plano com a notificação existente
-            Log.d("checkingthings", "instancia notificação ${notification.contentIntent}")
-            Log.d("checkingthings", "notification id ${NOTIFICATION_ID}")
+
 
 
             //ative para fazer as notificações anteriores persistirem
@@ -181,6 +244,24 @@ class ServiceMediaPlayer: Service() {
 
             //todo que essa é realmente a melhor maneira para pegar a instancia do mp? desse jeito eu vou ter que mostrar outra notificacao
             // Se a notificação não estiver presente, crie uma nova notificação aqui
+            //val newNotification = criarNotificacao()
+            //startForeground(1, null)
+        }
+    }
+
+    private fun initNotificationWithoutInitializingForegroundService(intent: Intent?) {
+
+        val notification = intent?.getParcelableExtra<Notification>("notification")
+        if (notification != null) {
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.notify(NOTIFICATION_ID, notification)
+
+
+
+
+
+        } else {
+
             //val newNotification = criarNotificacao()
             //startForeground(1, null)
         }
