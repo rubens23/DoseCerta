@@ -45,4 +45,9 @@ class MedicationRepositoryImpl @Inject constructor(
         medicamentoDao.nuncaMaisMostrarDialogDeAvaliacao(false)
     }
 
+    suspend fun passarFalseParaAlarmeTocandoDeTodosMedicamentos() {
+        medicamentoDao.passarFalseParaAlarmeTocando(false)
+
+    }
+
 }

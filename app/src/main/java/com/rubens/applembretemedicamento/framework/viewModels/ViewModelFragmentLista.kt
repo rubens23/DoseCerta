@@ -68,5 +68,11 @@ class ViewModelFragmentLista @Inject constructor(
         medicationRepository.nuncaMaisMostrarDialogDeAvaliacao()
     }
 
+    fun pararAlarmeTocandoDeTodosMedicamentos() {
+        viewModelScope.launch {
+            medicationRepository.passarFalseParaAlarmeTocandoDeTodosMedicamentos()
+        }
+    }
+
 
 }

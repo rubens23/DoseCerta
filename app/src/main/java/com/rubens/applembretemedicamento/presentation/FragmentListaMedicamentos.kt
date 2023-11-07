@@ -16,6 +16,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -128,10 +129,25 @@ class FragmentListaMedicamentos @Inject constructor(private val alarmUtilsInterf
 
         initSpinningCogAnimation()
 
+        checkIfMediaPlayerIsPlaying()
 
 
 
 
+
+    }
+
+    private fun checkIfMediaPlayerIsPlaying() {
+        if (mediaPlayer != null){
+            if(mediaPlayer!!.isPlaying){
+                Toast.makeText(requireContext(), "media player esta tocando", Toast.LENGTH_SHORT).show()
+            }else{
+                viewModel.pararAlarmeTocandoDeTodosMedicamentos()
+            }
+        }else{
+            viewModel.pararAlarmeTocandoDeTodosMedicamentos()
+
+        }
     }
 
     private fun initSpinningCogAnimation(){

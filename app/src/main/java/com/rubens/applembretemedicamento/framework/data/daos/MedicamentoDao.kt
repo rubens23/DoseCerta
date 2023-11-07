@@ -131,5 +131,8 @@ interface MedicamentoDao {
     @Query("UPDATE ConfiguracoesEntity SET podeMostrarDialogAvaliacao = :podeMostrar WHERE idConfiguracao = 1")
     fun nuncaMaisMostrarDialogDeAvaliacao(podeMostrar: Boolean)
 
+    @Query("UPDATE MedicamentoTratamento SET alarmeTocando = :alarmeTocando")
+    suspend fun passarFalseParaAlarmeTocando(alarmeTocando: Boolean)
+
 
 }

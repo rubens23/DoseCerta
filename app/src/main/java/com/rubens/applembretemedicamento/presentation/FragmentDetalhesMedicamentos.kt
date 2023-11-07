@@ -18,6 +18,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
@@ -43,6 +44,7 @@ import com.rubens.applembretemedicamento.framework.data.entities.MedicamentoTrat
 import com.rubens.applembretemedicamento.framework.domain.eventbus.AlarmEvent
 import com.rubens.applembretemedicamento.framework.domain.eventbus.MediaPlayerTocando
 import com.rubens.applembretemedicamento.framework.domain.MedicamentoManager
+import com.rubens.applembretemedicamento.framework.viewModels.ViewModelDetalhes
 import com.rubens.applembretemedicamento.framework.viewModels.ViewModelFragmentCadastrarNovoMedicamento
 import com.rubens.applembretemedicamento.presentation.interfaces.AccessAdapterMethodsInterface
 import com.rubens.applembretemedicamento.presentation.interfaces.ConexaoBindingAdapterDetalhesMedicamentos
@@ -83,6 +85,8 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
     private var mudancaMedicamentoComDosesAlarmeTocando: MutableLiveData<MedicamentoComDoses> = MutableLiveData()
     private var excluirDaListaDeMedicamentosNoAlarme: MutableLiveData<Int> = MutableLiveData()
     private var viewHolderInstanceLiveData: MutableLiveData<DetalhesMedicamentoAdapter.ViewHolder> = MutableLiveData()
+
+    private val viewModelDetalhes by viewModels<ViewModelDetalhes>()
 
     private var isEventBusRegistered = false
 
@@ -170,6 +174,7 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
         observers()
         podeMostrarDica()
         onClickListeners()
+        checkIfMediaPlayerIsPlaying()
 
 
         Log.d("ciclodevida19", "to no onviewcreated view do fragment detalhes")
@@ -489,6 +494,19 @@ class FragmentDetalhesMedicamentos @Inject constructor(private val alarmUtilsInt
 
 
 
+    }
+
+    private fun checkIfMediaPlayerIsPlaying() {
+        if (mediaPlayer != null){
+            if(mediaPlayer!!.isPlaying){
+                Toast.makeText(requireContext(), "media player esta tocando", Toast.LENGTH_SHORT).show()
+            }else{
+                viewModelDetalhes.pararAlarmeTocandoDeTodosMedicamentos()
+            }
+        }else{
+            viewModelDetalhes.pararAlarmeTocandoDeTodosMedicamentos()
+
+        }
     }
 
     private fun initButtonChangeListener() {
