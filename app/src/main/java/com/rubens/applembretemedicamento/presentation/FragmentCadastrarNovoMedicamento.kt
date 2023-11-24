@@ -3,6 +3,8 @@ package com.rubens.applembretemedicamento.presentation
 import android.app.TimePickerDialog
 import android.content.Context
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.text.format.DateFormat
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -75,9 +77,25 @@ class FragmentCadastrarNovoMedicamento: Fragment(){
 
         initAds()
         initViewModel()
+        getPreviousUiElementsVisibility()
+        getPreviousEditTextsText()
         getDefaultDateFormat()
 
         onClickListeners()
+
+    }
+
+    private fun getPreviousUiElementsVisibility() {
+        if(viewModel.isDaysBtnVisible) binding.btnDuracaoDias.visibility = View.VISIBLE else binding.btnDuracaoDias.visibility = View.GONE
+        if (viewModel.isMonthBtnVisible) binding.btnDuracaoMeses.visibility = View.VISIBLE else binding.btnDuracaoMeses.visibility = View.GONE
+        if (viewModel.isTreatmentDurationETVisible) binding.tilMedicineTimeTreatment.visibility = View.VISIBLE else binding.tilMedicineTimeTreatment.visibility = View.INVISIBLE
+    }
+
+    private fun getPreviousEditTextsText() {
+        if(viewModel.etMedicineName.isNotBlank())binding.tilMedicineNameChild.setText(viewModel.etMedicineName)
+        if(viewModel.etMedicineQntPerDay.isNotBlank())binding.tilMedicineQntPerDayChild.setText(viewModel.etMedicineQntPerDay)
+        if(viewModel.etTimeFirstTake.isNotBlank())binding.etTilTimeFirstTake.setText(viewModel.etTimeFirstTake)
+        if(viewModel.etTreatmentStartDate.isNotBlank())binding.inputDataInicioTratamento.setText(viewModel.etTreatmentStartDate)
 
     }
 
@@ -221,11 +239,83 @@ class FragmentCadastrarNovoMedicamento: Fragment(){
 
 
     private fun onClickListeners() {
+
+        binding.tilMedicineNameChild.addTextChangedListener(object: TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                viewModel.etMedicineName = s.toString()
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+            }
+
+        })
+
+        binding.tilMedicineQntPerDayChild.addTextChangedListener(object: TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                viewModel.etMedicineQntPerDay = s.toString()
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+            }
+
+        })
+
+        binding.etTilTimeFirstTake.addTextChangedListener(object: TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                viewModel.etTimeFirstTake = s.toString()
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+            }
+
+        })
+
+        binding.inputDataInicioTratamento.addTextChangedListener(object: TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                viewModel.etTreatmentStartDate = s.toString()
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+            }
+
+        })
+
+        binding.tilMedicineTimeTreatmentChild.addTextChangedListener(object: TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                viewModel.etTreatmentDuration = s.toString()
+                viewModel.isTreatmentDurationETVisible = true
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+            }
+
+        })
+
+
+
+
         binding.btnDuracaoDias.setOnClickListener {
+            hideDurationButtons()
             mudarVisibilidadeDasViewsRelacionadasADuracaoTratamento()
 
         }
         binding.btnDuracaoMeses.setOnClickListener {
+            hideDurationButtons()
             hideContainerButtons()
             setTilMedicineTimeTreatmentHint()
             showTilMedicineTimeTreatment()
@@ -403,6 +493,12 @@ class FragmentCadastrarNovoMedicamento: Fragment(){
         binding.containerButtons.visibility = View.INVISIBLE
         binding.tilMedicineTimeTreatment.hint = getString(R.string.how_many_days)
         binding.tilMedicineTimeTreatment.visibility = View.VISIBLE
+
+    }
+
+    private fun hideDurationButtons(){
+        viewModel.isDaysBtnVisible = false
+        viewModel.isMonthBtnVisible = false
     }
 
 

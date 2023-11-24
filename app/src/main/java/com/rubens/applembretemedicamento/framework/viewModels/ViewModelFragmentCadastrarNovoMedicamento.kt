@@ -35,6 +35,14 @@ class ViewModelFragmentCadastrarNovoMedicamento @Inject constructor(
     private val funcoesDeTempo: FuncoesDeTempo
 ): ViewModel() {
 
+    var etTreatmentDuration: String = ""
+    var isDaysBtnVisible = true
+    var isMonthBtnVisible = true
+    var isTreatmentDurationETVisible = false
+    var etTreatmentStartDate: String = ""
+    var etTimeFirstTake: String = ""
+    var etMedicineQntPerDay: String = ""
+    var etMedicineName: String = ""
     val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "tips_settings")
     val TIP_TELA_DETALHES = booleanPreferencesKey("mostrar_dica_tela_principal")
 
