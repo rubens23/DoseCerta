@@ -141,9 +141,9 @@ class AlarmHelperImpl @Inject constructor(
                 //faz configurações finais na intent e inicializa o alarme
                 pendingIntent = makePendingIntent(ctx, idMedicamento, alarmIntent, 0)
 
-                Log.d("fluxo0907", "to aqui antes de armar o alarme para o horario $horaProxDosePadronizada")
-                val currentTimeInMillis = System.currentTimeMillis()
-                val printMillisegundosAteProximaDose = millisegundosAteProximaDose
+//                Log.d("fluxo0907", "to aqui antes de armar o alarme para o horario $horaProxDosePadronizada")
+//                val currentTimeInMillis = System.currentTimeMillis()
+//                val printMillisegundosAteProximaDose = millisegundosAteProximaDose
 
 
                 alarmManager.setExactAndAllowWhileIdle(
@@ -491,16 +491,11 @@ class AlarmHelperImpl @Inject constructor(
     }
 
     private fun initializeAlarmManager() {
-        Log.d("setproxdose", "eu to aqui no initialize alarmManager: ${this.horaProxDose}")
 
         if(this.horaProxDose != null){
-            Log.d("fluxo0907", "chamei o metodo para armar o broadcastreceiver aqui no alarmHelper")
             chamarMetodoParaSetarOAlarmNoAlarmReceiver()
 
 
-
-        }else{
-            Log.d("ahdosesacabaram","as doses acabaram")
 
         }
 

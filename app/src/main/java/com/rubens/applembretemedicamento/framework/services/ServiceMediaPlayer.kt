@@ -142,16 +142,12 @@ class ServiceMediaPlayer: Service() {
                     setNotificationId(medicationId)
                     initNotificationWithoutInitializingForegroundService(intent)
                     showBtnPararSomEventBus(medicationId)
-                    //enviarInstanciaAtualDoMediaPlayerParaListFragment(mp)
 
                 }else{
 
                     setNotificationId(medicationId)
                     initNotificationWithoutInitializingForegroundService(intent)
-                    //instatiateMediaPlayer()
-                    //playMediaPlayer()
-                    //showBtnPararSomEventBus(medicationId)
-                    //enviarInstanciaAtualDoMediaPlayerParaListFragment(mp)
+
 
                 }
 
@@ -173,7 +169,6 @@ class ServiceMediaPlayer: Service() {
     }
 
     private fun armarProximoAlarme(medicamentoComDoses: MedicamentoComDoses) {
-        //medicamentoManager.startArmarProximoAlarme()
         alarmUtilsInterface.pegarProximaDoseESetarAlarme(medicamentoComDoses)
     }
 

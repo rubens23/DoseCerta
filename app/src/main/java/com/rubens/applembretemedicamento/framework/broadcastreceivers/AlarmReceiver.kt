@@ -1,5 +1,7 @@
 package com.rubens.applembretemedicamento.framework.broadcastreceivers
 
+import android.app.Notification
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
@@ -48,24 +50,7 @@ class AlarmReceiver: BroadcastReceiver()  {
 
     override fun onReceive(p0: Context?, p1: Intent?) {
         context = p0
-        Log.d("bugalarme3", "eu to aqui no alarmReceiver")
-
-
-
-
-
-
-
-
         procedimentosAoChegarAHoraDoAlarme(p0)
-
-
-
-
-
-
-
-
     }
 
     private fun procedimentosAoChegarAHoraDoAlarme(p0: Context?) {
@@ -76,32 +61,17 @@ class AlarmReceiver: BroadcastReceiver()  {
 
             if(DateFormat.is24HourFormat(context)){
                 if(it.horaProxDose == calendarHelper.pegarDataHoraAtual(DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0!!))){
-
-                    Log.d("bugalarme2", "horario adicionado a lista de alarmes: ${it.horaProxDose} ${it.nomeMedicamento}")
                     listaDeAlarmesTocando.add(it)
-                }else{
-                    Log.d("bugalarme1", "horario NÃO adicionado a lista de alarmes: ${it.horaProxDose} ${it.nomeMedicamento}")
-
                 }
             }else{
                 val dataHoraAtual = calendarHelper.pegarDataHoraAtual(DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0!!))
 
                 if(it.horaProxDose == dataHoraAtual){
-                    val dataHoraAtual = calendarHelper.pegarDataHoraAtual(DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0))
-                    Log.d("bugalarme2", "horario adicionado a lista de alarmes: ${it.horaProxDose}| ${calendarHelper.pegarDataHoraAtual(DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0))}")
                     listaDeAlarmesTocando.add(it)
-                }else{
-                    Log.d("bugalarme1", "horario NÃO adicionado a lista de alarmes: ${it.horaProxDose}| ${calendarHelper.pegarDataHoraAtual(DateFormat.is24HourFormat(context), calendarHelper.pegarFormatoDeDataPadraoDoDispositivoDoUsuario(p0))}")
-
-
                 }
             }
 
         }
-
-
-
-        Log.d("controletoast", "passei pelo metodo de procediemnto do alarme. Quer dizer que eu ja passei pelo on receive")
 
 
 
@@ -110,13 +80,9 @@ class AlarmReceiver: BroadcastReceiver()  {
 
 
 
-        Log.d("inspectinglistadd", "listaDeAlarmesTocando size ${listaDeAlarmesTocando.size}")
-
-
         listaDeAlarmesTocando.forEach {
                 medicamentoNoAlarme->
             val listaDoses = arrayListOf<Doses>()
-            Log.d("inspectinglistadd", "to aqui no primeiro for each")
             //extras from intent
             medicamentoNoAlarme.listaDoses.forEach {
                 dose->
@@ -153,6 +119,7 @@ class AlarmReceiver: BroadcastReceiver()  {
 
 
 
+
                             notificarOFragmentListaDeQueOAlarmeDoMedicamentoEstaTocando(idMedicamento)
 
 
@@ -166,7 +133,8 @@ class AlarmReceiver: BroadcastReceiver()  {
                                 horaDose,
                                 pendingIntent,
                                 idMedicamento,
-                                medicamentoComDoses
+                                medicamentoComDoses,
+                                roomAccess
                             )
 
                             var doseAuxiliar = Doses(idDose = dose.idDose, nomeMedicamento = dose.nomeMedicamento, horarioDose = dose.horarioDose, intervaloEntreDoses = dose.intervaloEntreDoses, dataHora = dose.dataHora, qntDosesPorHorario = dose.qntDosesPorHorario, jaTomouDose = dose.jaTomouDose, jaMostrouToast = true)
@@ -220,7 +188,8 @@ class AlarmReceiver: BroadcastReceiver()  {
         horaDose: String?,
         pi: PendingIntent?,
         idMedicamento: Int?,
-        medicamentoComDoses: MedicamentoComDoses
+        medicamentoComDoses: MedicamentoComDoses,
+        medicamentoDoseDao: RoomAccess
     ) {
 
 
@@ -249,7 +218,20 @@ class AlarmReceiver: BroadcastReceiver()  {
             foregroundIntent.putExtra("medicamentoComDoses", medicamentoComDoses)
             foregroundIntent.action = "PLAY_ALARM"
 
-            p0.startForegroundService(foregroundIntent)
+            val configuracoes = medicamentoDoseDao.pegarConfiguracoes()
+
+            configuracoes?.let {
+                if(it.podeTocarSom){
+                    //if alarm sound is required
+                    //sound service is used
+                    p0.startForegroundService(foregroundIntent)
+                }else{
+                    initNotificationWithoutInitializingForegroundService(foregroundIntent, p0, idMedicamento?:0)
+
+                }
+            }
+
+
         }
 
 
@@ -324,6 +306,20 @@ class AlarmReceiver: BroadcastReceiver()  {
                 AudioManager.STREAM_MUSIC,
                 AudioManager.AUDIOFOCUS_GAIN
             )
+        }
+    }
+
+    private fun initNotificationWithoutInitializingForegroundService(intent: Intent?, context: Context, notificationId: Int) {
+
+        val notification = intent?.getParcelableExtra<Notification>("notification")
+        if (notification != null) {
+           val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.notify(notificationId, notification)
+
+
+
+
+
         }
     }
 
